@@ -5,17 +5,16 @@ using System.Net;
 using System.Diagnostics;
 using System.Security;
 using System.IO;
+using System.Web.Configuration;
 
-namespace DotNetCASClient
-{
+namespace DotNetCASClient {
     /// <summary>
     /// Makes a call to the cas server to verify a proxy ticket and 
     /// returns a user name if succesful or 'failed' if not.
     /// </summary>
-    public class DotNetCASClientProxyValidate
-    {
+    public class DotNetCASClientProxyValidate {
 
-        private String service;
+        private String serviceURL;
         private String casProxyValidationURL;
 
         /// <summary>
@@ -26,7 +25,7 @@ namespace DotNetCASClient
         /// <param name="validationURL">Specifies the URL of the validator within CAS 
         /// 	e.g. https://cas.uwe.ac.uk/cas/proxyValidate</param>
         public DotNetCASClientProxyValidate(String service, String validationURL)  {
-            this.service = service;
+            this.serviceURL = service;
             this.casProxyValidationURL = validationURL;
             try {
 	            if (!EventLog.SourceExists("CasClientC#")){
@@ -49,7 +48,7 @@ namespace DotNetCASClient
         /// <param name="ticket">The proxy or service ticket uses to authorise with CAS</param>
         /// <returns>Either the username passed from CAS or 'failed'</returns>
         public String Authenticate(String ticket) {
-            String url = casProxyValidationURL + "?ticket=" + ticket + "&service=" + service;
+            String url = casProxyValidationURL + "?ticket=" + ticket + "&service=" + serviceURL;
             String result = null;
             try {
             	XmlTextReader reader = new XmlTextReader(url);
@@ -97,7 +96,7 @@ namespace DotNetCASClient
         /// <param name="ticket">The proxy or service ticket uses to authorise with CAS</param>
         /// <returns>The XML from CAS - or null if an exception occurs.</returns>
         public XmlDocument GetCasXML(String ticket){
-        	String url = casProxyValidationURL + "?ticket=" + ticket + "&service=" + service;
+        	String url = casProxyValidationURL + "?ticket=" + ticket + "&service=" + serviceURL;
             XmlDocument xml = null;
             try {
             	xml = new XmlDocument();
@@ -120,6 +119,55 @@ namespace DotNetCASClient
         	
         }
 
+    }
+    
+    public class DotNetCASClientServiceValidate {
+        
+        private String casLoginURL;
+        private String casValidateURL;
+        private String serviceURL;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public DotNetCASClientServiceValidate() {
+            try {
+	            if (!EventLog.SourceExists("CasClientC#")){
+	            	EventLog.CreateEventSource("CasClientC#","Application");
+	            }
+            } catch (SecurityException e) {
+            	Console.WriteLine("Could not search all the Logs for the specified source (CasClientC#): "+ e.Message);
+            } catch (ArgumentException e) {
+            	Console.WriteLine("Invalid Log Name: " + e.Message);
+            } catch (InvalidOperationException e) {
+            	Console.WriteLine("Could not open registry key: " + e.Message);
+            }
+            casLoginURL = WebConfigurationManager.AppSettings["casLoginURL"];
+            casValidateURL = WebConfigurationManager.AppSettings["casValidateURL"];
+            serviceURL = WebConfigurationManager.AppSettings["serviceURL"];
+        }
+        
+       
+        public String Authenticate(HttpRequest request, HttpResponse response){
+            String ticket = request.Params["ticket"];
+            if (ticket == null) {
+                response.Redirect(casLoginURL + "?service=" + serviceURL);
+            } else {
+                DotNetCASClientProxyValidate client = new DotNetCASClientProxyValidate(serviceURL, casValidateURL);
+                String result = client.Authenticate(ticket);
+                if (result.Equals("failed")) {
+                    try {
+                        EventLog.WriteEntry("CasClientC#", "Failed to authenticate based based on the given ticket");
+                    } catch (Exception){
+            		    Console.WriteLine("Failed to log error");
+                    }
+                    //throw exception
+                }
+                return result;
+            }
+           //This code should never be reachable
+           return "";
+        }
     }
 }
 
