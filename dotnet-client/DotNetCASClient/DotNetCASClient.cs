@@ -8,11 +8,24 @@ using System.IO;
 using System.Web.Configuration;
 
 namespace DotNetCASClient {
+    
+    public abstract class LogCASExceptions {
+        protected static void LogException(Exception e, String message) {
+        	try {
+            		EventLog.WriteEntry("CasClientC#", message + e.Message, EventLogEntryType.Error);
+            		EventLog.WriteEntry("CasClientC#", e.Source, EventLogEntryType.Error);
+            } catch (Exception){
+            		Console.WriteLine("Failed to log error");
+            }
+        	
+        }
+    }
+    
     /// <summary>
     /// Makes a call to the cas server to verify a proxy ticket and 
     /// returns a user name if succesful or 'failed' if not.
     /// </summary>
-    public class DotNetCASClientProxyValidate {
+    public class DotNetCASClientProxyValidate : LogCASExceptions{
 
         private String serviceURL;
         private String casProxyValidationURL;
@@ -108,27 +121,22 @@ namespace DotNetCASClient {
             }
             return xml;
         }
-        
-        private void LogException(Exception e, String message) {
-        	try {
-            		EventLog.WriteEntry("CasClientC#", message + e.Message, EventLogEntryType.Error);
-            		EventLog.WriteEntry("CasClientC#", e.Source, EventLogEntryType.Error);
-            } catch (Exception){
-            		Console.WriteLine("Failed to log error");
-            }
-        	
-        }
 
     }
     
-    public class DotNetCASClientServiceValidate {
+    /// <summary>
+    /// Looks for a ticket in the request and uses it to authenticate the user
+    /// or, if there isn't one, redirects to the CAS server based on web-config 
+    /// settings.
+    /// </summary>
+    public class DotNetCASClientServiceValidate : LogCASExceptions{
         
         private String casLoginURL;
         private String casValidateURL;
         private String serviceURL;
         
         /// <summary>
-        /// 
+        /// Initialises a new instance of DotNetCASClientServiceValidate
         /// </summary>
         public DotNetCASClientServiceValidate() {
             try {
@@ -147,21 +155,36 @@ namespace DotNetCASClient {
             serviceURL = WebConfigurationManager.AppSettings["serviceURL"];
         }
         
-       
-        public String Authenticate(HttpRequest request, HttpResponse response){
+       /// <summary>
+       /// Performs simple authentication by either validating a ticket or redirecting
+       /// the user to the CAS server in order to obtain a ticket.
+       /// </summary>
+       /// <param name="request">The HttpRequest which may contain the ticket</param>
+       /// <param name="response">The HttpResponse in case the user needs redrecting</param>
+       /// <param name="needXML">Whether or not to return a username or the XML response from CAS</param>
+       /// <returns></returns>
+        public String Authenticate(HttpRequest request, HttpResponse response, bool needXML){
             String ticket = request.Params["ticket"];
+            String result = "";
             if (ticket == null) {
-                response.Redirect(casLoginURL + "?service=" + serviceURL);
+                try {
+                    response.Redirect(casLoginURL + "?service=" + serviceURL);
+                } catch (HttpException e){
+                    LogException(e, "Failed to redirect the user to the CAS server");
+                }
             } else {
                 DotNetCASClientProxyValidate client = new DotNetCASClientProxyValidate(serviceURL, casValidateURL);
-                String result = client.Authenticate(ticket);
-                if (result.Equals("failed")) {
-                    try {
-                        EventLog.WriteEntry("CasClientC#", "Failed to authenticate based based on the given ticket");
-                    } catch (Exception){
-            		    Console.WriteLine("Failed to log error");
+                if (!needXML) {
+                result = client.Authenticate(ticket);
+                    if (result.Equals("failed")) {
+                        try {
+                            EventLog.WriteEntry("CasClientC#", "Failed to authenticate based based on the given ticket", EventLogEntryType.Error);
+                        } catch (Exception){
+                		    Console.WriteLine("Failed to log error");
+                        }
                     }
-                    //throw exception
+                } else {
+                    result = client.GetCasXML(ticket).InnerXml;
                 }
                 return result;
             }
