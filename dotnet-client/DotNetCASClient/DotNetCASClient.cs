@@ -178,7 +178,7 @@ namespace DotNetCASClient {
                 result = client.Authenticate(ticket);
                     if (result.Equals("failed")) {
                         try {
-                            EventLog.WriteEntry("CasClientC#", "Failed to authenticate based based on the given ticket", EventLogEntryType.Error);
+                            EventLog.WriteEntry("CasClientC#", "Failed to authenticate based based on the given ticket", EventLogEntryType.Warning);
                         } catch (Exception){
                 		    Console.WriteLine("Failed to log error");
                         }
