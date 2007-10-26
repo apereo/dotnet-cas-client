@@ -172,6 +172,7 @@ namespace DotNetCASClient {
                 } catch (HttpException e){
                     LogException(e, "Failed to redirect the user to the CAS server");
                 }
+                return "";
             } else {
                 DotNetCASClientProxyValidate client = new DotNetCASClientProxyValidate(serviceURL, casValidateURL);
                 if (!needXML) {
@@ -188,8 +189,6 @@ namespace DotNetCASClient {
                 }
                 return result;
             }
-           //This code should never be reachable
-           return "";
         }
     }
 }
