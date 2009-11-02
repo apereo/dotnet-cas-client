@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JasigCasClient", "JasigCasClient\JasigCasClient.csproj", "{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleWebApp", "ExampleWebApp\ExampleWebApp.csproj", "{8CDD7266-891D-42A1-BDE7-312EC740982C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{8CE89EF1-2586-4602-AC30-51753D393390}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{AB664070-2775-4311-8D0F-BF76FD20EB3A}"
+	ProjectSection(SolutionItems) = preProject
+		Common.targets = Common.targets
+		MSBuild.Community.Tasks.targets = MSBuild.Community.Tasks.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+EndGlobal

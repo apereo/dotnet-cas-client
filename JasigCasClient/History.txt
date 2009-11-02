@@ -1,0 +1,23 @@
+2009-05-19
+As more functionality is added to this client, recommend that this functionality be added to both the Web Forms Authentication (WFA) and the non-Web Forms Authentication (NWFA) implementations.  So far maintaining both approaches in a very modular form has not been too difficult.  Most of the functionality of the client is in classes used by both.  This will allow continued evaluation of the two approaches.
+
+
+2009-05-20
+Code checked in that includes two changes -- making the CAS response assertion information available in Context.User and a first attempt at single sign out functionality.  
+
+Current implementation includes use of a session attribute to maintain the assertions across requests.  Authentication is forced to fail now, even for a valid Forms Authentication Ticket (FAT) in the WFA implementation, if this session attribute is not present so that a redirect to CAS login is performed to obtain the information again.  One scenario for this would be session expiration.  This might not be that big a deal, especially if the CAS ticket granting ticket expiration is configured in such a way that the user typically does not have to enter credentials again.
+
+Session storage is used because (1) the session is specific to the one user and browser as is the data being stored, (2) session storage has the potential to be available across servers in a web farm, and (3) there didn't seem to be a good key to use to store the information in the application cache.  (Note: that the application cache is specific to an app domain so that use of this cache probably will need some type of synchronization across app domains of the web application.)
+
+This first attempt at single sign out functionality is very similar to that of the Jasig Java client.  A static Dictionary is used to store the information needed to process a logoutRequest received from the CAS server (currently a mapping from the ticket to the session object).  This implementation, as with the Java implementation, often will not work in a web farm (load balancing) deployment of the web application. The load balancing configuration would need to ensure that the user session always uses the same web server and that the CAS server logoutRequest also goes to this server.  Another issue is the use of the session end event in global.asax as part of the single sign out storage cleanup, needed if CAS logout is not executed.  A solution that does not require modification of global.asax is preferrable.  Also, this event does not fire unless InProc session configuration is being used.
+
+To solve the single sign out "web farm" issue, some type of backing storage option is needed.  Working on a design that uses the application cache with a key value of the CAS ticket, along with functionality to synchronize the cache across servers deployed for the web application.  This approach has the potential to remove the dependence of FAT authentication on the current session.  By using the cache sliding expiration feature, this approach should also remove the need to modify global.asax.
+
+2009-05-22
+Fixed access to public pages, which was broken (required authentication) by the 2009-05-20 checkin.  The code was not distinguishing between public and secure pages when deciding that a redirect to CAS login was needed for the purpose of obtaining the assertion data again, typically when the a session time-out occurred.  If authentication based on the FAT occurs, then the AcquireRequestState event will fire and receive the JaSig Generic Principal.  This is the flow for both public and secure pages, once a valid FAT is available.  If no IPrincipal is available in the session, a redirect is needed to CAS login for secure pages but not for public pages, but there does not seem to be a way to make this distinction at this point.  (Also, testing seems to indicate that Forms Authentication is an 'is validated' state and this can not be changed at this point in the Forms Authentication processing flow, at least not by attempts such as setting Context.User to null here.) The solution implemented here is to remove the FAT cookie via FormsAuthentication.SignOut and then redirect to the original URL.  The request received after the redirect has no valid FAT, which will force the redirect to CAS login for a secure page but not a public page.
+
+2009-05-25
+Minimal CAS 2.0 support was added -- just the base serviceValidate without any proxy support.
+
+2009-05-28
+Updated parsing of the Saml 1.1 response to include a version that does not depend on .Net 3.0 and above classes.  The desired parsing option is selected by setting a compile directive 'DOT_NET_2' or 'DOT_NET_3' for the project.  The default is 'DOT_NET_2'.
