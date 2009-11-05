@@ -49,7 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JasigCasClient\JasigCasClient.csproj">
+    <ProjectReference Include="..\DotNetCasClient\DotNetCasClient.csproj">
       <Project>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</Project>
       <Name>JasigCasClient</Name>
     </ProjectReference>
