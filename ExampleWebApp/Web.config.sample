@@ -57,7 +57,7 @@
     serverName="https://localhost"
     secureUriRegex="(?i)/(Example|DotNetCasClient)/secure/.*"
     secureUriExceptionRegex="(?i)/.*\.axd"
-    casServerUrlPrefix="https://cas.example.com/cas/login"
+    casServerUrlPrefix="https://cas.example.com/cas/"
     redirectAfterValidation="true"
     useSession="true"
     gateway="false"    
