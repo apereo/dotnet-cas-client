@@ -61,7 +61,6 @@
     <Content Include="login.aspx" />
     <Content Include="secure\default.aspx" />
     <Content Include="secure\getproxytickets.aspx" />
-    <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="default.aspx.cs">
@@ -122,6 +121,9 @@
     <Content Include="Log4Net.config" />
     <Content Include="nonsecure\withAjax.aspx" />
     <Content Include="secure\secureWithAjax.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web.config.sample" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

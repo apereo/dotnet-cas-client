@@ -3,7 +3,9 @@
 <!--
 ############################################################
 # NOTE:
-# Configure CAS configuration sections 1, 2, 3, 4, 5
+# Use this file as a template to create a Web.config file
+# suitable for your environment.  The following numbered
+# sections need to be edited/reviewed:  1, 2, 3, 4, 5.
 ############################################################
 -->
 
