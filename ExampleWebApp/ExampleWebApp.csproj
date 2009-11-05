@@ -121,6 +121,7 @@
     <Content Include="Log4Net.config" />
     <Content Include="nonsecure\withAjax.aspx" />
     <Content Include="secure\secureWithAjax.aspx" />
+    <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web.config.sample" />
