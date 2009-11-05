@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.SessionState;
 
-namespace JasigCasClient.Session
+namespace DotNetCasClient.Session
 {
   /// <summary>
   /// Contract for storage of Http sessions keyed by a server-supplied value and

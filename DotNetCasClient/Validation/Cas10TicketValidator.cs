@@ -4,11 +4,11 @@ using System.IO;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
-using JasigCasClient.Authentication;
-using JasigCasClient.Configuration;
-using JasigCasClient.Security;
+using DotNetCasClient.Authentication;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Security;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
   /// <summary>
   /// CAS 1.0 Ticket Validator

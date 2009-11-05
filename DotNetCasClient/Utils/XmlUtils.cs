@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml;
 using log4net;
 
-namespace JasigCasClient.Utils
+namespace DotNetCasClient.Utils
 {
   /// <summary>
   /// Utility methods for parsing XML.

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using JasigCasClient.Proxy;
-using JasigCasClient.Utils;
+using DotNetCasClient.Proxy;
+using DotNetCasClient.Utils;
 using log4net;
 
-namespace JasigCasClient.Security
+namespace DotNetCasClient.Security
 {
     /// <summary>
     /// Implementation of ICasPrincipal.

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using JasigCasClient.Authentication;
+using DotNetCasClient.Authentication;
 
-namespace JasigCasClient.Security
+namespace DotNetCasClient.Security
 {
     /// <summary>
     /// Represents a CAS response to a validation request.

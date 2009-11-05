@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.SessionState;
-using JasigCasClient.Session;
+using DotNetCasClient.Session;
 
-namespace JasigCasClient.Authentication
+namespace DotNetCasClient.Authentication
 {
   public sealed class SessionAttrGatewayResolver : IGatewayResolver
   {

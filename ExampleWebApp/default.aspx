@@ -1,9 +1,9 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="default.aspx.cs" 
     Inherits="CasDotNetExampleWebapp._Default" %>
 
-<%@ Import Namespace="JasigCasClient.Utils" %>
-<%@ Import Namespace="JasigCasClient.Security" %>
-<%@ Import Namespace="JasigCasClient.Session" %>
+<%@ Import Namespace="DotNetCasClient.Utils" %>
+<%@ Import Namespace="DotNetCasClient.Security" %>
+<%@ Import Namespace="DotNetCasClient.Session" %>
 <%@ Import Namespace="System.Security.Principal" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -15,7 +15,7 @@
   <body>
     <h1>Public Resource</h1>
     <h2>-- Basic --</h2>
-    <p>Test application for .Net JasigCasClient</p>
+    <p>Test application for .Net DotNetCasClient</p>
     <form id="form1" runat="server">
       <div>
         <ul>

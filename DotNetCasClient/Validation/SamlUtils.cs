@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Xml;
-using JasigCasClient.Utils;
+using DotNetCasClient.Utils;
 using log4net;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
   /// <summary>
   /// Utility methods for processing SAML entities, such as the Assertion in a

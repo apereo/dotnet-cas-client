@@ -5,15 +5,15 @@ using System.Web.Caching;
 using System.Web.Configuration;
 using System.Web.Security;
 using System.Security.Principal;
-using JasigCasClient.Configuration;
-using JasigCasClient.Utils;
-using JasigCasClient.Security;
-using JasigCasClient.Session;
-using JasigCasClient.Validation;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Utils;
+using DotNetCasClient.Security;
+using DotNetCasClient.Session;
+using DotNetCasClient.Validation;
 using System.Web.SessionState;
 using log4net;
 
-namespace JasigCasClient
+namespace DotNetCasClient
 {
   /// <summary>
   /// HttpModule implementation to intercept requests and perform authentication via CAS.

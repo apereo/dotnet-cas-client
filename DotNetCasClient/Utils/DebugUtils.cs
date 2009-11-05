@@ -8,10 +8,10 @@ using System.Web.Configuration;
 using System.Web.Security;
 using System.Web.SessionState;
 using log4net;
-using JasigCasClient.Security;
-using JasigCasClient.Session;
+using DotNetCasClient.Security;
+using DotNetCasClient.Session;
 
-namespace JasigCasClient.Utils
+namespace DotNetCasClient.Utils
 {
   public sealed class DebugUtils
   {

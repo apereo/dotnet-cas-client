@@ -1,9 +1,9 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="secureWithAjax.aspx.cs" 
     Inherits="CasDotNetExampleWebapp.secure.secureWithAjax" %>
 
-<%@ Import Namespace="JasigCasClient.Utils" %>
-<%@ Import Namespace="JasigCasClient.Security" %>
-<%@ Import Namespace="JasigCasClient.Session" %>
+<%@ Import Namespace="DotNetCasClient.Utils" %>
+<%@ Import Namespace="DotNetCasClient.Security" %>
+<%@ Import Namespace="DotNetCasClient.Session" %>
 <%@ Import Namespace="System.Security.Principal" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

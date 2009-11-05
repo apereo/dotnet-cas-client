@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
 
-namespace JasigCasClient.Configuration
+namespace DotNetCasClient.Configuration
 {
   /// <summary>
   /// CAS specific ConfigurationSection for Web.config.

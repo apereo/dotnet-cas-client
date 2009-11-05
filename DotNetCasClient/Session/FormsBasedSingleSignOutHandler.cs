@@ -4,11 +4,11 @@ using System.Web;
 using System.Web.Caching;
 using System.Web.Security;
 using System.Web.SessionState;
-using JasigCasClient.Configuration;
-using JasigCasClient.Utils;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Utils;
 using log4net;
 
-namespace JasigCasClient.Session
+namespace DotNetCasClient.Session
 {
   /// <summary>
   /// Provides CAS single sign out functionality for an implementation using

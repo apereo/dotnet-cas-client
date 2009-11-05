@@ -5,10 +5,10 @@ using System.IdentityModel.Selectors;
 using System.IdentityModel.Tokens;
 using System.Xml;
 using log4net;
-using JasigCasClient.Security;
-using JasigCasClient.Utils;
+using DotNetCasClient.Security;
+using DotNetCasClient.Utils;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
 #if DOT_NET_3
   /// <summary>

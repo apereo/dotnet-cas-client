@@ -5,7 +5,7 @@ using System.Text;
 using System.Web;
 
 
-namespace JasigCasClient.Authentication
+namespace DotNetCasClient.Authentication
 {
   /// <summary>
   /// Contract for a gateway resolver that will maintain gateway status and answer queries

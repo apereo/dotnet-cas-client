@@ -5,13 +5,13 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
-using JasigCasClient.Authentication;
-using JasigCasClient.Configuration;
-using JasigCasClient.Security;
-using JasigCasClient.Utils;
+using DotNetCasClient.Authentication;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Security;
+using DotNetCasClient.Utils;
 using log4net;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
   /// <summary>
   /// Abstract validator implementation for tickets that are validated against an Http server.

@@ -7,12 +7,12 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Configuration;
 using log4net;
-using JasigCasClient.Authentication;
-using JasigCasClient.Configuration;
-using JasigCasClient.Session;
-using JasigCasClient.Validation;
+using DotNetCasClient.Authentication;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Session;
+using DotNetCasClient.Validation;
 
-namespace JasigCasClient.Utils
+namespace DotNetCasClient.Utils
 {
   // <summary>
   /// Base class for all CAS HttpModules

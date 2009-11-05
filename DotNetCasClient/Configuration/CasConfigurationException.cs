@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JasigCasClient.Configuration
+namespace DotNetCasClient.Configuration
 {
     /// <summary>
     /// Generic exception to be thrown when Cas Client configuration fails.

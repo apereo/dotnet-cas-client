@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace JasigCasClient.Proxy
+namespace DotNetCasClient.Proxy
 {
     /// <summary>
     /// Interface to abstract the retrieval of a proxy ticket to make the

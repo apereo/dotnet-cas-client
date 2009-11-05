@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Principal;
 
-namespace JasigCasClient.Security
+namespace DotNetCasClient.Security
 {
     /// <summary>
     /// Extension to the standard .Net IPrincipal that includes access to the

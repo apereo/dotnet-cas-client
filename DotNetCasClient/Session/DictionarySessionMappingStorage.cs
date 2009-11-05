@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.SessionState;
-using JasigCasClient.Utils;
+using DotNetCasClient.Utils;
 using log4net;
 
-namespace JasigCasClient.Session
+namespace DotNetCasClient.Session
 {
   /// <summary>
   /// Stores Http sessions using a CAS-server supplied key and maintains a mapping

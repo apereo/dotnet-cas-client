@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
-using JasigCasClient.Utils;
+using DotNetCasClient.Utils;
 using log4net;
 
 namespace ExampleWebApp
@@ -17,7 +17,7 @@ namespace ExampleWebApp
     /// The configuration of log4net is done here, rather than waiting for it
     /// to be executed when the first logging call is made, so that the web
     /// application is in control of the configuration.  This seems to be
-    /// needed to have the logging available in the JasigCasClient without
+    /// needed to have the logging available in the DotNetCasClient without
     /// requiring any log4net configuration in the client itself.
     /// </summary>
     /// <param name="sender"></param>

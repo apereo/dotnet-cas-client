@@ -8,15 +8,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.SessionState;
-using JasigCasClient.Authentication;
-using JasigCasClient.Configuration;
-using JasigCasClient.Security;
-using JasigCasClient.Session;
-using JasigCasClient.Utils;
-using JasigCasClient.Validation;
+using DotNetCasClient.Authentication;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Security;
+using DotNetCasClient.Session;
+using DotNetCasClient.Utils;
+using DotNetCasClient.Validation;
 using log4net;
 
-namespace JasigCasClient
+namespace DotNetCasClient
 {
   /// <summary>
   /// HttpModule implementation to intercept requests and perform authentication via CAS.

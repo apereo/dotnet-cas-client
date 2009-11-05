@@ -5,12 +5,12 @@ using System.Net;
 using System.Net.Cache;
 using System.Security.Principal;
 using System.Text;
-using JasigCasClient.Authentication;
-using JasigCasClient.Configuration;
-using JasigCasClient.Security;
-using JasigCasClient.Utils;
+using DotNetCasClient.Authentication;
+using DotNetCasClient.Configuration;
+using DotNetCasClient.Security;
+using DotNetCasClient.Utils;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
   /// <summary>
   /// SAML 1.1 Ticket Validator

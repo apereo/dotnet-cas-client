@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Web.Security;
-using JasigCasClient.Session;
+using DotNetCasClient.Session;
 using log4net;
 
-namespace JasigCasClient.Utils
+namespace DotNetCasClient.Utils
 {
   /// <summary>
   /// Utility methods for the Jasig CAS Client.

@@ -1,7 +1,7 @@
 ﻿using System;
-using JasigCasClient.Security;
+using DotNetCasClient.Security;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
     /// <summary>
     /// Contract for a validator that will confirm the validity of a supplied ticket.

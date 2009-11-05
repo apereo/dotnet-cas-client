@@ -2,10 +2,10 @@
 using System.Security.Principal;
 using System.Web;
 using System.Web.SessionState;
-using JasigCasClient.Security;
+using DotNetCasClient.Security;
 using log4net;
 
-namespace JasigCasClient.Session
+namespace DotNetCasClient.Session
 {
   /// <summary>
   /// Utility methods for session state maintenance for the Jasig CAS Client.

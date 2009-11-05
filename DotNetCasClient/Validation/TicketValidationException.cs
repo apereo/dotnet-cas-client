@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JasigCasClient.Validation
+namespace DotNetCasClient.Validation
 {
     /// <summary>
     /// Generic exception to be thrown when ticket validation fails.
