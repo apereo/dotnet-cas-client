@@ -5,7 +5,7 @@
 # NOTE:
 # Use this file as a template to create a Web.config file
 # suitable for your environment.  The following numbered
-# sections need to be edited/reviewed:  1, 2, 3, 4, 5.
+# sections need to be edited/reviewed:  1, 2, and 3.
 ############################################################
 -->
 
@@ -28,34 +28,47 @@
   <appSettings/>
   <connectionStrings/>
 
-  <!-- CAS Config #1 Begin -->
-  <!-- example minimal CasClientConfig-->
   <!--
-  <casClientConfig casServerLoginUrl="https://cas.example.com/cas/login"
-                      serverName="http://cas.example.com"
-                      casServerUrlPrefix="https://cas.example.com/cas"
-                      ticketValidatorName="Cas20" />
-  -->
-  <!-- for CAS 1.0
-    ticketValidatorName="Cas10"
-    artifactParameterNameValidation="ticket"
-    serviceParameterNameValidation="service"
-  -->
-  <!-- for CAS 2.0
-    ticketValidatorName="Cas20"
-    artifactParameterNameValidation="ticket"
-    serviceParameterNameValidation="service"
-  -->  
-  <!-- for SAML 1.1
-    ticketValidatorName="Saml11"
-    ticketTimeTolerance="1000"
-    artifactParameterNameValidation="SAMLart"
-    serviceParameterNameValidation="TARGET"
+    ======================
+    CAS Config #1
+    ======================
+    Configure basic CAS client properties.
+    
+    Required Attributes:
+    casServerLoginUrl   - URL of CAS login form.
+    serverName          - Name of server hosting this application.
+    casServerUrlPrefix  - URL to root of CAS server application.
+    ticketValidatorName - Name of ticket validator that validates CAS tickets using a particular protocol.
+                          Valid values are Cas10, Cas20, and Saml11.
+    
+    Optional Attributes:
+    secureUriRegex          - Regular expression describing URIs to be protected by CAS authentication.
+                              Default is .* to protect all application resources with CAS.
+    secureUriExceptionRegex - Regular expression describing URIs to be specifically excluded from CAS auth.
+                              This feature originated to easily exclude resources used by .NET AJAX controls.
+                              The value in the following example illustrates how to ignore the resource used
+                              to bootstrap AJAX controls.
+    redirectAfterValidation - Whether to redirect to the same URL after ticket validation, but without the
+                              ticket in the parameter.  Default is false.
+    useSession              - Use session to store CAS authenticated state and principal/attribute info.
+                              Default is true.
+    gateway                 - Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
+                              Default is false.
+    renew                   - Force user to reauthenticate to CAS before accessing this application.
+                              This provides additional security at the cost of usability since it effectively
+                              disables SSO for this application.  Default is false.
+    singleSignOut           - Enables this application to receive CAS single sign-out messages sent when the
+                              user's SSO session ends.  This will cause the user's session in this application
+                              to be destroyed.  Default is false.
+    ticketTimeTolerance     - SAML ticket validator property to allow at most the given time difference in ms
+                              between artifact (ticket) timestamp and CAS server system time.  Increasing this
+                              may have negative security consequences; we recommend fixing sources of clock drift
+                              rather than increasing this value.
   -->
   <casClientConfig
     casServerLoginUrl="https://cas.example.com/cas/login"
     serverName="https://localhost"
-    secureUriRegex="(?i)/(Example|DotNetCasClient)/secure/.*"
+    secureUriRegex="(?i)/ExampleWebApp/secure/.*"
     secureUriExceptionRegex="(?i)/.*\.axd"
     casServerUrlPrefix="https://cas.example.com/cas/"
     redirectAfterValidation="true"
@@ -64,23 +77,12 @@
     renew="false"    
     ticketValidatorName="Saml11"
     ticketTimeTolerance="5000"    
-    artifactParameterNameValidation="SAMLart"
-    serviceParameterNameValidation="TARGET"
     singleSignOut="true"    
   />
-  <!-- CAS Config #1 - End -->
 
 
   <system.web>
-    <sessionState
-      timeout="10"
-    />
-    <!-- 
-            Set compilation debug="true" to insert debugging 
-            symbols into the compiled page. Because this 
-            affects performance, set this value to true only 
-            during development.
-        -->
+    <sessionState timeout="10" />
 		<compilation debug="true">
 			<assemblies>
 				<add assembly="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
@@ -90,88 +92,78 @@
 			</assemblies>
 		</compilation>
 
-    <!-- CAS Config #2 - Begin -->
     <!--
-            The <authentication> section enables configuration 
-            of the security authentication mode used by 
-            ASP.NET to identify an incoming user. 
-    -->
-    <!-- for Windows Forms Auththentication approach -->
-          <!-- note: The default behavior of a forms authentication-based
-             .NET application is to log the user out after 30 minutes
-             You can change this behavior by adding a timeout="nn" parameter
-             within the <forms> tag, where "nn" is the number. -->
-    <!-- for CAS using WFA, uncomment and customize the following
+      ======================
+      CAS Config #2
+      ======================
+      Configure the authentication method used by the application.
+      There are two basic approaches:
+        1. Windows Forms Authentication (WFA)
+        2. non-WFA
+      Use WFA if you specifically need/want the features of that authentication model,
+      otherwise use the simpler non-WFA approach.
+      
+      Set mode="Forms" for WFA and provide the URL to the CAS login form:
       <authentication mode="Forms">   
-        <forms loginUrl ="https://cas-dev.middleware.vt.edu/cas-server/login"
+        <forms loginUrl ="https://cas.example.com/cas/login"
                timeout="10"/>
       </authentication>
+     
+      For non-WFA, use mode="None"
     -->
-    <!-- forms loginUrl ="https://dev-l3-d0874.princeton.edu:8443/cas/login"/ -->
+    <authentication mode="None"/>
 
-    <!-- for CAS non-WFA approach, uncomment the following -->
-      <authentication mode="None"/>
-    <!-- -->
-    <!-- CAS Config #2 - End -->
-
-    <!-- CAS Config #3 - Begin -->
-    <!-- default to allow access to all, override as needed with location element -->
-    <!-- used in the WFA approach  and can exist (ignored) for the non-WFA approach -->
+    <!-- The following is only used when using WFA authentication. -->
     <authorization>
       <allow users="*" />
     </authorization>
-    <!-- CAS Config #3 - End -->
 
-
-    <!--
-            The <customErrors> section enables configuration 
-            of what to do if/when an unhandled error occurs 
-            during the execution of a request. Specifically, 
-            it enables developers to configure html error pages 
-            to be displayed in place of a error stack trace.
-
-        <customErrors mode="RemoteOnly" defaultRedirect="GenericErrorPage.htm">
-            <error statusCode="403" redirect="NoAccess.htm" />
-            <error statusCode="404" redirect="FileNotFound.htm" />
-        </customErrors>
-        -->
 		<pages>
 			<controls>
 				<add tagPrefix="asp" namespace="System.Web.UI" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
 				<add tagPrefix="asp" namespace="System.Web.UI.WebControls" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
 			</controls>
 		</pages>
+
 		<httpHandlers>
 			<remove verb="*" path="*.asmx"/>
 			<add verb="*" path="*.asmx" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
 			<add verb="*" path="*_AppService.axd" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
 			<add verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" validate="false"/>
 		</httpHandlers>
-    <!-- CAS Config #4 - Begin -->
-    <!-- select CASAuthenticationModule for CAS WFA, CasAlternateAuthModule for CAS non-WFA -->
+
+    <!--
+    ======================
+    CAS Config #3
+    ======================
+    Choose a CAS authentication module.
+    
+    The authentication module determines the authentication method, discussed in #2 above,
+    and must match the configuration specified in that section.  The two available authentication
+    modules:
+      1. CASAuthenticationModule - WFA
+      2. CasAlternateAuthModule - non-WFA
+    -->
 		<httpModules>
       <remove name="FormsAuthentication"/>
       <remove name="WindowsAuthentication"/>
       <remove name="PassportAuthentication"/>
-      <!-- add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient"/ -->
       <add name="DotNetCasClient" type="DotNetCasClient.CasAlternateAuthModule,DotNetCasClient"/>
       <add name="ScriptModule" type="System.Web.Handlers.ScriptModule, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
     </httpModules>
-    <!-- CAS Config #4 - End -->
   </system.web>
 
-  <!-- CAS Config #5 - Begin -->
-  <!-- Authorization setup -->
-  <!-- for CAS using WFA, uncomment and customize the following
-    <location path="secure">
-      <system.web>
-        <authorization>
-          <deny users="?" />
-        </authorization>
-      </system.web>
-    </location>
+
+  <!-- Customize the following if using WFA. -->
+  <!--
+  <location path="secure">
+    <system.web>
+      <authorization>
+        <deny users="?" />
+      </authorization>
+    </system.web>
+  </location>
   -->
-  <!-- CAS Config #5 - End -->
 
 
   <system.codedom>
