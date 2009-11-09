@@ -20,7 +20,8 @@ namespace DotNetCasClient.Validation
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>Catherine D. Winfrey (.Net)</author>
-  class Cas20ServiceTicketValidator : AbstractUrlTicketValidator
+  /// <author>Marvin S. Addison</author>
+  class Cas20ServiceTicketValidator : AbstractCasProtocolValidator
   {
     private const string XML_USER_ELEMENT_NAME = "cas:user";
     private const string XML_AUTHENTICATION_FAILURE_ELEMENT_NAME = "cas:authenticationFailure";

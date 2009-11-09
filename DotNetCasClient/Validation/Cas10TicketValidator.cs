@@ -18,7 +18,8 @@ namespace DotNetCasClient.Validation
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>William G. Thompson, Jr. (.Net)</author>
-  class Cas10TicketValidator : AbstractUrlTicketValidator
+  /// <author>Marvin S. Addison</author>
+  class Cas10TicketValidator : AbstractCasProtocolValidator
   {
     /// <summary>
     /// Constructs an ITicketValidator, initializing it with the supplied

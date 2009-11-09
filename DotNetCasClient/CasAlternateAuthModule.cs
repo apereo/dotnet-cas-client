@@ -243,7 +243,7 @@ namespace DotNetCasClient
       HttpRequest request = application.Request;
       HttpResponse response = application.Response;
       HttpSessionState session = SessionUtils.GetSession();
-      string ticket = request.QueryString[this.ArtifactParameterName];
+      string ticket = request.QueryString[this.ticketValidator.ArtifactParameterName];
       ICasPrincipal sessionPrincipal = SessionUtils.GetCasPrincipal(session);
       if (log.IsDebugEnabled) {
         log.Debug(string.Format("{0}:ticket=>{1}<", CommonUtils.MethodName, ticket));
@@ -308,7 +308,7 @@ namespace DotNetCasClient
       HttpRequest request = application.Request;
       HttpResponse response = application.Response;
       HttpSessionState session = SessionUtils.GetSession();
-      string ticket = request.QueryString[this.ArtifactParameterName];
+      string ticket = request.QueryString[this.ticketValidator.ArtifactParameterName];
       if (log.IsDebugEnabled) {
         log.Debug(string.Format("{0}:ticket=>{1}<", CommonUtils.MethodName, ticket));
       }

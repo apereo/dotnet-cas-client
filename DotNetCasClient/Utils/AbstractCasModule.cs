@@ -28,16 +28,6 @@ namespace DotNetCasClient.Utils
    
     #region Properties
     /// <summary>
-    /// The name of the request parameter whose value is the artifact (e.g. "ticket").
-    /// </summary>
-    protected string ArtifactParameterName { get; private set; }
-    
-    /// <summary>
-    /// The name of the request parameter whose value is the service (e.g. "service")
-    /// </summary>
-    protected string ServiceParameterName { get; private set; }
-
-    /// <summary>
     /// Whether to encode the session ID into the Service URL.
     /// constructed.
     /// </summary>
@@ -94,9 +84,9 @@ namespace DotNetCasClient.Utils
     internal IGatewayResolver gatewayResolver;
 
     /// <summary>
-    /// The ITicketValidator to be used for ticket validation.
+    /// The AbstractUrlTicketValidator to be used for ticket validation.
     /// </summary>
-    internal ITicketValidator ticketValidator;
+    internal AbstractUrlTicketValidator ticketValidator;
 
     /// <summary>
     /// The SingleOutHandler to be used for sign out, including CAS server
@@ -134,55 +124,25 @@ namespace DotNetCasClient.Utils
     private void InitCommonBase(HttpApplication application)
     {
       this.ServerName = this.config.ServerName;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded ServerName property: {1}",
-          CommonUtils.MethodName, this.ServerName));
-      }
+      log.Info("Set ServerName property: " + this.ServerName);
 
       this.Service = this.config.Service;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded Service property: {1}",
-          CommonUtils.MethodName, this.Service));
-      }
+      log.Info("Set Service property: " + this.Service);
 
-      this.ArtifactParameterName = this.config.ArtifaceParameterName;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded ArtifactParameterName property: {1}",
-          CommonUtils.MethodName, this.ArtifactParameterName));
-      }
-
-      this.ServiceParameterName = this.config.ServiceParameterName;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded ServiceParameterName property: {1}",
-          CommonUtils.MethodName, this.ServiceParameterName));
-      }
-
-      this.EncodeServiceUrl = this.config.EncodeServiceUrl;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded EncodeServiceUrl property: {1}",
-          CommonUtils.MethodName, this.EncodeServiceUrl));
-      }
-      if (this.EncodeServiceUrl) {
+      if (this.config.EncodeServiceUrl)
+      {
         throw new CasConfigurationException(
           string.Format("Encode URL with session ID functionality not yet implemented."));
       }
+      this.EncodeServiceUrl = this.config.EncodeServiceUrl;
+      log.Info("Set EncodeServiceUrl property: " + this.EncodeServiceUrl);
 
       this.Renew = this.config.Renew;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded Renew property: {1}",
-          CommonUtils.MethodName, this.Renew));
-      }
+      log.Info("Set Renew property: " + this.Renew);
 
       this.SingleSignOut = this.config.SingleSignOut;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded SingleSignOut property: {1}",
-          CommonUtils.MethodName, this.SingleSignOut));
-      }
+      log.Info("Set SingleSignOut property: " + this.SingleSignOut);
 
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.ArtifactParameterName),
-                  CasClientConfiguration.ARTIFACT_PARAMETER_NAME + " cannot be null or empty.");
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.ServiceParameterName),
-                  CasClientConfiguration.SERVICE_PARAMETER_NAME + " cannot be null or empty.");
       CommonUtils.AssertTrue( !String.IsNullOrEmpty(this.ServerName) ||
                               !String.IsNullOrEmpty(this.Service),
                               string.Format("Either {0} or {1} must be set.",
@@ -200,27 +160,20 @@ namespace DotNetCasClient.Utils
     /// <param name="application">the application context</param>
     private void InitInternalAuthenticationBase(HttpApplication application)
     {
+      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.config.CasServerLoginUrl),
+                  CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
       this.CasServerLoginUrl = this.config.CasServerLoginUrl;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded CasServerLoginUrl property: {1}",
-          CommonUtils.MethodName, this.CasServerLoginUrl));
-      }
+      log.Info("Set CasServerLoginUrl property: " + this.CasServerLoginUrl);
       
-      this.Gateway = this.config.Gateway;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded Gateway property: {1}",
-          CommonUtils.MethodName, this.Gateway));
-      }
-      if (this.Gateway && this.Renew) {
+      if (this.config.Gateway && this.Renew) {
         throw new CasConfigurationException(
           string.Format("Gateway and renew functionalities are mutually exclusive"));
       }
+      this.Gateway = this.config.Gateway;
+      log.Info("Set Gateway property: " + this.Gateway);
       if (this.Gateway) {
         this.gatewayResolver = new SessionAttrGatewayResolver();
       }
-
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.CasServerLoginUrl),
-                  CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
     }
 
    
@@ -235,16 +188,10 @@ namespace DotNetCasClient.Utils
     private void InitInternalValidationBase(HttpApplication application)
     {
       this.RedirectAfterValidation = this.config.RedirectAfterValidation;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded RedirectAfterValidation property: {1}",
-          CommonUtils.MethodName, this.RedirectAfterValidation));
-      }
-      string ticketValidatorName = this.config.TicketValidatorName;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded TicketValidatorName property: {1}",
-          CommonUtils.MethodName, ticketValidatorName));
-      }
-      switch(ticketValidatorName) {
+      log.Info("Set RedirectAfterValidation property: " + this.RedirectAfterValidation);
+      
+      switch (this.config.TicketValidatorName)
+      {
         case CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME:
           this.ticketValidator = new Cas10TicketValidator(this.config);
           break;
@@ -255,10 +202,9 @@ namespace DotNetCasClient.Utils
           this.ticketValidator = new Saml11TicketValidator(this.config);
           break;
         default:
-          throw new CasConfigurationException(
-            string.Format("Ticket validator unknown: {0}", 
-                          ticketValidatorName));
+          throw new CasConfigurationException("Unknown ticket validator " + this.config.TicketValidatorName);
       }
+      log.Info("Set ticket validator: " + this.ticketValidator.GetType().Name);
     }
 
 
@@ -300,7 +246,7 @@ namespace DotNetCasClient.Utils
       StringBuilder queryBuffer = new StringBuilder();
       if (request.QueryString.Count > 0) {
         string queryString = request.Url.Query;
-        int indexOfTicket = queryString.IndexOf(this.ArtifactParameterName + "=");
+        int indexOfTicket = queryString.IndexOf(this.ticketValidator.ArtifactParameterName + "=");
         int indexAfterTicket = queryString.Length;
         if (indexOfTicket == -1) {
           // No ticket parameter so keep QueryString as is
@@ -347,7 +293,7 @@ namespace DotNetCasClient.Utils
       Uri serviceUri = this.ConstructServiceUri(request);
       string redirectToUrl = string.Format("{0}?{1}={2}{3}{4}",
         casServerLoginUrl,
-        this.ServiceParameterName,
+        this.ticketValidator.ServiceParameterName,
         HttpUtility.UrlEncode(serviceUri.ToString(), Encoding.UTF8),
         (this.Renew ? "&renew=true" : ""),
         (this.gatewayResolver != null ?  "&gateway=true" : ""));

@@ -20,14 +20,28 @@ namespace DotNetCasClient.Validation
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>Catherine D. Winfrey (.Net)</author>
+  /// <author>Marvin S. Addison</author>
   class Saml11TicketValidator : AbstractUrlTicketValidator
   {
+    private const string DEFAULT_ARTIFACT = "SAMLart";
+    private const string DEFAULT_SERVICE = "TARGET";
+
     #region Properties
     /// <summary>
     /// Tolerance milliseconds for checking the current time against the SAML Assertion
     /// valid times.
     /// </summary>
     protected long TicketTimeTolerance { get; private set; }
+
+    protected override string DefaultArtifactParameterName
+    {
+      get { return DEFAULT_ARTIFACT; }
+    }
+  
+    protected override string DefaultServiceParameterName
+    {
+    	get { return DEFAULT_SERVICE; }
+    }
     #endregion
 
     /// <summary>
@@ -38,14 +52,10 @@ namespace DotNetCasClient.Validation
     /// ConfigurationManager to be used to obtain the settings needed by this
     /// ticket validator
     /// </param>
-    public Saml11TicketValidator(CasClientConfiguration config)
-      : base(config)
+    public Saml11TicketValidator(CasClientConfiguration config) : base(config)
     {
       this.TicketTimeTolerance = config.TicketTimeTolerance;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded TicketTimeTolerance property: {1}",
-          CommonUtils.MethodName, this.TicketTimeTolerance));
-      }
+      log.Info("Set TicketTimeTolerance property: " + this.TicketTimeTolerance);
     }
 
     /// <summary>

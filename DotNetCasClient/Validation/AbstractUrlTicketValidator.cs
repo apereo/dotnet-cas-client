@@ -21,6 +21,7 @@ namespace DotNetCasClient.Validation
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>William G. Thompson, Jr. (.Net)</author>
+  /// <author>Marvin S. Addison</author>
   abstract class AbstractUrlTicketValidator : ITicketValidator
   {
     /// <summary>
@@ -39,12 +40,22 @@ namespace DotNetCasClient.Validation
     /// <summary>
     /// The name of the request parameter whose value is the artifact (e.g. "ticket").
     /// </summary>
-    protected string ArtifactParameterName { get; private set; }
+    protected internal string ArtifactParameterName { get; private set; }
+
+    /// <summary>
+    /// Default artifact parameter name for this protocol.
+    /// </summary>
+    protected abstract string DefaultArtifactParameterName { get; }
     
     /// <summary>
     /// The name of the request parameter whose value is the service (e.g. "service")
     /// </summary>
-    protected string ServiceParameterName { get; private set; }
+    protected internal string ServiceParameterName { get; private set; }
+
+    /// <summary>
+    /// Default service parameter name for this protocol.
+    /// </summary>
+    protected abstract string DefaultServiceParameterName { get; }
 
     /// <summary>
     /// Whether renew=true should be sent to the CAS server.
@@ -77,47 +88,38 @@ namespace DotNetCasClient.Validation
     /// </param>
     protected AbstractUrlTicketValidator(CasClientConfiguration config)
     {
+      // Validate configuration
+      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(config.CasServerUrlPrefix),
+                  CasClientConfiguration.CAS_SERVER_URL_PREFIX + " cannot be null or empty.");
+
       this.CasServerUrlPrefix = config.CasServerUrlPrefix;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded CasServerUrlPrefix property: {1}",
-          CommonUtils.MethodName, this.CasServerUrlPrefix));
+      log.Info("Set CasServerUrlPrefix property: " + this.CasServerUrlPrefix);
+
+      if (CommonUtils.IsNotBlank(config.ArtifactParameterName))
+      {
+        this.ArtifactParameterName = config.ArtifactParameterName;
+        log.Info("Set ArtifactParameterName property: " + this.ArtifactParameterName);
+      }
+      else
+      {
+        this.ArtifactParameterName = this.DefaultArtifactParameterName;
       }
 
-      this.ArtifactParameterName = config.ArtifactParameterNameValidation;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded ArtifactParameterName property: {1}",
-          CommonUtils.MethodName, this.ArtifactParameterName));
+      if (CommonUtils.IsNotBlank(config.ServiceParameterName))
+      {
+        this.ServiceParameterName = config.ServiceParameterName;
+        log.Info("Set ServiceParameterName property: " + this.ServiceParameterName);
       }
-
-      this.ServiceParameterName = config.ServiceParameterNameValidation;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded ServiceParameterName property: {1}",
-          CommonUtils.MethodName, this.ServiceParameterName));
+      else
+      {
+        this.ServiceParameterName = this.DefaultServiceParameterName;
       }
 
       this.EncodeServiceUrl = config.EncodeServiceUrl;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded EncodeServiceUrl property: {1}",
-          CommonUtils.MethodName, this.EncodeServiceUrl));
-      }
+      log.Info("Set EncodeServiceUrl property: " + this.EncodeServiceUrl);
 
       this.Renew = config.Renew;
-      if (log.IsInfoEnabled) {
-        log.Info(string.Format("{0}:Loaded Renew property: {1}",
-          CommonUtils.MethodName, this.Renew));
-      }
-
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.CasServerUrlPrefix),
-                  CasClientConfiguration.CAS_SERVER_URL_PREFIX + " cannot be null or empty.");
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.ArtifactParameterName),
-                  CasClientConfiguration.ARTIFACT_PARAMETER_NAME + " cannot be null or empty.");
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.ServiceParameterName),
-                  CasClientConfiguration.SERVICE_PARAMETER_NAME + " cannot be null or empty.");
-
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:Construct using casServerUrlPrefix>{1}<",
-                  CommonUtils.MethodName, this.CasServerUrlPrefix));
-      }
+      log.Info("Set Renew property: " + this.Renew);
     }
 
     #endregion

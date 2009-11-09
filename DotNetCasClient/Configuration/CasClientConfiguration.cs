@@ -168,8 +168,8 @@ namespace DotNetCasClient.Configuration
     /// <summary>
     /// Specifies the name of the request parameter whose value is the artifact (e.g. "ticket").
     /// </summary>
-    [ConfigurationProperty(ARTIFACT_PARAMETER_NAME, DefaultValue="ticket", IsRequired=false)]
-    public string ArtifaceParameterName
+    [ConfigurationProperty(ARTIFACT_PARAMETER_NAME, IsRequired=false)]
+    public string ArtifactParameterName
     {
       get
       {
@@ -178,23 +178,9 @@ namespace DotNetCasClient.Configuration
     }
 
     /// <summary>
-    /// Specifies the name of the request parameter whose value is the artifact (e.g. "ticket")
-    /// during the validation step.
-    /// </summary>
-    [ConfigurationProperty(ARTIFACT_PARAMETER_NAME_VALIDATION, DefaultValue="ticket",
-      IsRequired=false)]
-    public string ArtifactParameterNameValidation
-    {
-      get
-      {
-        return this[ARTIFACT_PARAMETER_NAME_VALIDATION] as string;
-      }
-    }
-
-    /// <summary>
     /// Specifies the name of the request parameter whose value is the service (e.g. "service")
     /// </summary>
-    [ConfigurationProperty(SERVICE_PARAMETER_NAME, DefaultValue="service", IsRequired=false)]
+    [ConfigurationProperty(SERVICE_PARAMETER_NAME, IsRequired=false)]
     public string ServiceParameterName
     {
       get
@@ -203,19 +189,6 @@ namespace DotNetCasClient.Configuration
       }
     }
 
-    /// <summary>
-    /// Specifies the name of the request parameter whose value is the service (e.g. "service")
-    /// during the validation step.
-    /// </summary>
-    [ConfigurationProperty(SERVICE_PARAMETER_NAME_VALIDATION, DefaultValue="service",
-      IsRequired=false)]
-    public string ServiceParameterNameValidation
-    {
-      get
-      {
-        return this[SERVICE_PARAMETER_NAME_VALIDATION] as string;
-      }
-    }
     /// <summary>
     /// Whether to redirect to the same URL after ticket validation, but without the ticket
     /// in the parameter.

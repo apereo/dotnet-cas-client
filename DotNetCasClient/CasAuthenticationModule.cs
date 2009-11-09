@@ -349,7 +349,7 @@ namespace DotNetCasClient
       // If we got an HTTP 401 Error (Unauthorized) and don't have a CAS ticket,
       // redirect to CAS.
       if ((response.StatusCode == 401 &&
-             request.QueryString[this.ArtifactParameterName] == null))
+             request.QueryString[this.ticketValidator.ArtifactParameterName] == null))
       {
         // construct CASRedirectURL and do redirect
         response.Redirect(this.ConstructRedirectUri(request, config.Forms.LoginUrl));
@@ -387,7 +387,7 @@ namespace DotNetCasClient
       // This looks for the ticket in HttpRequest.Cookies, HttpRequest.Form,
       // HttpRequest.QueryString, and System.Web.HttpRequest.ServerVariables collections.
       // TODO: is this what we want?  which one wins???
-      string ticket = request[this.ArtifactParameterName];
+      string ticket = request[this.ticketValidator.ArtifactParameterName];
 
       if (CommonUtils.IsNotBlank(ticket)) {
         if (log.IsDebugEnabled) {

@@ -83,6 +83,7 @@
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Utils\XmlUtils.cs" />
+    <Compile Include="Validation\AbstractCasProtocolValidator.cs" />
     <Compile Include="Validation\AbstractUrlTicketValidator.cs" />
     <Compile Include="Validation\Cas10TicketValidator.cs" />
     <Compile Include="Validation\Cas20ServiceTicketValidator.cs" />
