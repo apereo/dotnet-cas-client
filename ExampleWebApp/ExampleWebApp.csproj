@@ -32,7 +32,7 @@
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\JasigCasClient\lib\log4net.dll</HintPath>
+      <HintPath>..\DotNetCasClient\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -111,12 +111,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotNetCasClient\DotNetCasClient.csproj">
-      <Project>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</Project>
-      <Name>JasigCasClient</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="Log4Net.config" />
     <Content Include="nonsecure\withAjax.aspx" />
@@ -125,6 +119,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web.config.sample" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetCasClient\DotNetCasClient.csproj">
+      <Project>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</Project>
+      <Name>DotNetCasClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

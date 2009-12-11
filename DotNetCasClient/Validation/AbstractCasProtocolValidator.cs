@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using DotNetCasClient.Configuration;
@@ -25,7 +24,7 @@ namespace DotNetCasClient.Validation
   
     protected override string DefaultServiceParameterName
     {
-    	get { return DEFAULT_SERVICE; }
+      get { return DEFAULT_SERVICE; }
     }
   }
 }

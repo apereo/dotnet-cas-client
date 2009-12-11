@@ -10,7 +10,7 @@
   <body>
     <h1>Standard Forms Authentication Login Screen</h1>
     <p>
-      This page is for testing standard Forms Authentication behavior with out DotNetCasClient.
+      This page is for testing standard Forms Authentication behavior without DotNetCasClient.
       We should be able to demonstrate switching to DotNetCasClient by a simple Web.config change.
     </p>
     <form id="form1" runat="server">

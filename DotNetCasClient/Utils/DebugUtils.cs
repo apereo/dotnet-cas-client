@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Web;
@@ -15,8 +14,11 @@ namespace DotNetCasClient.Utils
 {
   public sealed class DebugUtils
   {
-    static ILog LOG =
-          LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    /// <summary>
+    /// Access to the log file
+    /// </summary>
+    static ILog LOG = LogManager.GetLogger(
+      System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
 
     public static string CR
@@ -53,9 +55,10 @@ namespace DotNetCasClient.Utils
     {
       string identityDisplay = "NULL";
       if (identity != null) {
-        identityDisplay = string.Format("Name>{0}< AuthenticationType>{1}< IsAuthenticated>{2}",
-                                        identity.Name, identity.AuthenticationType,
-                                        identity.IsAuthenticated);
+        identityDisplay = 
+          string.Format("Name>{0}< AuthenticationType>{1}< IsAuthenticated>{2}",
+                        identity.Name, identity.AuthenticationType,
+                        identity.IsAuthenticated);
       }
       return identityDisplay;
     }
@@ -81,11 +84,14 @@ namespace DotNetCasClient.Utils
       if (context != null) {
         contextDisplay = IPrincipalToString(context.User);
       }
-      return string.Format("Context.User[{0}] {1}         Thread.CurrentPrincipal[{2}]", 
-        contextDisplay, CR, IPrincipalToString(System.Threading.Thread.CurrentPrincipal));
+      return string.Format(
+        "Context.User[{0}] {1}         Thread.CurrentPrincipal[{2}]", 
+        contextDisplay, CR,
+        IPrincipalToString(System.Threading.Thread.CurrentPrincipal));
     }
 
-    public static string FormsAuthEventArgsToString(FormsAuthenticationEventArgs faa)
+    public static string FormsAuthEventArgsToString(
+      FormsAuthenticationEventArgs faa)
     {
       string principalDisplay = "UNDEFINED";
       if (faa != null && faa.User != null) {
@@ -123,14 +129,16 @@ namespace DotNetCasClient.Utils
       if (context != null) {
         try {
           HttpSessionState session = context.Session;
-          contextSessionDisplay = string.Format("available--{0}", session.SessionID);
+          contextSessionDisplay =
+            string.Format("available--{0}", session.SessionID);
         } catch (Exception) {
           contextSessionDisplay = "unavailable";
         }
       }
       try {
         HttpSessionState session = application.Session;
-          applSessionDisplay = string.Format("available--{0}", session.SessionID);
+          applSessionDisplay =
+            string.Format("available--{0}", session.SessionID);
       } catch (Exception) {
         applSessionDisplay = "unavailable";
       }
@@ -141,7 +149,8 @@ namespace DotNetCasClient.Utils
     public static string FATCookieToString(HttpContext context)
     {
       AuthenticationSection config =
-        (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
+        (AuthenticationSection)WebConfigurationManager.GetSection(
+          "system.web/authentication");
       string fatDisplay = "NULL";
       string cookieDisplay = "NULL";
       if (context != null && context.Request != null) {
@@ -149,7 +158,8 @@ namespace DotNetCasClient.Utils
          cookieDisplay = CookieToString(cookie);
         if (cookie != null) {
           try {
-            FormsAuthenticationTicket fat = FormsAuthentication.Decrypt(cookie.Value);
+            FormsAuthenticationTicket fat =
+              FormsAuthentication.Decrypt(cookie.Value);
             fatDisplay = FormsAuthTicketToString(fat);
           } catch (ArgumentException) {
             fatDisplay = "DECRYPT EXCEPTION";
@@ -164,7 +174,8 @@ namespace DotNetCasClient.Utils
     {
       string cookieDisplay = "NULL";
       if (cookie != null) {
-        cookieDisplay = string.Format("Name>{0}< Expires>{1}<", cookie.Name, cookie.Expires);
+        cookieDisplay = string.Format("Name>{0}< Expires>{1}<",
+          cookie.Name, cookie.Expires);
       }
       return cookieDisplay;
     }
@@ -174,8 +185,9 @@ namespace DotNetCasClient.Utils
       string fatDisplay = "NULL";
       if (fat != null) {
         fatDisplay = string.Format("name>{0}< userdata>{1}< issuedate>{2}< " +
-                                   "expiration>{3}< expired>{4}< ispersistent>{5}<",
-          fat.Name, fat.UserData, fat.IssueDate, fat.Expiration, fat.Expired, fat.IsPersistent);
+                       "expiration>{3}< expired>{4}< ispersistent>{5}<",
+          fat.Name, fat.UserData, fat.IssueDate, fat.Expiration, fat.Expired,
+          fat.IsPersistent);
       }
       return fatDisplay;
     }
@@ -205,7 +217,8 @@ namespace DotNetCasClient.Utils
         return "NULL";
       }
       return string.Format("{0}Session: {1}{2}",
-        CR, HttpSessionToString(app), FormsAuthRequestSummaryToString(app.Context));
+        CR, HttpSessionToString(app),
+        FormsAuthRequestSummaryToString(app.Context));
     }
 
     public static string FormsAuthRequestSummaryToString(HttpContext context)
@@ -221,8 +234,10 @@ namespace DotNetCasClient.Utils
     {
       return string.Format("{0}DefaultUrl>{1}<{2}FormsCookieName>{3}< " +
         "{4}FormsCookiePath>{5}<{6}LoginUrl>{7}<{8}SlidingExpiration>{9}<",
-        CR, FormsAuthentication.DefaultUrl, CR, FormsAuthentication.FormsCookieName,
-        CR, FormsAuthentication.FormsCookiePath, CR, FormsAuthentication.LoginUrl,
+        CR, FormsAuthentication.DefaultUrl,
+        CR, FormsAuthentication.FormsCookieName,
+        CR, FormsAuthentication.FormsCookiePath,
+        CR, FormsAuthentication.LoginUrl,
         CR, FormsAuthentication.SlidingExpiration);
     }
 
@@ -251,7 +266,9 @@ namespace DotNetCasClient.Utils
     {
       StringBuilder sb = new StringBuilder();
       string lineIndentToUse = lineIndent;
-      if ((lineIndent == null || lineIndent.Length < 1) && lineIndentCount > 0) {
+      if ((lineIndent == null || lineIndent.Length < 1) &&
+        lineIndentCount > 0)
+      {
         lineIndentToUse = " ";
       }
       for (int i = 0; i < lineIndentCount; i++) {
@@ -268,47 +285,61 @@ namespace DotNetCasClient.Utils
                                             bool useDelimAlways)
     {
       StringBuilder sb = new StringBuilder();
-      string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
-      sb.Append(string.Format("{0}User Information:{1}", lineIndent, newLineDelim));
+      string lineIndent = 
+        GenerateLineIndent(initialLineIndent, initialLineIndentCount);
+      sb.Append(string.Format("{0}User Information:{1}", lineIndent,
+        newLineDelim));
       int memberLineIndentCount = initialLineIndentCount + 2;
-      string memberLineIndent = GenerateLineIndent(initialLineIndent, memberLineIndentCount);
+      string memberLineIndent =
+        GenerateLineIndent(initialLineIndent, memberLineIndentCount);
       if (principal == null) {
-        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent, newLineDelim));
+        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent,
+          newLineDelim));
       } else {
         sb.Append(string.Format("{0}Type: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(principal.GetType().Name, dataDelim, useDelimAlways),
+                  DataNullEmptyDisplay(principal.GetType().Name, dataDelim,
+                  useDelimAlways),
                   newLineDelim));
-        sb.Append(IIdentityToString(principal.Identity, newLineDelim, initialLineIndent,
-                  memberLineIndentCount, dataDelim, useDelimAlways));
+        sb.Append(IIdentityToString(principal.Identity, newLineDelim,
+          initialLineIndent, memberLineIndentCount, dataDelim, useDelimAlways));
         if (typeof(CasPrincipal) == principal.GetType()) {
           memberLineIndentCount += 2;
-          sb.Append(AssertionToString(((CasPrincipal)principal).Assertion, newLineDelim,
-            initialLineIndent, memberLineIndentCount, dataDelim, useDelimAlways));
+          sb.Append(AssertionToString(((CasPrincipal)principal).Assertion,
+            newLineDelim, initialLineIndent, memberLineIndentCount, dataDelim,
+            useDelimAlways));
         }
       }
       return sb.ToString();
     }
 
 
-    public static string IIdentityToString(IIdentity identity, string newLineDelim,
-                                            string initialLineIndent,
-                                            int initialLineIndentCount,
-                                            string dataDelim,
-                                            bool useDelimAlways)
+    public static string IIdentityToString(
+      IIdentity identity, string newLineDelim,
+      string initialLineIndent,
+      int initialLineIndentCount,
+      string dataDelim,
+      bool useDelimAlways)
     {
       StringBuilder sb = new StringBuilder();
-      string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
+      string lineIndent =
+        GenerateLineIndent(initialLineIndent, initialLineIndentCount);
       sb.Append(string.Format("{0}Identity:{1}", lineIndent, newLineDelim));
       int memberLineIndentCount = initialLineIndentCount + 2;
-      string memberLineIndent =  GenerateLineIndent(initialLineIndent, memberLineIndentCount);
+      string memberLineIndent =  GenerateLineIndent(initialLineIndent,
+        memberLineIndentCount);
 
       if (identity == null) {
-        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent, newLineDelim));
+        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent,
+          newLineDelim));
       } else {
         sb.Append(string.Format("{0}Name: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(identity.Name, dataDelim, useDelimAlways), newLineDelim));
-        sb.Append(string.Format("{0}AuthenticationType: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(identity.AuthenticationType, dataDelim, useDelimAlways),
+                  DataNullEmptyDisplay(identity.Name, dataDelim,
+                  useDelimAlways),
+                  newLineDelim));
+        sb.Append(string.Format("{0}AuthenticationType: {1}{2}",
+                  memberLineIndent,
+                  DataNullEmptyDisplay(identity.AuthenticationType,
+                  dataDelim, useDelimAlways),
                   newLineDelim));
         sb.Append(string.Format("{0}IsAuthenticated: {1}{2}", memberLineIndent,
                   identity.IsAuthenticated, newLineDelim));
@@ -317,64 +348,73 @@ namespace DotNetCasClient.Utils
     }
 
 
-    public static string AssertionToString(IAssertion assertion, string newLineDelim,
-                                            string initialLineIndent,
-                                            int initialLineIndentCount,
-                                            string dataDelim,
-                                            bool useDelimAlways)
+    public static string AssertionToString(IAssertion assertion,
+                                           string newLineDelim,
+                                           string initialLineIndent,
+                                           int initialLineIndentCount,
+                                           string dataDelim,
+                                           bool useDelimAlways)
     {
       StringBuilder sb = new StringBuilder();
-      string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
+      string lineIndent =
+        GenerateLineIndent(initialLineIndent, initialLineIndentCount);
       sb.Append(string.Format("{0}Assertion:{1}", lineIndent, newLineDelim));
       int memberLineIndentCount = initialLineIndentCount + 2;
-      string memberLineIndent =  GenerateLineIndent(initialLineIndent, memberLineIndentCount);
+      string memberLineIndent =  GenerateLineIndent(initialLineIndent,
+        memberLineIndentCount);
 
       if (assertion == null) {
-        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent, newLineDelim));
+        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent,
+          newLineDelim));
       } else {
         sb.Append(string.Format("{0}ValidFromDate: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(assertion.ValidFromDate.ToString(), dataDelim, useDelimAlways),
+                  DataNullEmptyDisplay(assertion.ValidFromDate.ToString(),
+                  dataDelim, useDelimAlways),
                   newLineDelim));
         sb.Append(string.Format("{0}ValidUntilDate: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(assertion.ValidUntilDate.ToString(), dataDelim, useDelimAlways),
+                  DataNullEmptyDisplay(assertion.ValidUntilDate.ToString(),
+                  dataDelim, useDelimAlways),
                   newLineDelim));
         sb.Append(string.Format("{0}PrincipalName: {1}{2}", memberLineIndent,
-                  DataNullEmptyDisplay(assertion.PrincipalName, dataDelim, useDelimAlways), newLineDelim));
-        sb.Append(AttributesToString(assertion.Attributes, newLineDelim, initialLineIndent, 
-          memberLineIndentCount, dataDelim, useDelimAlways));
+                  DataNullEmptyDisplay(assertion.PrincipalName, dataDelim,
+                  useDelimAlways), newLineDelim));
+        sb.Append(AttributesToString(assertion.Attributes, newLineDelim,
+          initialLineIndent, memberLineIndentCount, dataDelim, useDelimAlways));
       }
       return sb.ToString();
     }
 
-    public static string AttributesToString(ILookup<string, IList<string>> attributes, 
-                                            string newLineDelim,
-                                            string initialLineIndent,
-                                            int initialLineIndentCount,
-                                            string dataDelim,
-                                            bool useDelimAlways)
+    public static string AttributesToString(
+      Dictionary<string, IList<string>> attributes,
+      string newLineDelim,
+      string initialLineIndent,
+      int initialLineIndentCount,
+      string dataDelim,
+      bool useDelimAlways)
     {
       StringBuilder sb = new StringBuilder();
-      string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
+      string lineIndent =
+        GenerateLineIndent(initialLineIndent, initialLineIndentCount);
       sb.Append(string.Format("{0}Attributes:{1}", lineIndent, newLineDelim));
-      string memberLineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount + 2);
+      string memberLineIndent = GenerateLineIndent(initialLineIndent,
+        initialLineIndentCount + 2);
 
       if (attributes == null) {
-        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent, newLineDelim));
+        sb.Append(string.Format("{0}UNDEFINED{1}", memberLineIndent,
+          newLineDelim));
       } else {
         sb.Append(string.Format("{0}Attributes Count: {1}{2}", memberLineIndent,
                   attributes.Count, newLineDelim));
-        foreach (IGrouping<string, IList<string>> entry in attributes) {
-          sb.Append(string.Format("{0}Attribute Name: {1}{2}", memberLineIndent, entry.Key,
-              newLineDelim));
+        foreach (KeyValuePair<string, IList<string>> entry in attributes) {
+          sb.Append(string.Format("{0}Attribute Name: {1}{2}",
+            memberLineIndent, entry.Key, newLineDelim));
           int count=0;
           string valueLineIndent =
             GenerateLineIndent(initialLineIndent, initialLineIndentCount + 4);
-          foreach (IList<string> values in entry) {
-            foreach (string value in values) {
-              count++;
-              sb.Append(string.Format("{0}Value[{1}]: {2}{3}", 
-                valueLineIndent, count, value, newLineDelim));
-            }
+          foreach (string value in entry.Value) {
+            count++;
+            sb.Append(string.Format("{0}Value[{1}]: {2}{3}", 
+              valueLineIndent, count, value, newLineDelim));
           }
         }
       }
@@ -385,11 +425,13 @@ namespace DotNetCasClient.Utils
     {
       if (LOG.IsDebugEnabled) {
         LOG.Debug(string.Format("{0}:context.user principal: {1}",
-          CommonUtils.ParentMethodName, DebugUtils.IPrincipalToString(application.Context.User,
+          CommonUtils.ParentMethodName,
+          DebugUtils.IPrincipalToString(application.Context.User,
             DebugUtils.CR, "", 0, ">", true)));
         LOG.Debug(string.Format("{0}:thread principal: {1}",
           CommonUtils.ParentMethodName, 
-          DebugUtils.IPrincipalToString(System.Threading.Thread.CurrentPrincipal,
+          DebugUtils.IPrincipalToString(
+            System.Threading.Thread.CurrentPrincipal,
             DebugUtils.CR, "", 0, ">", true)));
         HttpSessionState session = SessionUtils.GetSession();
         if (session != null) {
@@ -398,7 +440,8 @@ namespace DotNetCasClient.Utils
             DebugUtils.IPrincipalToString(SessionUtils.GetCasPrincipal(session),
               DebugUtils.CR, "", 0, ">", true)));
         } else {
-          LOG.Debug(string.Format("{0}:session principal: {1}  HttpSessionState unavailable",
+          LOG.Debug(string.Format("{0}:" +
+            "session principal: {1}  HttpSessionState unavailable",
             CommonUtils.ParentMethodName, DebugUtils.CR));
         }
       }
@@ -449,7 +492,8 @@ namespace DotNetCasClient.Utils
       string sessionId = null;
       HttpCookieCollection cookies = application.Request.Cookies;
       if (cookies != null) {
-        HttpCookie sessionIdCookie = cookies[CommonUtils.ASP_NET_COOKIE_NAME_SESSION_ID];
+        HttpCookie sessionIdCookie =
+          cookies[CommonUtils.ASP_NET_COOKIE_NAME_SESSION_ID];
         if (sessionIdCookie != null) {
           sessionId = sessionIdCookie.Value;
         }

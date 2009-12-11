@@ -12,18 +12,26 @@ namespace DotNetCasClient.Validation
 {
 #if DOT_NET_3
   /// <summary>
-  /// Represents a CAS SAML 1.1 response from a CAS server, using SamlSecurityToken
-  /// methods for parsing to populate the object.
+  /// Represents a CAS SAML 1.1 response from a CAS server, using
+  /// SamlSecurityToken methods for parsing to populate the object.
   /// </summary>
   class CasSaml11Response : SamlSecurityToken
   {
+    /// <summary>
+    /// Access to the log file
+    /// </summary>
     private static readonly ILog log = LogManager.GetLogger(
       System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-    const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
+    /// <summary>
+    /// The SAML 1.1 Assertion namespace
+    /// </summary>
+    const string SAML11_ASSERTION_NAMESPACE =
+      "urn:oasis:names:tc:SAML:1.0:assertion";
 
     /// <summary>
-    ///  Tolerance ticks for checking the current time against the SAML Assertion valid times.
+    /// Tolerance ticks for checking the current time against the SAML
+    /// Assertion valid times.
     /// </summary>
     long toleranceTicks = 1000L * TimeSpan.TicksPerMillisecond;
 
@@ -34,7 +42,8 @@ namespace DotNetCasClient.Validation
     public bool HasCasSamlAssertion { get; private set; }
 
     /// <summary>
-    ///  The JaSig CAS ICasPrincipal assertion built from the received CAS SAML 1.1 response
+    /// The JaSig CAS ICasPrincipal assertion built from the received CAS
+    /// SAML 1.1 response
     /// </summary>
     public ICasPrincipal CasPrincipal { get; private set; }
     #endregion
@@ -46,17 +55,17 @@ namespace DotNetCasClient.Validation
     SamlAssertion casSamlAssertion;
 
     /// <summary>
-    /// Creates a CasSaml11Response from the response returned by the CAS server.
-    /// The SAMLAssertion processed is the first valid SAML Asssertion found in the
-    /// server response.
+    /// Creates a CasSaml11Response from the response returned by the CAS
+    /// server. The SAMLAssertion processed is the first valid SAML Asssertion
+    /// found in the server response.
     /// </summary>
     /// <param name="response">
-    /// the xml for the SAML 1.1 response received in response to the samlValidate
-    /// query to the CAS server
+    /// the xml for the SAML 1.1 response received in response to the
+    /// samlValidate query to the CAS server
     /// </param>
     /// <param name="tolerance">
-    /// Tolerance milliseconds for checking the current time against the SAML Assertion
-    /// valid times.
+    /// Tolerance milliseconds for checking the current time against the SAML
+    /// Assertion valid times.
     /// </param>
     public CasSaml11Response(string response, long tolerance)
     {
@@ -65,29 +74,34 @@ namespace DotNetCasClient.Validation
       this.casResponse = response;
       this.ProcessValidAssertion();
       this.HasCasSamlAssertion = true;
-      /*
-       Initialize the SamlSecurityToken with the SamlAssertion.  Hopefully this will be useful
-       as the SAML support in .NET advances.
-      */
+      // Initialize the SamlSecurityToken with the SamlAssertion.  Hopefully
+      // this will be useful as the SAML support in .NET advances.
       Initialize(this.casSamlAssertion);
     }
 
-    /*
-      Initializes the CAS IAssertion for this instance from the first valid Assertion node in the 
-      CAS server response.  First the Assertion node is identified and stored in this instance as a
-      .NET SamlAssertion.  This SamlAssertion is then used to create the Iassertion instance.
-    */
+    /// <summary>
+    /// Initializes the CAS IAssertion for this instance from the first valid
+    /// Assertion node in the CAS server response.  First the Assertion node is
+    /// identified and stored in this instance as a .NET SamlAssertion.  This
+    /// SamlAssertion is then used to create the Iassertion instance.
+    /// </summary>
+    /// <exception cref="TicketValidationException">
+    /// Throwsn when data problems are encountered parsing
+    /// the CAS server response that contains the Assertion, such as
+    /// no valid Assertion found or no Authentication statment found in the
+    /// the valid Assertion.
+    /// </exception>
     private void ProcessValidAssertion()
     {
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting .Net3 version", CommonUtils.MethodName));
-      }
+      log.Debug(string.Format("{0}:starting .Net3 version",
+        CommonUtils.MethodName));
       XmlDocument document = new XmlDocument();
       document.Load(new StringReader(this.casResponse));
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
       nsmgr.AddNamespace("assertion", SAML11_ASSERTION_NAMESPACE);
       XmlNodeList assertions =
-        document.DocumentElement.SelectNodes("descendant::assertion:Assertion", nsmgr);
+        document.DocumentElement.SelectNodes("descendant::assertion:Assertion",
+          nsmgr);
       if (assertions.Count < 1) {
         throw new TicketValidationException("No assertions found.");
       }
@@ -96,14 +110,17 @@ namespace DotNetCasClient.Validation
       xmlReaderSettings.IgnoreComments = true;
       xmlReaderSettings.CloseInput = true;
       foreach (XmlNode assertionNode in assertions) {
-        XmlTextReader xmlReader = new XmlTextReader(new StringReader(assertionNode.OuterXml));
-        XmlDictionaryReader xmlDicReader = XmlDictionaryReader.CreateDictionaryReader(xmlReader);
+        XmlTextReader xmlReader =
+          new XmlTextReader(new StringReader(assertionNode.OuterXml));
+        XmlDictionaryReader xmlDicReader =
+          XmlDictionaryReader.CreateDictionaryReader(xmlReader);
         SamlSerializer samlSerializer = new SamlSerializer();
         SecurityTokenSerializer keyInfoSerializer = null;
         SecurityTokenResolver outOfBandTokenResolver = null;
-        SamlAssertion assertion = samlSerializer.LoadAssertion(xmlDicReader,
-                                                              keyInfoSerializer,
-                                                              outOfBandTokenResolver);
+        SamlAssertion assertion =
+          samlSerializer.LoadAssertion(xmlDicReader,
+                                       keyInfoSerializer,
+                                       outOfBandTokenResolver);
 
         if (!SamlUtils.IsValidAssertion(assertion, this.toleranceTicks)) {
           continue;
@@ -112,15 +129,19 @@ namespace DotNetCasClient.Validation
         SamlAuthenticationStatement authenticationStatement =
           SamlUtils.GetSAMLAuthenticationStatement(assertion);
         if (authenticationStatement == null) {
-          throw new TicketValidationException("No AuthenticationStatment found in the CAS response.");
+          throw new TicketValidationException(
+            "No AuthenticationStatement found in the CAS response.");
         }
         SamlSubject subject = authenticationStatement.SamlSubject;
         if (subject == null) {
-          throw new TicketValidationException("No Subject found in the CAS response.");
+          throw new TicketValidationException(
+            "No Subject found in the CAS response.");
         }
         this.casSamlAssertion = assertion;
-        IList<SamlAttribute> attributes = SamlUtils.GetAttributesFor(this.casSamlAssertion, subject);
-        IDictionary<string, IList<string>> personAttributes = new Dictionary<string, IList<string>>();
+        IList<SamlAttribute> attributes =
+          SamlUtils.GetAttributesFor(this.casSamlAssertion, subject);
+        IDictionary<string, IList<string>> personAttributes =
+          new Dictionary<string, IList<string>>();
         foreach (SamlAttribute samlAttribute in attributes) {
           IList<string> values = SamlUtils.GetValuesFor(samlAttribute);
           personAttributes.Add(samlAttribute.Name, values);
@@ -129,15 +150,17 @@ namespace DotNetCasClient.Validation
           new Dictionary<string, IList<string>>();
         IList<string> authValues = new List<string>();
         authValues.Add(authenticationStatement.AuthenticationMethod);
-        authenticationAttributes.Add("samlAuthenticationStatement::authMethod", authValues);
+        authenticationAttributes.Add(
+          "samlAuthenticationStatement::authMethod", authValues);
         IAssertion casAssertion = new Assertion(subject.Name,
-                                          casSamlAssertion.Conditions.NotBefore,
-                                          casSamlAssertion.Conditions.NotOnOrAfter,
-                                          personAttributes);
+                                    casSamlAssertion.Conditions.NotBefore,
+                                    casSamlAssertion.Conditions.NotOnOrAfter,
+                                    personAttributes);
         this.CasPrincipal = new CasPrincipal(casAssertion, null, null);
         return;
       }
-      throw new TicketValidationException("No valid assertions found in the CAS response.");
+      throw new TicketValidationException(
+        "No valid assertions found in the CAS response.");
     }
   }
 #else
@@ -147,13 +170,21 @@ namespace DotNetCasClient.Validation
   /// </summary>
   class CasSaml11Response
   {
+    /// <summary>
+    /// Access to the log file
+    /// </summary>
     private static readonly ILog log = LogManager.GetLogger(
       System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-    const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
+    /// <summary>
+    /// The SAML 1.1 Assertion namespace
+    /// </summary>
+    const string SAML11_ASSERTION_NAMESPACE =
+      "urn:oasis:names:tc:SAML:1.0:assertion";
 
     /// <summary>
-    ///  Tolerance ticks for checking the current time against the SAML Assertion valid times.
+    ///  Tolerance ticks for checking the current time against the SAML
+    ///  Assertion valid times.
     /// </summary>
     long toleranceTicks = 1000L * TimeSpan.TicksPerMillisecond;
 
@@ -164,7 +195,8 @@ namespace DotNetCasClient.Validation
     public bool HasCasSamlAssertion { get; private set; }
 
     /// <summary>
-    ///  The JaSig CAS ICasPrincipal assertion built from the received CAS SAML 1.1 response
+    ///  The JaSig CAS ICasPrincipal assertion built from the received CAS
+    ///  SAML 1.1 response
     /// </summary>
     public ICasPrincipal CasPrincipal { get; private set; }
     #endregion
@@ -175,16 +207,16 @@ namespace DotNetCasClient.Validation
 
     /// <summary>
     /// Creates a CasSaml11Response from the response returned by the CAS server.
-    /// The SAMLAssertion processed is the first valid SAML Asssertion found in the
-    /// server response.
+    /// The SAMLAssertion processed is the first valid SAML Asssertion found in
+    /// the server response.
     /// </summary>
     /// <param name="response">
-    /// the xml for the SAML 1.1 response received in response to the samlValidate
-    /// query to the CAS server
+    /// the xml for the SAML 1.1 response received in response to the
+    /// samlValidate query to the CAS server
     /// </param>
     /// <param name="tolerance">
-    /// Tolerance milliseconds for checking the current time against the SAML Assertion
-    /// valid times.
+    /// Tolerance milliseconds for checking the current time against the SAML
+    /// Assertion valid times.
     /// </param>
     public CasSaml11Response(string response, long tolerance)
     {
@@ -195,25 +227,32 @@ namespace DotNetCasClient.Validation
       this.HasCasSamlAssertion = true;
     }
 
-    /*
-      Initializes the CAS IAssertion for this instance from the first valid Assertion node in the 
-      CAS server response.
-    */
+
+    /// <summary>
+    /// Initializes the CAS IAssertion for this instance from the first valid
+    /// Assertion node in the CAS server response.
+    /// </summary>
+    /// <exception cref="TicketValidationException">
+    /// Thrown when data problems are encountered parsing
+    /// the CAS server response that contains the Assertion, such as
+    /// no valid Assertion found or no Authentication statment found in the
+    /// the valid Assertion.
+    /// </exception>
     private void ProcessValidAssertion()
     {
       DateTime notBefore;
       DateTime notOnOrAfter;
       string subject;
       string authMethod;
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting .Net2 version", CommonUtils.MethodName));
-      }
+      log.Debug(string.Format("{0}:starting .Net2 version",
+        CommonUtils.MethodName));
       XmlDocument document = new XmlDocument();
       document.Load(new StringReader(this.casResponse));
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
       nsmgr.AddNamespace("assertion", SAML11_ASSERTION_NAMESPACE);
       XmlNodeList assertions =
-        document.DocumentElement.SelectNodes("descendant::assertion:Assertion", nsmgr);
+        document.DocumentElement.SelectNodes("descendant::assertion:Assertion",
+          nsmgr);
       if (assertions.Count < 1) {
         throw new TicketValidationException("No assertions found.");
       }
@@ -224,26 +263,34 @@ namespace DotNetCasClient.Validation
       xmlReaderSettings.CloseInput = true;
       foreach (XmlNode assertionNode in assertions) {
         XmlNode conditionsNode = 
-          assertionNode.SelectSingleNode("descendant::assertion:Conditions", nsmgr);
+          assertionNode.SelectSingleNode("descendant::assertion:Conditions",
+            nsmgr);
         if (conditionsNode == null) {
           continue;
         }
         try {
-          notBefore = SamlUtils.GetAttributeValueAsDateTime(conditionsNode, "NotBefore");
-          notOnOrAfter = SamlUtils.GetAttributeValueAsDateTime(conditionsNode, "NotOnOrAfter");
-          if (!SamlUtils.IsValidAssertion(notBefore, notOnOrAfter, this.toleranceTicks)) {
+          notBefore =
+            SamlUtils.GetAttributeValueAsDateTime(conditionsNode, "NotBefore");
+          notOnOrAfter =
+            SamlUtils.GetAttributeValueAsDateTime(conditionsNode,
+              "NotOnOrAfter");
+          if (!SamlUtils.IsValidAssertion(notBefore, notOnOrAfter,
+            this.toleranceTicks))
+          {
             continue;
           }
         } catch (Exception) {
           continue;
         }
-        XmlNode authenticationStmtNode = 
-          assertionNode.SelectSingleNode("descendant::assertion:AuthenticationStatement", nsmgr);
+        XmlNode authenticationStmtNode = assertionNode.SelectSingleNode(
+          "descendant::assertion:AuthenticationStatement", nsmgr);
         if (authenticationStmtNode == null) {
-          throw new TicketValidationException("No AuthenticationStatement found in the CAS response.");
+          throw new TicketValidationException(
+            "No AuthenticationStatement found in the CAS response.");
         }
         authMethod = 
-          SamlUtils.GetAttributeValue(authenticationStmtNode.Attributes, "AuthenticationMethod");
+          SamlUtils.GetAttributeValue(authenticationStmtNode.Attributes,
+            "AuthenticationMethod");
 
         XmlNode nameIdentifierNode =
           assertionNode.SelectSingleNode("child::" +
@@ -252,19 +299,21 @@ namespace DotNetCasClient.Validation
             "assertion:NameIdentifier", nsmgr);
         if (nameIdentifierNode == null) {
           throw new TicketValidationException(
-            "No NameIdentifier found in AuthenticationStatement of the CAS response.");
+            "No NameIdentifier found in AuthenticationStatement " +
+            "of the CAS response.");
         }
         subject = nameIdentifierNode.FirstChild.Value;
 
-        XmlNode attributeStmtNode =
-          assertionNode.SelectSingleNode("descendant::assertion:AttributeStatement", nsmgr);
+        XmlNode attributeStmtNode = assertionNode.SelectSingleNode(
+          "descendant::assertion:AttributeStatement", nsmgr);
         IDictionary<string, IList<string>> personAttributes =
           SamlUtils.GetAttributesFor(attributeStmtNode, nsmgr, subject);
         IDictionary<string, IList<string>> authenticationAttributes =
           new Dictionary<string, IList<string>>();
         IList<string> authValues = new List<string>();
         authValues.Add(authMethod);
-        authenticationAttributes.Add("samlAuthenticationStatement::authMethod", authValues);
+        authenticationAttributes.Add("samlAuthenticationStatement::authMethod",
+          authValues);
         IAssertion casAssertion = new Assertion(subject,
                                                 notBefore,
                                                 notOnOrAfter,
@@ -272,7 +321,8 @@ namespace DotNetCasClient.Validation
         this.CasPrincipal = new CasPrincipal(casAssertion, null, null);
         return;
       }
-      throw new TicketValidationException("No valid assertions found in the CAS response.");
+      throw new TicketValidationException(
+        "No valid assertions found in the CAS response.");
     }
   }
 #endif

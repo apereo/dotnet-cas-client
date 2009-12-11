@@ -11,15 +11,19 @@ namespace DotNetCasClient.Security
     /// Implementation of ICasPrincipal.
     /// </summary>
     /// <remarks>
-    /// ICasPrincipal is the .Net port of org.jasig.cas.client .authentication.AttributePrincipalImpl.
+    /// ICasPrincipal is the .Net port of
+    ///   org.jasig.cas.client .authentication.AttributePrincipalImpl.
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
     [Serializable]
     public class CasPrincipal : ICasPrincipal
     {
-        static readonly ILog log =
-          LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        /// <summary>
+        /// Access to the log file
+        /// </summary>
+        static readonly ILog log = LogManager.GetLogger(
+          System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #region ICasPrincipal Members
 
@@ -27,16 +31,18 @@ namespace DotNetCasClient.Security
         {
             if (this.proxyGrantingTicket != null)
             {
-                return this.proxyRetriever.GetProxyTicketIdFor(this.proxyGrantingTicket, service);
+                return this.proxyRetriever.GetProxyTicketIdFor(
+                  this.proxyGrantingTicket, service);
             }
-            if (log.IsDebugEnabled) {
-              log.Debug(string.Format("{0}:" +
-                "No ProxyGrantingTicket was supplied, so no Proxy Ticket can be retrieved.",
-                CommonUtils.MethodName));
-            }
+            log.Debug(string.Format("{0}:" +
+              "No ProxyGrantingTicket was supplied --> returning null",
+              CommonUtils.MethodName));
             return null;
         }
 
+        /// <summary>
+        /// The Assertion backing this Principal
+        /// </summary>
         public IAssertion Assertion { get; private set; }
         
         #endregion
@@ -72,13 +78,19 @@ namespace DotNetCasClient.Security
         /// <summary>
         /// Constructs a new Principal backed by the supplied Assertion.
         /// </summary>
-        /// <param name="assertion">the Assertion that backs this Principal</param>
-        public CasPrincipal(IAssertion assertion) : this(assertion, null, null) { }
+        /// <param name="assertion">
+        /// the Assertion that backs this Principal
+        /// </param>
+        public CasPrincipal(IAssertion assertion) : this(assertion, null, null)
+        { }
 
         /// <summary>
-        /// Constructs a new Principal backed by the supplied Assertion, with proxying cabilities.
+        /// Constructs a new Principal backed by the supplied Assertion, with
+        /// proxying capabilities.
         /// </summary>
-        /// <param name="assertion">the Assertion that backs this Principal</param>
+        /// <param name="assertion">
+        /// the Assertion that backs this Principal
+        /// </param>
         /// <param name="proxyGrantingTicket">
         /// the proxy granting ticket associated with this Principal.
         /// </param>

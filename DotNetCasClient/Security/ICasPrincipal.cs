@@ -10,12 +10,14 @@ namespace DotNetCasClient.Security
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Developers who don't want their code tied to CAS merely need to work with the .Net IPrincipal.
-    /// However, in order to take advantabge of CAS specific features like Proxy Tickets and Attributes, 
-    /// ICasPrincipal must be used.
+    /// Developers who don't want their code tied to CAS merely need to work
+    /// with the .Net IPrincipal. However, in order to take advantabge of CAS
+    /// specific features like Proxy Tickets and Attributes, ICasPrincipal must
+    /// be used.
     /// </para>
     /// <para>
-    /// ICasPrincipal is the .Net port of org.jasig.cas.client.authentication.AttributePrincipal
+    /// ICasPrincipal is the .Net port of
+    ///   org.jasig.cas.client.authentication.AttributePrincipal
     /// </para>
     /// <para>
     /// Implementors should be Serializable
@@ -28,7 +30,9 @@ namespace DotNetCasClient.Security
         /// <summary>
         /// Retrieves a CAS proxy ticket for this Principal.
         /// </summary>
-        /// <param Name="service">the service to which this user is to be proxied.</param>
+        /// <param Name="service">
+        /// the service to which this user is to be proxied.
+        /// </param>
         /// <returns>a string representing the proxy ticket.</returns>
         string GetProxyTicketFor(Uri service);
 

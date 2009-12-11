@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DotNetCasClient.Authentication;
 
 namespace DotNetCasClient.Security
@@ -33,7 +32,7 @@ namespace DotNetCasClient.Security
         /// <summary>
         /// The key/value pairs for attributes associated with this Assertion.
         /// </summary>
-        ILookup<string, IList<string>> Attributes { get; }
+        Dictionary<string, IList<string>> Attributes { get; }
 
         /// <summary>
         /// The name of the Principal that this Assertion backs.

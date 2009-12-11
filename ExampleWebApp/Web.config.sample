@@ -10,20 +10,20 @@
 -->
 
 <configuration>
-	<configSections>
+  <configSections>
     <section name="casClientConfig" type="DotNetCasClient.Configuration.CasClientConfiguration, DotNetCasClient"/>
     <sectionGroup name="system.web.extensions" type="System.Web.Configuration.SystemWebExtensionsSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-			<sectionGroup name="scripting" type="System.Web.Configuration.ScriptingSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-				<section name="scriptResourceHandler" type="System.Web.Configuration.ScriptingScriptResourceHandlerSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-				<sectionGroup name="webServices" type="System.Web.Configuration.ScriptingWebServicesSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-					<section name="jsonSerialization" type="System.Web.Configuration.ScriptingJsonSerializationSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="Everywhere"/>
-					<section name="profileService" type="System.Web.Configuration.ScriptingProfileServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-					<section name="authenticationService" type="System.Web.Configuration.ScriptingAuthenticationServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-					<section name="roleService" type="System.Web.Configuration.ScriptingRoleServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
-				</sectionGroup>
-			</sectionGroup>
-		</sectionGroup>
-	</configSections>
+      <sectionGroup name="scripting" type="System.Web.Configuration.ScriptingSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
+        <section name="scriptResourceHandler" type="System.Web.Configuration.ScriptingScriptResourceHandlerSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
+        <sectionGroup name="webServices" type="System.Web.Configuration.ScriptingWebServicesSectionGroup, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
+          <section name="jsonSerialization" type="System.Web.Configuration.ScriptingJsonSerializationSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="Everywhere"/>
+          <section name="profileService" type="System.Web.Configuration.ScriptingProfileServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
+          <section name="authenticationService" type="System.Web.Configuration.ScriptingAuthenticationServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
+          <section name="roleService" type="System.Web.Configuration.ScriptingRoleServiceSection, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" allowDefinition="MachineToApplication"/>
+        </sectionGroup>
+      </sectionGroup>
+    </sectionGroup>
+  </configSections>
 
   <appSettings/>
   <connectionStrings/>
@@ -47,7 +47,7 @@
     secureUriExceptionRegex - Regular expression describing URIs to be specifically excluded from CAS auth.
                               This feature originated to easily exclude resources used by .NET AJAX controls.
                               The value in the following example illustrates how to ignore the resource used
-                              to bootstrap AJAX controls.
+                              to bootstrap AJAX controls.  Default is to have no exclusions.
     redirectAfterValidation - Whether to redirect to the same URL after ticket validation, but without the
                               ticket in the parameter.  Default is false.
     useSession              - Use session to store CAS authenticated state and principal/attribute info.
@@ -59,7 +59,7 @@
                               disables SSO for this application.  Default is false.
     singleSignOut           - Enables this application to receive CAS single sign-out messages sent when the
                               user's SSO session ends.  This will cause the user's session in this application
-                              to be destroyed.  Default is false.
+                              to be destroyed.  Default is true.
     ticketTimeTolerance     - SAML ticket validator property to allow at most the given time difference in ms
                               between artifact (ticket) timestamp and CAS server system time.  Increasing this
                               may have negative security consequences; we recommend fixing sources of clock drift
@@ -83,14 +83,14 @@
 
   <system.web>
     <sessionState timeout="10" />
-		<compilation debug="true">
-			<assemblies>
-				<add assembly="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
-				<add assembly="System.Data.DataSetExtensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
-				<add assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-				<add assembly="System.Xml.Linq, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
-			</assemblies>
-		</compilation>
+    <compilation debug="true">
+      <assemblies>
+        <add assembly="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+        <add assembly="System.Data.DataSetExtensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+        <add assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add assembly="System.Xml.Linq, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+      </assemblies>
+    </compilation>
 
     <!--
       ======================
@@ -105,46 +105,46 @@
       
       Set mode="Forms" for WFA and provide the URL to the CAS login form:
       <authentication mode="Forms">   
-        <forms loginUrl ="https://cas.example.com/cas/login"
+        <forms loginUrl="https://cas.example.com/cas/login"
                timeout="10"/>
       </authentication>
      
-      For non-WFA, use mode="None"
+      For non-WFA, set mode="None"
     -->
     <authentication mode="None"/>
 
-    <!-- The following is only used when using WFA authentication. -->
+    <!-- The following is only used with WFA authentication. -->
     <authorization>
       <allow users="*" />
     </authorization>
 
-		<pages>
-			<controls>
-				<add tagPrefix="asp" namespace="System.Web.UI" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-				<add tagPrefix="asp" namespace="System.Web.UI.WebControls" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-			</controls>
-		</pages>
+    <pages>
+      <controls>
+        <add tagPrefix="asp" namespace="System.Web.UI" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add tagPrefix="asp" namespace="System.Web.UI.WebControls" assembly="System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      </controls>
+    </pages>
 
-		<httpHandlers>
-			<remove verb="*" path="*.asmx"/>
-			<add verb="*" path="*.asmx" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-			<add verb="*" path="*_AppService.axd" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-			<add verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" validate="false"/>
-		</httpHandlers>
+    <httpHandlers>
+      <remove verb="*" path="*.asmx"/>
+      <add verb="*" path="*.asmx" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      <add verb="*" path="*_AppService.axd" validate="false" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      <add verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" validate="false"/>
+    </httpHandlers>
 
     <!--
-    ======================
-    CAS Config #3
-    ======================
-    Choose a CAS authentication module.
-    
-    The authentication module determines the authentication method, discussed in #2 above,
-    and must match the configuration specified in that section.  The two available authentication
-    modules:
-      1. CASAuthenticationModule - WFA
-      2. CasAlternateAuthModule - non-WFA
+      ======================
+      CAS Config #3
+      ======================
+      Choose a CAS authentication module.
+
+      The authentication module determines the authentication method, discussed in #2 above,
+      and must match the configuration specified in that section.  The two available authentication
+      modules:
+        1. CASAuthenticationModule - WFA
+        2. CasAlternateAuthModule - non-WFA
     -->
-		<httpModules>
+    <httpModules>
       <remove name="FormsAuthentication"/>
       <remove name="WindowsAuthentication"/>
       <remove name="PassportAuthentication"/>
@@ -167,43 +167,43 @@
 
 
   <system.codedom>
-		<compilers>
-			<compiler language="c#;cs;csharp" extension=".cs" warningLevel="4" type="Microsoft.CSharp.CSharpCodeProvider, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-				<providerOption name="CompilerVersion" value="v3.5"/>
-				<providerOption name="WarnAsError" value="false"/>
-			</compiler>
-		</compilers>
-	</system.codedom>
-	<!-- 
+    <compilers>
+      <compiler language="c#;cs;csharp" extension=".cs" warningLevel="4" type="Microsoft.CSharp.CSharpCodeProvider, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+        <providerOption name="CompilerVersion" value="v3.5"/>
+        <providerOption name="WarnAsError" value="false"/>
+      </compiler>
+    </compilers>
+  </system.codedom>
+  <!-- 
         The system.webServer section is required for running ASP.NET AJAX under Internet
         Information Services 7.0.  It is not necessary for previous version of IIS.
     -->
-	<system.webServer>
-		<validation validateIntegratedModeConfiguration="false"/>
-		<modules>
-			<remove name="ScriptModule"/>
-			<add name="ScriptModule" preCondition="managedHandler" type="System.Web.Handlers.ScriptModule, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-		</modules>
-		<handlers>
-			<remove name="WebServiceHandlerFactory-Integrated"/>
-			<remove name="ScriptHandlerFactory"/>
-			<remove name="ScriptHandlerFactoryAppServices"/>
-			<remove name="ScriptResource"/>
-			<add name="ScriptHandlerFactory" verb="*" path="*.asmx" preCondition="integratedMode" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-			<add name="ScriptHandlerFactoryAppServices" verb="*" path="*_AppService.axd" preCondition="integratedMode" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-			<add name="ScriptResource" preCondition="integratedMode" verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
-		</handlers>
-	</system.webServer>
-	<runtime>
-		<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
-			<dependentAssembly>
-				<assemblyIdentity name="System.Web.Extensions" publicKeyToken="31bf3856ad364e35"/>
-				<bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="3.5.0.0"/>
-			</dependentAssembly>
-			<dependentAssembly>
-				<assemblyIdentity name="System.Web.Extensions.Design" publicKeyToken="31bf3856ad364e35"/>
-				<bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="3.5.0.0"/>
-			</dependentAssembly>
-		</assemblyBinding>
-	</runtime>
+  <system.webServer>
+    <validation validateIntegratedModeConfiguration="false"/>
+    <modules>
+      <remove name="ScriptModule"/>
+      <add name="ScriptModule" preCondition="managedHandler" type="System.Web.Handlers.ScriptModule, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+    </modules>
+    <handlers>
+      <remove name="WebServiceHandlerFactory-Integrated"/>
+      <remove name="ScriptHandlerFactory"/>
+      <remove name="ScriptHandlerFactoryAppServices"/>
+      <remove name="ScriptResource"/>
+      <add name="ScriptHandlerFactory" verb="*" path="*.asmx" preCondition="integratedMode" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      <add name="ScriptHandlerFactoryAppServices" verb="*" path="*_AppService.axd" preCondition="integratedMode" type="System.Web.Script.Services.ScriptHandlerFactory, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      <add name="ScriptResource" preCondition="integratedMode" verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+    </handlers>
+  </system.webServer>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Extensions" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="3.5.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Extensions.Design" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="3.5.0.0"/>
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
 </configuration>

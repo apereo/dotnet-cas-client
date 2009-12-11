@@ -16,37 +16,65 @@ namespace DotNetCasClient.Validation
   /// SAML 1.1 Ticket Validator
   /// </summary>
   /// <remarks>
-  /// This is the .Net port of org.jasig.cas.client.validation.Saml11TicketValidator
+  /// This is the .Net port of
+  ///   org.jasig.cas.client.validation.Saml11TicketValidator
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>Catherine D. Winfrey (.Net)</author>
   /// <author>Marvin S. Addison</author>
   class Saml11TicketValidator : AbstractUrlTicketValidator
   {
+    // Constant defining the default name of the request parameter whose value
+    // is the artifact for the SAML 1.1 protocol.
     private const string DEFAULT_ARTIFACT = "SAMLart";
+
+    // Constant defining the default name of the request parameter whose value
+    // is the service for the SAML 1.1 protocol.
     private const string DEFAULT_SERVICE = "TARGET";
+
+    // Constant defining the endpoint of the validation URL for SAML 1.1
+    // protocol
+    private const string URL_SUFFIX = "samlValidate";
 
     #region Properties
     /// <summary>
-    /// Tolerance milliseconds for checking the current time against the SAML Assertion
-    /// valid times.
+    /// Tolerance milliseconds for checking the current time against the SAML
+    /// Assertion valid times.
     /// </summary>
     protected long TicketTimeTolerance { get; private set; }
 
+    /// <summary>
+    /// The default name of the request parameter whose value is the artifact
+    /// for the SAML 1.1 protocol.
+    /// </summary>
     protected override string DefaultArtifactParameterName
     {
       get { return DEFAULT_ARTIFACT; }
     }
   
+    /// <summary>
+    /// The default name of the request parameter whose value is the service
+    /// for the SAML 1.1 protocol.
+    /// </summary>
     protected override string DefaultServiceParameterName
     {
-    	get { return DEFAULT_SERVICE; }
+      get { return DEFAULT_SERVICE; }
     }
+    
+    /// <summary>
+    /// The endpoint of the validation URL.  Should be relative (i.e. not start
+    /// with a "/").
+    /// i.e. validate or serviceValidate or samlValidate.
+    /// </summary>
+    protected override string UrlSuffix {
+      get { return URL_SUFFIX; }
+    }
+
     #endregion
 
     /// <summary>
-    /// Constructs an ITicketValidator for SAML 1.1 responses from the CAS server,
-    /// initializing it with the supplied configuration data.
+    /// Constructs an ITicketValidator for SAML 1.1 responses from the CAS
+    /// server, initializing it with the supplied configuration data.
     /// </summary>
     /// <param name="config">
     /// ConfigurationManager to be used to obtain the settings needed by this
@@ -58,13 +86,6 @@ namespace DotNetCasClient.Validation
       log.Info("Set TicketTimeTolerance property: " + this.TicketTimeTolerance);
     }
 
-    /// <summary>
-    /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
-    /// i.e. validate or serviceValidate.
-    /// </summary>
-    protected override string UrlSuffix {
-      get { return "samlValidate"; }
-    }
 
     /// <summary>
     /// Adjust the parameters for the validation URL being constructed.
@@ -72,19 +93,23 @@ namespace DotNetCasClient.Validation
     /// <param name="urlParameters">
     /// The validation URL parameters created by the base class.
     /// </param>
-    protected override void AddParameters(IDictionary<string, string> urlParameters)
+    protected override void AddParameters(
+      IDictionary<string, string> urlParameters)
     {
       urlParameters.Remove(this.ArtifactParameterName);
     }
 
 
     /// <summary>
-    /// Parses the response from the server into a CAS Assertion and includes this in
-    /// a CASPrincipal.
+    /// Parses the response from the server into a CAS Assertion and includes
+    /// this in a CASPrincipal.
     /// </summary>
-    /// <param name="response">the response from the server, in any format.</param>
+    /// <param name="response">
+    /// the response from the server, in any format.
+    /// </param>
     /// <returns>
-    /// a Principal backed by a CAS Assertion, if one could be created from the response.
+    /// a Principal backed by a CAS Assertion, if one could be created from the
+    /// response.
     /// </returns>
     /// <exception cref="TicketValidationException">
     /// Thrown if creation of the Assertion fails.
@@ -92,7 +117,8 @@ namespace DotNetCasClient.Validation
     protected override ICasPrincipal ParseResponseFromServer(string response)
     {
       if (response == null) {
-        throw new TicketValidationException("CAS Server could not validate ticket.");
+        throw new TicketValidationException(
+          "CAS Server could not validate ticket.");
       }
 
       // parse Assertion element out of SAML response from CAS
@@ -100,7 +126,8 @@ namespace DotNetCasClient.Validation
         this.TicketTimeTolerance);
       if (casSaml11Response.HasCasSamlAssertion) {
         if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:Valid Assertion found", CommonUtils.MethodName));
+          log.Debug(string.Format("{0}:Valid Assertion found",
+            CommonUtils.MethodName));
           log.Debug(string.Format("{0}:CasAssertion:{1}",
             CommonUtils.MethodName,
             DebugUtils.IPrincipalToString(casSaml11Response.CasPrincipal,
@@ -108,11 +135,24 @@ namespace DotNetCasClient.Validation
         }
         return casSaml11Response.CasPrincipal;
       } else {
-        throw new TicketValidationException("CAS Server response could not be parsed.");
+        throw new TicketValidationException(
+          "CAS Server response could not be parsed.");
       }
     }
 
-    protected override string RetrieveResponseFromServer(Uri validationUrl, string ticket)
+
+    /// <summary>
+    /// Requests CAS ticket validation by the configured CAS server.
+    /// </summary>
+    /// <param name="validationUrl">the URL to use for ticket validation</param>
+    /// <param name="ticket">
+    /// the ticket returned by the CAS server from a successful authentication
+    /// </param>
+    /// <returns>
+    /// the XML response representing the ticket validation
+    /// </returns>
+    protected override string RetrieveResponseFromServer(Uri validationUrl,
+      string ticket)
     {
       string msg1 = @"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"">";
       string msg2 = @"<SOAP-ENV:Header/><SOAP-ENV:Body>";
@@ -126,10 +166,9 @@ namespace DotNetCasClient.Validation
       Stream reqPostStream = null;
       try {
         byte[] messageBytes = Encoding.ASCII.GetBytes(message);
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName,
-            Encoding.ASCII.GetString(messageBytes), messageBytes.Length));
-        }
+        log.Debug(string.Format("{0}:messageBytes=>{1}< with length={2}",
+          CommonUtils.MethodName,
+          Encoding.ASCII.GetString(messageBytes), messageBytes.Length));
         HttpWebRequest req = (HttpWebRequest) WebRequest.Create(validationUrl);
         req.Method = "POST";
         //req.ContentType = "application/x-www-form-urlencoded";
@@ -138,32 +177,31 @@ namespace DotNetCasClient.Validation
         // enable cookies in case response wants to set any
         req.CookieContainer = new CookieContainer();
         WebHeaderCollection reqHeaders = req.Headers;
-        reqHeaders.Add("SOAPAction", "http://www.oasis-open.org/committees/security");
+        reqHeaders.Add("SOAPAction",
+          "http://www.oasis-open.org/committees/security");
         WebRequest webReq = (WebRequest) req;
-        webReq.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:" +
-            "CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} " +
-            " RequestUri=>{6}<", CommonUtils.MethodName,
-            webReq.CachePolicy, webReq.ContentLength, webReq.ContentType,
-            webReq.Headers, webReq.Method, webReq.RequestUri));
-        }
+        webReq.CachePolicy =
+          new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+        log.Debug(string.Format("{0}:" +
+          "CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} " +
+          "Method={5} RequestUri=>{6}<", CommonUtils.MethodName,
+          webReq.CachePolicy, webReq.ContentLength, webReq.ContentType,
+          webReq.Headers, webReq.Method, webReq.RequestUri));
         reqPostStream = req.GetRequestStream();
         reqPostStream.Write(messageBytes, 0, messageBytes.Length);
         reqPostStream.Flush();
         reqPostStream.Close();
 
         HttpWebResponse res = (HttpWebResponse) req.GetResponse();
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0} HttpWebResponse StatusCode={1} and Server=>{2}<",
-            CommonUtils.MethodName, res.StatusCode, res.Server));
-        }
+        log.Debug(string.Format(
+          "{0} HttpWebResponse StatusCode={1} and Server=>{2}<",
+          CommonUtils.MethodName, res.StatusCode, res.Server));
         Stream resStream = res.GetResponseStream();
         reader = new StreamReader(resStream);
         string validateUriData = reader.ReadToEnd();
         return validateUriData;
-  	  } finally {
-				if ( reader != null ) {
+      } finally {
+        if ( reader != null ) {
           reader.Close();
         }
         if (reqPostStream != null) {

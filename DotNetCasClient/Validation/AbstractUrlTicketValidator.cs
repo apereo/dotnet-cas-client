@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
@@ -14,10 +13,12 @@ using log4net;
 namespace DotNetCasClient.Validation
 {
   /// <summary>
-  /// Abstract validator implementation for tickets that are validated against an Http server.
+  /// Abstract validator implementation for tickets that are validated against
+  /// an Http server.
   /// </summary>
   /// <remarks>
-  /// This is the .Net port of org.jasig.cas.client.validation.AbstractUrlBasedTicketValidator
+  /// This is the .Net port of 
+  ///   org.jasig.cas.client.validation.AbstractUrlBasedTicketValidator
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>William G. Thompson, Jr. (.Net)</author>
@@ -28,17 +29,19 @@ namespace DotNetCasClient.Validation
     /// Access to the log file
     /// </summary>
     protected static readonly ILog log = 
-      LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+      LogManager.GetLogger(
+        System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
     #region Properties
     /// <summary>
-    /// The prefix for the CAS server. Should be everything up to the URL endpoint,
-    /// including the /.
+    /// The prefix for the CAS server. Should be everything up to the URL
+    /// endpoint, including the /.
     /// </summary>
     protected string CasServerUrlPrefix { get; private set; }
 
     /// <summary>
-    /// The name of the request parameter whose value is the artifact (e.g. "ticket").
+    /// The name of the request parameter whose value is the artifact
+    /// (e.g. "ticket").
     /// </summary>
     protected internal string ArtifactParameterName { get; private set; }
 
@@ -48,7 +51,8 @@ namespace DotNetCasClient.Validation
     protected abstract string DefaultArtifactParameterName { get; }
     
     /// <summary>
-    /// The name of the request parameter whose value is the service (e.g. "service")
+    /// The name of the request parameter whose value is the service
+    /// (e.g. "service")
     /// </summary>
     protected internal string ServiceParameterName { get; private set; }
 
@@ -73,7 +77,7 @@ namespace DotNetCasClient.Validation
     /// <summary>
     /// Custom parameters to pass to the validation URL.
     /// </summary>
-    ILookup<string, string> customParameters;
+    Dictionary<string, string> customParameters;
     #endregion
 
     #region Constructor
@@ -90,7 +94,8 @@ namespace DotNetCasClient.Validation
     {
       // Validate configuration
       CommonUtils.AssertTrue(CommonUtils.IsNotBlank(config.CasServerUrlPrefix),
-                  CasClientConfiguration.CAS_SERVER_URL_PREFIX + " cannot be null or empty.");
+        CasClientConfiguration.CAS_SERVER_URL_PREFIX +
+        " cannot be null or empty.");
 
       this.CasServerUrlPrefix = config.CasServerUrlPrefix;
       log.Info("Set CasServerUrlPrefix property: " + this.CasServerUrlPrefix);
@@ -98,7 +103,8 @@ namespace DotNetCasClient.Validation
       if (CommonUtils.IsNotBlank(config.ArtifactParameterName))
       {
         this.ArtifactParameterName = config.ArtifactParameterName;
-        log.Info("Set ArtifactParameterName property: " + this.ArtifactParameterName);
+        log.Info("Set ArtifactParameterName property: " +
+          this.ArtifactParameterName);
       }
       else
       {
@@ -108,7 +114,8 @@ namespace DotNetCasClient.Validation
       if (CommonUtils.IsNotBlank(config.ServiceParameterName))
       {
         this.ServiceParameterName = config.ServiceParameterName;
-        log.Info("Set ServiceParameterName property: " + this.ServiceParameterName);
+        log.Info("Set ServiceParameterName property: " +
+          this.ServiceParameterName);
       }
       else
       {
@@ -125,17 +132,19 @@ namespace DotNetCasClient.Validation
     #endregion
     
     /// <summary>
-    /// Template method for ticket validators that need to provide additional parameters
-    /// to the validation URL.
+    /// Template method for ticket validators that need to provide additional
+    /// parameters to the validation URL.
     /// </summary>
     /// <param name="urlParameters">dictionary of parameters</param>
-    protected virtual void AddParameters(IDictionary<string, string> urlParameters)
+    protected virtual void AddParameters(
+      IDictionary<string, string> urlParameters)
     {
       // nothing to do
     }
 
     /// <summary>
-    /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
+    /// The endpoint of the validation URL.  Should be relative (i.e. not start
+    /// with a "/").
     /// i.e. validate or serviceValidate.
     /// </summary>
     protected abstract String UrlSuffix { get; }
@@ -148,9 +157,11 @@ namespace DotNetCasClient.Validation
     /// <returns>the fully constructed URL.</returns>
     protected string ConstructValidationUrl(string ticket, Uri serviceUri)
     {
-      IDictionary<string, string> urlParameters = new Dictionary<string, string>();
+      IDictionary<string, string> urlParameters =
+        new Dictionary<string, string>();
       urlParameters.Add(this.ArtifactParameterName, ticket);
-      urlParameters.Add(this.ServiceParameterName, this.EncodeUrl(serviceUri.ToString()));
+      urlParameters.Add(this.ServiceParameterName,
+                        this.EncodeUrl(serviceUri.ToString()));
 
       if (this.Renew) {
         urlParameters.Add("renew", "true");
@@ -159,9 +170,9 @@ namespace DotNetCasClient.Validation
       AddParameters(urlParameters);
 
       if (this.customParameters != null) {
-        foreach (IGrouping<string, string> entry in this.customParameters) {
-          foreach (string value in entry) {
-           urlParameters.Add(entry.Key, value);
+        foreach (KeyValuePair<string, string> entry in this.customParameters) {
+          if (entry.Value != null) {
+           urlParameters.Add(entry.Key, entry.Value);
           }
         }
       }
@@ -200,12 +211,15 @@ namespace DotNetCasClient.Validation
     }
 
     /// <summary>
-    /// Parses the response from the server into a CAS Assertion and includes this in
-    /// a CASPrincipal.
+    /// Parses the response from the server into a CAS Assertion and includes
+    /// this in a CASPrincipal.
     /// </summary>
-    /// <param name="response">the response from the server, in any format.</param>
+    /// <param name="response">
+    /// the response from the server, in any format.
+    /// </param>
     /// <returns>
-    /// a Principal backed by a CAS Assertion, if one could be parsed from the response.
+    /// a Principal backed by a CAS Assertion, if one could be parsed from the
+    /// response.
     /// </returns>
     /// <exception cref="TicketValidationException">
     /// Thrown if creation of the Assertion fails.
@@ -213,23 +227,27 @@ namespace DotNetCasClient.Validation
     protected abstract ICasPrincipal ParseResponseFromServer(string response);
 
     /// <summary>
-    /// Contacts the CAS Server to retrieve the response for the ticket validation.
+    /// Contacts the CAS Server to retrieve the response for the ticket
+    /// validation.
     /// </summary>
-    /// <param name="validationUrl">the URL for the validation request submission.</param>
+    /// <param name="validationUrl">
+    /// the URL for the validation request submission.
+    /// </param>
     /// <param name="ticket">the ticket to validate.</param>
     /// <returns>the response from the CAS server.</returns>
-    protected virtual string RetrieveResponseFromServer(Uri validationUrl, string ticket)
+    protected virtual string RetrieveResponseFromServer(Uri validationUrl,
+      string ticket)
     {
-			StreamReader reader = null;
-      string validateUrlResponse = null;
-			try {
-				reader = new StreamReader(new WebClient().OpenRead(validationUrl));
-        validateUrlResponse = reader.ReadToEnd();
-			} finally {
-				if ( reader != null ) {
-          reader.Close();
-        }
-			}
+       StreamReader reader = null;
+       string validateUrlResponse = null;
+       try {
+         reader = new StreamReader(new WebClient().OpenRead(validationUrl));
+         validateUrlResponse = reader.ReadToEnd();
+       } finally {
+         if ( reader != null ) {
+           reader.Close();
+         }
+      }
       return validateUrlResponse;
     }
 
@@ -239,8 +257,8 @@ namespace DotNetCasClient.Validation
     /// <param name="ticket">the ticket to validate</param>
     /// <param name="service">the service associated with this ticket</param>
     /// <returns>
-    /// The ICasPrincipal backed by the CAS Assertion included in the response from
-    /// the CAS server for a successful ticket validation.
+    /// The ICasPrincipal backed by the CAS Assertion included in the response
+    /// from the CAS server for a successful ticket validation.
     /// </returns>
     /// <exception cref="TicketValidationException">
     /// Thrown if ticket validation fails.
@@ -254,19 +272,19 @@ namespace DotNetCasClient.Validation
       }
       string serverResponse = null;
       try {
-        serverResponse = this.RetrieveResponseFromServer(new Uri(validationUrl), ticket);
+        serverResponse = this.RetrieveResponseFromServer(new Uri(validationUrl),
+          ticket);
       } catch (Exception e) {
         throw new TicketValidationException(
           "CAS server ticket validation threw an Exception", e);
       }
       if (serverResponse == null) {
-        throw new TicketValidationException("The CAS server returned no response.");
+        throw new TicketValidationException(
+          "The CAS server returned no response.");
       }
 
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:Ticket validation server response:>{1}<",
-          CommonUtils.MethodName, serverResponse));
-      }
+      log.Debug(string.Format("{0}:Ticket validation server response:>{1}<",
+        CommonUtils.MethodName, serverResponse));
 
       return this.ParseResponseFromServer(serverResponse);
     }
@@ -275,10 +293,13 @@ namespace DotNetCasClient.Validation
     /// <summary>
     /// Stores custom parameters to be included in the validation URL.
     /// </summary>
-    /// <param name="customParameters">custom parameters for the validation</param>
-    public void setCustomParameters(IDictionary<string, string> customParameters)
+    /// <param name="customParameters">
+    /// custom parameters for the validation
+    /// </param>
+    public void setCustomParameters(IDictionary<string,
+      string> customParameters)
     {
-      this.customParameters = customParameters.ToLookup(x => x.Key, x => x.Value);
+      this.customParameters = new Dictionary<string, string>(customParameters);
     }
   }
 }
