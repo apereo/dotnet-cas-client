@@ -15,7 +15,7 @@ namespace DotNetCasClient.Proxy
         /// </summary>
         /// <param name="proxyGrantingTicketIou">used as the key</param>
         /// <param name="proxyGrantingTicket">used as the value</param>
-        void Save(string ProxyGrantingTicketIou, string proxyGrantingTicket);
+        void Save(string proxyGrantingTicketIou, string proxyGrantingTicket);
 
         /// <summary>
         /// Method to retrieve a ProxyGrantingTicket based on the
