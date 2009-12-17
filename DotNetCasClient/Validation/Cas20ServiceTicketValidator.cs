@@ -4,8 +4,10 @@ using System.IO;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
+using System.Web;
 using DotNetCasClient.Authentication;
 using DotNetCasClient.Configuration;
+using DotNetCasClient.Proxy;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
 
@@ -20,11 +22,21 @@ namespace DotNetCasClient.Validation
   /// </remarks>
   /// <author>Scott Battaglia</author>
   /// <author>Catherine D. Winfrey (.Net)</author>
+  /// <author>William G. Thompson, Jr. (.Net)</author>
   /// <author>Marvin S. Addison</author>
   class Cas20ServiceTicketValidator : AbstractCasProtocolValidator
   {
     private const string XML_USER_ELEMENT_NAME = "cas:user";
     private const string XML_AUTHENTICATION_FAILURE_ELEMENT_NAME = "cas:authenticationFailure";
+    private const string XML_PROXY_GRANTING_TICKET_NAME = "cas:proxyGrantingTicket";
+
+    private readonly string proxyCallBackUrl;
+
+    //internal IProxyGrantingTicketStorage ProxyGrantingTicketStorage{ get; private set;}
+    public static readonly IProxyGrantingTicketStorage ProxyGrantingTicketStorage
+        = new ProxyGrantingTicketStorage(60000);
+
+    private readonly IProxyRetriever proxyRetriever;
 
     /// <summary>
     /// Constructs an ITicketValidator, initializing it with the supplied
@@ -35,14 +47,24 @@ namespace DotNetCasClient.Validation
     /// ticket validator
     /// </param>
     public Cas20ServiceTicketValidator(CasClientConfiguration config)
-      : base(config) { }
+      : base(config)
+    {
+        this.proxyCallBackUrl = config.ProxyCallbackUrl;
+        this.proxyRetriever = new Cas20ProxyRetriever(config.CasServerUrlPrefix);
+        //this.ProxyGrantingTicketStorage = new ProxyGrantingTicketStorage(60000);
+    }
 
     /// <summary>
     /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
     /// i.e. validate or serviceValidate.
     /// </summary>
     protected override string UrlSuffix {
-      get { return "serviceValidate"; }
+        get { return "serviceValidate"; }
+    }
+
+    protected override void AddParameters(IDictionary<string, string> urlParameters)
+    {
+        urlParameters.Add("pgtUrl", HttpUtility.UrlEncode(this.proxyCallBackUrl));
     }
 
 
@@ -79,7 +101,16 @@ namespace DotNetCasClient.Validation
           string.Format("CAS Server response parse failure: missing {0} element.",
             XML_USER_ELEMENT_NAME));
       }
-      return new CasPrincipal(new Assertion(userValue));
+
+      string proxyGrantingTicketIou = XmlUtils.GetTextForElement(response, XML_PROXY_GRANTING_TICKET_NAME);
+      string proxyGrantingTicket =ProxyGrantingTicketStorage != null
+                                       ? ProxyGrantingTicketStorage.Retrieve(proxyGrantingTicketIou)
+                                       : null;
+      //string proxyGrantingTicket = this.ProxyGrantingTicketStorage != null
+      //                               ? this.ProxyGrantingTicketStorage.Retrieve(proxyGrantingTicketIou)
+      //                               : null;
+      
+      return new CasPrincipal(new Assertion(userValue), proxyGrantingTicket, this.proxyRetriever);
     }
   }
 }

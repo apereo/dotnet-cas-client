@@ -47,15 +47,16 @@ namespace DotNetCasClient.Proxy
         public string GetProxyTicketIdFor(string proxyGrantingTicketId, Uri targetService)
         {
             // Build ProxyTicket Request Uri
-            var requestUri = new StringBuilder(this.casServerUrl.EndsWith("/") ? "" : "/");
-            requestUri.Append("proxy?pgt=" + proxyGrantingTicketId + "&targetService=");
-            requestUri.Append(HttpUtility.UrlEncode(targetService.ToString(), new UTF8Encoding()));
+            var requestUrl = new StringBuilder(this.casServerUrl);
+            requestUrl.Append(this.casServerUrl.EndsWith("/") ? "" : "/");
+            requestUrl.Append("proxy?pgt=" + proxyGrantingTicketId + "&targetService=");
+            requestUrl.Append(HttpUtility.UrlEncode(targetService.ToString(), new UTF8Encoding()));
 
             // Try to retrieve a proxy ticket from the CAS server
 		    StreamReader reader = null;
             string proxyTicketResponse = null;
 			try {
-				reader = new StreamReader(new WebClient().OpenRead(requestUri.ToString()));
+				reader = new StreamReader(new WebClient().OpenRead(requestUrl.ToString()));
                 proxyTicketResponse = reader.ReadToEnd();
 			} 
             finally
@@ -67,7 +68,7 @@ namespace DotNetCasClient.Proxy
 			}
 
             // check for proxyFailure
-            var error = XmlUtils.GetTextForElement(proxyTicketResponse, "proxyFailure");
+            var error = XmlUtils.GetTextForElement(proxyTicketResponse, "cas:proxyFailure");
             if (!String.IsNullOrEmpty(error))
             {
                 log.Debug(error);
@@ -75,7 +76,7 @@ namespace DotNetCasClient.Proxy
             }
 
             // otherwise, return the proxyTicket
-            return XmlUtils.GetTextForElement(proxyTicketResponse, "proxyTicket");
+            return XmlUtils.GetTextForElement(proxyTicketResponse, "cas:proxyTicket");
         }
 
     }

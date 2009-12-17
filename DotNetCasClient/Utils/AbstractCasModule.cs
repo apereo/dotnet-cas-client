@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Configuration;
+using DotNetCasClient.Proxy;
 using log4net;
 using DotNetCasClient.Authentication;
 using DotNetCasClient.Configuration;
@@ -75,6 +76,11 @@ namespace DotNetCasClient.Utils
     /// Specifies whether single sign out functionality should be enabled.
     /// </summary>
     protected bool SingleSignOut { get; private set; }
+
+    /// <summary>
+    /// Specifies whether proxy granting tickets are being accepted.
+    /// </summary>
+    protected bool ProxyGrantingTicketReceptor { get; private set; }
     #endregion
 
     #region Fields
@@ -93,6 +99,12 @@ namespace DotNetCasClient.Utils
     /// single sign out.
     /// </summary>
     internal ISingleSignOutHandler singleSignOutHandler;
+
+    /// <summary>
+    /// The ProxyGrantingTicketHandler to be used for receiving PGTs from the 
+    /// the CAS server.
+    /// </summary>
+    internal ProxyCallbackHandler proxyCallbackHandler;
 
     /// <summary>
     /// ConfigurationManager to provide access to the configuration data
@@ -143,6 +155,9 @@ namespace DotNetCasClient.Utils
       this.SingleSignOut = this.config.SingleSignOut;
       log.Info("Set SingleSignOut property: " + this.SingleSignOut);
 
+      this.ProxyGrantingTicketReceptor = this.config.ProxyGrantingTicketReceptor;
+      log.Info("Set ProxyGrantingTicketReceptor: " + this.ProxyGrantingTicketReceptor);
+    
       CommonUtils.AssertTrue( !String.IsNullOrEmpty(this.ServerName) ||
                               !String.IsNullOrEmpty(this.Service),
                               string.Format("Either {0} or {1} must be set.",

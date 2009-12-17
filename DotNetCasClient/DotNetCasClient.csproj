@@ -63,6 +63,10 @@
     <Compile Include="Configuration\CasClientConfiguration.cs" />
     <Compile Include="CasAuthenticationModule.cs" />
     <Compile Include="Configuration\CasConfigurationException.cs" />
+    <Compile Include="Proxy\Cas20ProxyRetriever.cs" />
+    <Compile Include="Proxy\ProxyCallbackHandler.cs" />
+    <Compile Include="Proxy\ProxyGrantingTicketHolder.cs" />
+    <Compile Include="Proxy\ProxyGrantingTicketStorage.cs" />
     <Compile Include="Security\Assertion.cs" />
     <Compile Include="Security\CasPrincipal.cs" />
     <Compile Include="Authentication\SessionAttrGatewayResolver.cs" />

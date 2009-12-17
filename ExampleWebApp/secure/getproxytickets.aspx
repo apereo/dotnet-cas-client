@@ -62,16 +62,8 @@
             foreach (var attribute in casPrincipal.Assertion.Attributes)
             {
                 Response.Write("<dt>" + attribute.Key + "</dt>");
-   
-                foreach (var values in attribute)
-                {
-                    Response.Write("<dd>");
-                    foreach (var value in values)
-                    {
-                        Response.Write(value + " ");
-                    }
-                    Response.Write("</dd>");
-                }
+                Response.Write("<dd> " + attribute.Value + "</dd>");
+                
             }
         }
 		%>

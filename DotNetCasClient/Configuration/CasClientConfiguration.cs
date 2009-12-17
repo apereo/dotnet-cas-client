@@ -49,7 +49,10 @@ namespace DotNetCasClient.Configuration
     public const string USE_SESSION = "useSession";
     public const string TICKET_TIME_TOLERANCE = "ticketTimeTolerance";
     public const string SINGLE_SIGN_OUT = "singleSignOut";
-
+    public const string PROXY_GRANTING_TICKET_RECEPTOR = "proxyGrantingTicketReceptor";
+    public const string PROXY_CALLBACK_URL = "proxyCallbackUrl";
+    public const string PROXY_RECEPTOR_URL = "proxyReceptorUrl";
+  
     /// <summary>
     /// Names for the supported ticket validators
     /// </summary>
@@ -225,6 +228,49 @@ namespace DotNetCasClient.Configuration
         return Convert.ToBoolean(this[SINGLE_SIGN_OUT]);
       }
     }
+
+    /// <summary>
+    /// Specifies whether proxy granting ticket receptor functionality should be enabled.
+    /// </summary>
+    [ConfigurationProperty(PROXY_GRANTING_TICKET_RECEPTOR, DefaultValue = true, IsRequired = false)]
+    public bool ProxyGrantingTicketReceptor
+    {
+        get
+        {
+            return Convert.ToBoolean(this[PROXY_GRANTING_TICKET_RECEPTOR]);
+        }
+    }
+
+    /// <summary>
+    /// The callback URL provided to the CAS server for receiving Proxy Granting Tickets.
+    /// e.g. https://www.example.edu/cas-client-app/proxyCallback
+    /// </summary>
+    [ConfigurationProperty(PROXY_CALLBACK_URL, DefaultValue = null, IsRequired = false)]
+    public string ProxyCallbackUrl
+    {
+        get
+        {
+            return this[PROXY_CALLBACK_URL] as string;
+        }
+    }
+
+    /// <summary>
+    /// The URL to watch for PGTIOU/PGT responses from the CAS server. Should be defined from
+    /// the root of the context. For example, if your application is deployed in /cas-client-app
+    /// and you want the proxy receptor URL to be /cas-client-app/my/receptor you need to configure
+    /// proxyReceptorUrl to be /my/receptor
+    /// e.g. /proxyCallback
+    /// </summary>
+    [ConfigurationProperty(PROXY_RECEPTOR_URL, DefaultValue = null, IsRequired = false)]
+    public string ProxyReceptorUrl
+    {
+        get
+        {
+            return this[PROXY_RECEPTOR_URL] as string;
+        }
+    }
+
+
 
     /// <summary>
     /// Specifies whether authentication based on the presence of the CAS

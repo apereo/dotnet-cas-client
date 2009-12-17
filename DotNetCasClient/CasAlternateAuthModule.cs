@@ -10,6 +10,7 @@ using System.Web;
 using System.Web.SessionState;
 using DotNetCasClient.Authentication;
 using DotNetCasClient.Configuration;
+using DotNetCasClient.Proxy;
 using DotNetCasClient.Security;
 using DotNetCasClient.Session;
 using DotNetCasClient.Utils;
@@ -103,6 +104,10 @@ namespace DotNetCasClient
       if (this.SingleSignOut) {
         this.singleSignOutHandler = new SessionBasedSingleSignOutHandler(config);
       }
+      
+      if (this.ProxyGrantingTicketReceptor) {
+          this.proxyCallbackHandler = new ProxyCallbackHandler(config);
+      }
     }
 
     
@@ -165,6 +170,20 @@ namespace DotNetCasClient
           DebugUtils.SessionSessionIdToString((HttpApplication)sender)));
       }
       HttpApplication application = (HttpApplication)sender;
+
+      if (this.ProxyGrantingTicketReceptor) 
+      {
+          if (this.proxyCallbackHandler.ProcessRequest(application, Cas20ServiceTicketValidator.ProxyGrantingTicketStorage))
+          {
+              if (log.IsDebugEnabled)
+              {
+                  log.Debug(string.Format("{0}: ProxyGrantingTicketHandler returned true -->" +
+                      " received ProxyGrantingTicket", CommonUtils.MethodName));
+              }
+              return;
+          }
+      }
+
       if (this.SingleSignOut) {
         if (this.singleSignOutHandler.ProcessRequest(application)) {
           if (log.IsDebugEnabled) {
