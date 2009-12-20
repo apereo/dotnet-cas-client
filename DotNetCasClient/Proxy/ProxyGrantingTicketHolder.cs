@@ -18,9 +18,17 @@ namespace DotNetCasClient.Proxy
 
         }
 
-        public bool IsExpired(long timeout)
+        public bool IsExpired(double timeout)
         {
-            return (System.DateTime.Now - this.TimeInserted).TotalMilliseconds > timeout;
+            double age = (System.DateTime.Now - this.TimeInserted).TotalMilliseconds;
+            if (age > timeout)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

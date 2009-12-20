@@ -10,6 +10,7 @@ using DotNetCasClient.Configuration;
 using DotNetCasClient.Proxy;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
+using System.Timers;
 
 namespace DotNetCasClient.Validation
 {
@@ -33,8 +34,10 @@ namespace DotNetCasClient.Validation
     private readonly string proxyCallBackUrl;
 
     //internal IProxyGrantingTicketStorage ProxyGrantingTicketStorage{ get; private set;}
-    public static readonly IProxyGrantingTicketStorage ProxyGrantingTicketStorage
+    public static readonly ProxyGrantingTicketStorage ProxyGrantingTicketStorage
         = new ProxyGrantingTicketStorage(60000);
+
+    private Timer timer;
 
     private readonly IProxyRetriever proxyRetriever;
 
@@ -51,8 +54,16 @@ namespace DotNetCasClient.Validation
     {
         this.proxyCallBackUrl = config.ProxyCallbackUrl;
         this.proxyRetriever = new Cas20ProxyRetriever(config.CasServerUrlPrefix);
-        //this.ProxyGrantingTicketStorage = new ProxyGrantingTicketStorage(60000);
+        this.timer = new Timer(60000);
+        this.timer.Elapsed += new ElapsedEventHandler(CleanUpEvent);
+        this.timer.Enabled = true;
     }
+
+    private static void CleanUpEvent(object source, ElapsedEventArgs e)
+    {
+        ProxyGrantingTicketStorage.CleanUp();
+    }
+
 
     /// <summary>
     /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").

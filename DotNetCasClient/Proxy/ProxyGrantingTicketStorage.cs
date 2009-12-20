@@ -63,11 +63,14 @@ namespace DotNetCasClient.Proxy
         {
             lock (this.cache.SyncRoot)
             {
-                foreach (ProxyGrantingTicketHolder holder in cache)
+
+                foreach (DictionaryEntry entry in cache)
                 {
-                    if (holder.IsExpired(this.timeout))
+                    ProxyGrantingTicketHolder holder = entry.Value as ProxyGrantingTicketHolder;
+
+                    if (holder != null && holder.IsExpired(this.timeout))
                     {
-                        cache.Remove(holder);
+                        cache.Remove(entry.Key);
                     }
                 }
             }
