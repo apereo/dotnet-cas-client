@@ -1,476 +1,336 @@
 ﻿using System;
-using System.Text;
+using System.Threading;
 using System.Web;
-using System.Web.Caching;
-using System.Web.Configuration;
 using System.Web.Security;
-using System.Security.Principal;
-using DotNetCasClient.Configuration;
-using DotNetCasClient.Utils;
 using DotNetCasClient.Security;
-using DotNetCasClient.Session;
-using DotNetCasClient.Validation;
-using System.Web.SessionState;
-using log4net;
+using DotNetCasClient.Utils;
 
 namespace DotNetCasClient
 {
-  /// <summary>
-  /// HttpModule implementation to intercept requests and perform authentication via CAS.
-  /// </summary>
-  public sealed class CasAuthenticationModule : AbstractCasModule, IHttpModule
-  {
     /// <summary>
-    /// Performs initializations / startup functionality when an instance of this HttpModule
-    /// is being created.
+    /// HttpModule implementation to intercept requests and perform authentication via CAS.
     /// </summary>
-    /// <param name="application">the current HttpApplication</param>
-    public override void Init(HttpApplication application)
+    public sealed class CasAuthenticationModule : AbstractFormsAuthenticationCasModule
     {
-      base.Init(application);
+        private bool requestAuthenticated;
 
-      if (this.Gateway) {
-        throw new CasConfigurationException(
-          string.Format("Gateway functionality not yet implemented."));
-      }
-
-      if (this.SingleSignOut) {
-        this.singleSignOutHandler = new FormsBasedSingleSignOutHandler(config);
-      }
-
-      // Register our event handlers.  These are fired on every HttpRequest.
-      application.AuthenticateRequest += new EventHandler(this.OnAuthenticateRequest);
-      application.AcquireRequestState +=
-        (new EventHandler(this.OnAcquireRequestState));
-      application.EndRequest += new EventHandler(this.OnEndRequest);
-    }
-
-
-    /// <summary>
-    /// AuthenticateRequest event fires on every HttpRequest in order to (re)establish the security
-    /// context (i.e. IPrincipal and IIdentity) available as HttpContext.User.  Security context
-    /// will come from an encrypted cookie (e.g. FormsAuthenticationTicket) if the user has
-    /// already been authenticated via CAS, or from the validation of a CAS Ticket if one is
-    /// available, otherwise an anonymous security context is created.
-    /// 
-    /// FormsAuthenticationTicket maintenance is also done.
-    /// </summary>
-    /// <param name="sender">the HttpApplication that fired the event</param>
-    /// <param name="args">the event data</param>
-    void OnAuthenticateRequest(object sender, EventArgs args)
-    {
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting:Summary:{1}", CommonUtils.MethodName,
-          DebugUtils.FormsAuthRequestSummaryToString((HttpApplication)sender)));
-        log.Debug(string.Format("{0}:starting with {1} and {2}", CommonUtils.MethodName,
-          DebugUtils.CookieSessionIdToString((HttpApplication)sender),
-          DebugUtils.SessionSessionIdToString((HttpApplication)sender)));
-      }
-      AuthenticationSection config =
-        (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
-
-      // Make sure we are configured for Forms Authentication Mode
-      if (config == null || config.Mode != AuthenticationMode.Forms) {
-        // ASP.NET does this so they can have all the default AuthN Modules deployed.
-        // I'm thinking we should throw an exception here to alert the deployer that
-        // the config is not right, otherwise they should have this module deployed. No?
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:not configured for Forms Authentication - just return",
-            CommonUtils.MethodName));
-        }
-        return;
-      }
-      HttpApplication app = (HttpApplication)sender;
-      if (this.SingleSignOut) {
-        if (this.singleSignOutHandler.ProcessRequest(app)) {
-          if (log.IsDebugEnabled) {
-            log.Debug(string.Format("{0}:SingleSignOut returned true --> " +
-              " processed CAS logoutRequest", CommonUtils.MethodName));
-          }
-          return;
-        } else if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:SingleSignOut returned false --> " +
-            " received client request", CommonUtils.MethodName));
-        }
-      }
-
-      HttpContext context = app.Context;
-      string cookiePath = config.Forms.Path;
-      string casLoginUrl = config.Forms.LoginUrl;
-      bool slidingExpiration = config.Forms.SlidingExpiration;
-
-      // Construct Service URL and save as request Item in case it is needed.
-      Uri serviceUrl = this.ConstructServiceUri(app.Request);
-      context.Items[CommonUtils.CAS_KEY_REDIRECT_URI] = serviceUrl;
+        /// <summary>
+        /// Performs initializations / startup functionality when an instance of this HttpModule
+        /// is being created.
+        /// </summary>
+        /// <param name="context">the current HttpApplication</param>        
+        public override void Init(HttpApplication context)
+        {
+            base.Init(context);
             
-      // Authenticate is a no-op unless a ticket exists.
-      // When a ticket exists, ticket validation is performed
-      //     success --> a new security context is created and information needed for the
-      //       AcquireRequestState event is stored in the HttpRequest cache.  Note that the
-      //       redirect is DELAYED until after the AcquireRequestState processing because
-      //       of the need for Http session access to complete processing before the redirect
-      //     failure --> TicketValidationException is thrown
-      // For ticket validation failure, want to invalidate the FAT, action patterned after the
-      // Jasig Java client where presence of a ticket "trumps" authentication based on session
-      // attribute (which would be authentication based on FAT here).
-      FormsAuthenticationEventArgs faa = new FormsAuthenticationEventArgs(context);
-      try {
-        if (Authenticate(faa)) {
-          return;
+            // Register our event handlers.  These are fired on every HttpRequest.
+            context.BeginRequest += OnBeginRequest;
+            context.AuthenticateRequest += OnAuthenticateRequest;
+            context.PreSendRequestHeaders += OnPreSendRequestHeaders;
+            context.PreSendRequestContent += OnPreSendRequestContent;
+            context.EndRequest += OnEndRequest;
         }
-      } catch (TicketValidationException te) {
-        log.Warn(te.Message, te);
-        //throw new HttpException(403, "Unauthorized - CAS ticket validation failed!");
-        // TODO do we want this behavior?
-        //if (this.exceptionOnValidationFailure)
-        //{
-        //    throw new HttpException(te.Message);
-        //}
-        return;
-      }
+        
+        /// <summary>
+        /// Intercepts the beginning of the request pipeline.  This will detect SingleSignOut 
+        /// requests.  SingleSignOut requests are posted back to the serviceName URL that
+        /// was passed when the CAS session was established.  Since the behavior of the script
+        /// at that URL is unknown, a POST back by the CAS server could have unexpected 
+        /// consequences.  We want to prevent this request from authenticating and from 
+        /// executing the HttpHandler typically associated with that URL.  So we are handling 
+        /// this by sending back an HTTP 200 (OK) message with a blank body and short 
+        /// circuiting all event processing & firing EndRequest directly 
+        /// (via CompleteRequest()).
+        /// </summary>
+        /// <param name="sender">The HttpApplication that sent the request</param>
+        /// <param name="e">Not used</param>
+        private void OnBeginRequest(object sender, EventArgs e)
+        {
+            HttpApplication app = (HttpApplication)sender;
+            HttpContext context = app.Context;
+            HttpResponse response = context.Response;
 
-      // No initial security context via CAS ticket, how about FAT Cookie?
-      FormsAuthenticationTicket faTicket = this.FindValidFat(context);
-      if (faTicket == null) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:return(no valid fat)", CommonUtils.MethodName));
-        }
-        return;
-      }
+            if (SingleSignOut && TicketManager != null)
+            {
+                if (ProcessSingleSignOutRequest(app))
+                {
+                    if (log.IsDebugEnabled)
+                    {
+                        log.DebugFormat("{0}:SingleSignOut returned true --> processed CAS logoutRequest", CommonUtils.MethodName);
+                    }
 
-      // FAT valid, do we need to extend expiration?
-      FormsAuthenticationTicket faTicketOld = faTicket;
-      if (config.Forms.SlidingExpiration) {
-        faTicket = FormsAuthentication.RenewTicketIfOld(faTicket);
-      }
+                    response.StatusCode = 200;
+                    response.ContentType = "text/plain";
+                    response.Clear();
+                    response.Write("OK");
 
-      // FAT valid and up to date, create security context.
-      // Since the session is not available yet, the CAS Assertion from the previous
-      // authentication is not available in order to create a CasPrincipal.  A
-      // GenericPrincipal with authentication type 'Jasig CAS' will be created and
-      // stored in the security context, to be updated with the Assertion by the
-      // an event handler method that has session access.
-      context.User =  new GenericPrincipal(new GenericIdentity(faTicket.Name,
-        CommonUtils.CAS_AUTH_TYPE), new string[0]);
-      System.Threading.Thread.CurrentPrincipal = context.User;
-
-      // Do we need to reset (renew) the FAT cookie?
-      // If cookie is persistent and fat wasn't renewed, no
-      HttpCookie cookie = context.Request.Cookies[config.Forms.Name];
-      if (cookie.Expires == DateTime.MinValue && faTicketOld == faTicket) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:return(no cookie reset needed):Summary:{1}",
-            CommonUtils.MethodName,
-            DebugUtils.FormsAuthSummaryToString((HttpApplication)sender)));
-        }
-        return;
-      }
-
-      // otherwise, yes, create new FAT Cookie
-      cookie.Value = FormsAuthentication.Encrypt(faTicket);
-      cookie.Path = config.Forms.Path;
-      if (faTicket.IsPersistent) {
-        cookie.Expires = faTicket.Expiration;
-      }
-      context.Response.Cookies.Add(cookie);
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:ending:Summary:{1}", CommonUtils.MethodName,
-          DebugUtils.FormsAuthSummaryToString((HttpApplication)sender)));
-      }
-    }
-
-    /// <summary>
-    /// Performs CAS state information maintenance that requires access to the
-    /// Http session.
-    /// </summary>
-    /// <param name="sender">the HttpApplication that fired the event</param>
-    /// <param name="args">the event data</param>
-    void OnAcquireRequestState(object sender, EventArgs args)
-    {
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting with {1} and {2}", CommonUtils.MethodName,
-          DebugUtils.CookieSessionIdToString((HttpApplication)sender),
-          DebugUtils.SessionSessionIdToString((HttpApplication)sender)));
-      }
-      HttpApplication app = (HttpApplication)sender;
-      HttpContext context = app.Context;
-      HttpRequest request = app.Request;
-      HttpSessionState session = SessionUtils.GetSession();
-          
-      // If ticket was received, even if not validated, update the single sign out
-      // information.
-      if (this.SingleSignOut) {
-        string ticket = (string)context.Items[CommonUtils.CAS_KEY_TICKET];
-        if (CommonUtils.IsNotBlank(ticket)) {
-          if (session != null) {
-            try {
-              this.singleSignOutHandler.StoreState(app, ticket, session.SessionID);
-            } catch (Exception ex) {
-              if (log.IsWarnEnabled) {
-                log.Warn(string.Format("{0}: FAILURE: " +
-                  "Storing single sign out information for sessionID={1} and ticket={2}",
-                  CommonUtils.MethodName, session.SessionID, ticket), ex);
-              }
-            }
-          } 
-        }
-      }
-
-      // Do maintenance on the CasPrincipal stored in the session.  The presence of
-      // this session attribute is the "final authority" in terms of authentication.
-      IPrincipal contextUserPrincipal = context.User;
-      if (contextUserPrincipal != null) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:starting context.User={1}",
-            CommonUtils.MethodName, DebugUtils.IPrincipalToString(contextUserPrincipal)));
-        }
-        if (typeof(CasPrincipal) == contextUserPrincipal.GetType()) {
-          // Ticket validation occurred successfully.  Store the CasPrincipal in the
-          // session.
-          if (log.IsDebugEnabled) {
-            log.Debug(string.Format("{0}:store CasPrincipal from context.User in session.",
-              CommonUtils.MethodName));
-           }
-          SessionUtils.SetCasPrincipal(session, (ICasPrincipal)contextUserPrincipal);
-
-        } else {
-          // GenericPrincipal so authentication occurred from the FAT -- or -- no valid FAT
-           // and are accessing a publicly available page.
-          if (CommonUtils.CAS_AUTH_TYPE.Equals(contextUserPrincipal.Identity.AuthenticationType)) {
-            // Authentication was based on FAT.  Still might be a publicly available page
-            // but don't know how to determine this.
-            // A session attribute must exist with the CASPrincipal for the authentication to
-            // be acceptable. Otherwise, the authentication information will be cleared and
-            // a redirect to the original URL performed to force the authentication step to
-            // be performed with no FAT available to solve the public versus secure issue.
-            IPrincipal storedPrincipal = SessionUtils.GetPrincipal(session);
-            if (storedPrincipal != null) {
-              if (log.IsDebugEnabled) {
-                log.Debug(string.Format("{0}:starting session Principal={1}",
-                  CommonUtils.MethodName, 
-                  DebugUtils.IPrincipalToString(storedPrincipal)));
-              }
-              if (typeof(CasPrincipal) == storedPrincipal.GetType()) {
-                ICasPrincipal storedCasPrincipal = (ICasPrincipal)storedPrincipal;
-                if (log.IsDebugEnabled) {
-                  log.Debug(string.Format("{0}:store CasPrincipal from session in context.User.",
-                    CommonUtils.MethodName));
-                 }
-                context.User = storedPrincipal;
-                System.Threading.Thread.CurrentPrincipal = storedPrincipal;
-              } else {
-                if (log.IsWarnEnabled) {
-                  log.Warn(string.Format(
-                    "{0}: incorrect type for Principal in session --> fail authentication from FAT",
-                    CommonUtils.MethodName));
+                    app.CompleteRequest();
                 }
-                contextUserPrincipal = null;
-              }
-            } else {
-              if (log.IsInfoEnabled) {
-                log.Info(string.Format(
-                  "{0}: no IPrincipal in session --> fail authentication from FAT",
-                  CommonUtils.MethodName));
-              }
-              contextUserPrincipal = null;
+                else
+                {
+                    if (log.IsDebugEnabled)
+                    {
+                        log.DebugFormat("{0}:SingleSignOut returned false --> did not receive client request", CommonUtils.MethodName);
+                    }
+                }
             }
-            if (contextUserPrincipal == null) {
-              if (log.IsDebugEnabled) {
-                log.Debug(string.Format("{0}:FAT authentication with missing session IPrincipal" +
-                  " --> force redirect to CAS login",
-                  CommonUtils.MethodName));
-              }
-              context.User = null;
-              System.Threading.Thread.CurrentPrincipal = null;
-              SessionUtils.RemoveCasPrincipal(session);
-              FormsAuthentication.SignOut();
-              context.Items[CommonUtils.CAS_KEY_REDIRECT_REQUIRED] = "true";
+        }
+
+        /// <summary>
+        /// Handles the authentication of the request.  
+        /// 
+        /// If the request contains a ticket, this will validate the ticket and create a 
+        /// FormsAuthenticationTicket and encrypted cookie container for it.  It will redirect 
+        /// to remove the ticket from the URL.  With Forms-based authentication, this is 
+        /// required to prevent the client from automatically/silently re-authenticating on a 
+        /// refresh or after logout.  
+        /// 
+        /// If the request does not contain a ticket, it checks for a FormsAuthentication 
+        /// cookie, decrypts it, extracts the FormsAuthenticationTicket, verifies that it 
+        /// exists in the StateProvider/TicketManager, and assigns a Principal to the 
+        /// thread and context.User properties.  All events after this request become 
+        /// authenticated.
+        /// </summary>
+        /// <param name="sender">The HttpApplication that sent the request</param>
+        /// <param name="e">Not used</param>
+        private void OnAuthenticateRequest(object sender, EventArgs e)
+        {
+            requestAuthenticated = true;
+
+            if (log.IsDebugEnabled)
+            {
+                log.DebugFormat("{0}:starting:Summary:{1}", CommonUtils.MethodName, DebugUtils.FormsAuthRequestSummaryToString((HttpApplication)sender));
+                log.DebugFormat("{0}:starting with {1} and {2}", CommonUtils.MethodName, DebugUtils.CookieSessionIdToString((HttpApplication)sender), DebugUtils.SessionSessionIdToString((HttpApplication)sender));
             }
-          } else {
-            // Public page access with no valid FAT.
-            SessionUtils.RemoveCasPrincipal(session);
-          }
-        }
-      }
-          
-      // Issue any delayed redirect
-      string redirectUrl = context.Items[CommonUtils.CAS_KEY_REDIRECT_URI].ToString();
-      if (CommonUtils.IsNotBlank(redirectUrl) &&
-        "true".Equals(context.Items[CommonUtils.CAS_KEY_REDIRECT_REQUIRED]))
-      {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:process delayed redirect to {1}",
-            CommonUtils.MethodName, redirectUrl));
-        }
-        context.Response.Redirect(redirectUrl, true);
-      }
 
-      // throw any delayed exception
-      Exception delayedEx = (Exception)context.Items[CommonUtils.CAS_KEY_EXCEPTION_TO_THROW];
-      if (delayedEx != null) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:process delayed exception {1}",
-            CommonUtils.MethodName, delayedEx.Message));
+            HttpApplication app = (HttpApplication)sender;
+            HttpContext context = app.Context;
+            HttpRequest request = context.Request;
+            HttpResponse response = context.Response;            
+            ICasPrincipal principal;
+
+            // Construct Service URL and save as request Item in case it is needed.
+            context.Items[CommonUtils.CAS_KEY_REDIRECT_URI] = ConstructRedirectUri(context, CasServerLoginUrl); ;
+
+            // See if this request is the first request redirected from the CAS server 
+            // with a Ticket parameter.
+            string ticket = request[ticketValidator.ArtifactParameterName];
+            if (ticket != null && CommonUtils.IsNotBlank(ticket))
+            {
+                // Attempt to authenticate the ticket and resolve to an ICasPrincipal
+                principal = ticketValidator.Validate(ticket, ConstructServiceUri(app.Request));
+
+                // Save the ticket as UserData in a FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 
+                FormsAuthenticationTicket formsAuthTicket = CreateFormsAuthenticationTicket(principal.Identity.Name, false, FormsAuthentication.FormsCookiePath, ticket);
+                SetAuthCookie(formsAuthTicket);
+
+                // Also save the ticket in the server store (if configured)
+                if (TicketManager != null)
+                {
+                    TicketManager.RevokeTicket(ticket);
+                    TicketManager.InsertTicket(formsAuthTicket, formsAuthTicket.Expiration);
+                }
+
+                // Remove the ticket from the URL and redirect if configured to RedirectAfterValidation.
+                int artifactIndex = request.Url.AbsoluteUri.IndexOf(ticketValidator.ArtifactParameterName);
+                if (artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'))
+                {
+                    response.Redirect(RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, ticketValidator.ArtifactParameterName));
+                }
+            }
+
+            // Look for a valid FormsAuthenticationTicket encrypted in a cookie.
+            FormsAuthenticationTicket formsAuthenticationTicket = GetFormsAuthenticationTicket(context);
+            if (formsAuthenticationTicket != null)
+            {
+                if (TicketManager != null)
+                {
+                    if (!TicketManager.VerifyClientTicket(formsAuthenticationTicket))
+                    {
+                        if (log.IsDebugEnabled)
+                        {
+                            log.DebugFormat("{0}:Ticket [{1}] failed verification.", CommonUtils.MethodName, formsAuthenticationTicket.UserData);
+                        }
+
+                        // Deletes the invalid FormsAuthentication cookie from the client.
+                        ClearAuthCookie();
+                        TicketManager.RevokeTicket(formsAuthenticationTicket);
+
+                        // Don't give this request a User/Principal.
+                        return;
+                    }
+                }
+
+                // If the ticket exists & is still valid, create a new CasPrincipal with the NetID
+                principal = new CasPrincipal(new Assertion(formsAuthenticationTicket.Name));
+                context.User = principal;
+                Thread.CurrentPrincipal = principal;
+
+                // Extend the expiration of the cookie if FormsAuthentication is configured to do so.
+                if (FormsAuthentication.SlidingExpiration)
+                {
+                    FormsAuthenticationTicket newTicket = FormsAuthentication.RenewTicketIfOld(formsAuthenticationTicket);
+                    if (newTicket != null && newTicket != formsAuthenticationTicket)
+                    {
+                        SetAuthCookie(newTicket);
+                        if (TicketManager != null)
+                        {
+                            TicketManager.UpdateTicketExpiration(newTicket, newTicket.Expiration);
+                        }
+                    }
+                }
+            }
         }
-        throw delayedEx;
-      }
+
+        /// <summary>
+        /// This checks to see whether request authorization failed (typically caused by the 
+        /// UrlAuthorizationModule during AuthorizeRequest).  That would indicate that the user
+        /// is attempting to access a protected resource with either no credentials or 
+        /// insufficient privileges.  The ASP.NET behavior is to send users to the login page 
+        /// again.
+        /// </summary>
+        /// <param name="sender">The HttpApplication that sent the request</param>
+        /// <param name="e">Not used</param>        
+        private void OnEndRequest(object sender, EventArgs args)
+        {
+            // TODO: See what happens when a valid user accesses a page they aren't authorized for.
+
+            if (requestAuthenticated)
+            {
+                requestAuthenticated = false;
+            }
+            else
+            {
+                return;
+            }
+
+            HttpApplication app = (HttpApplication)sender;
+            HttpRequest request = app.Context.Request;
+            HttpResponse response = app.Context.Response;
+
+            // If we got an HTTP 401 Error (Unauthorized) and don't have a CAS ticket
+            // in the URL, redirect to CAS.
+
+            // TODO: We can implement a NotAuthorizedPage handler here.  CustomErrors 
+            //       doesn't allow us to attach to the 401 error code, but we can 
+            //       bypass the redirect to login page here.
+            if ((response.StatusCode == 401 && request.QueryString[ticketValidator.ArtifactParameterName] == null))
+            {
+                // construct CAS RedirectURL and do redirect
+                FormsAuthentication.RedirectToLoginPage();
+            }
+        }
+
+        /// <summary>
+        /// FormsAuthentication will attempt to redirect to the configured
+        /// login page with a ReturnUrl parameter in the URL.  Since we are
+        /// trying to go directly to the correct CAS login page, this will
+        /// intercept that Location header and replace it with the correctly
+        /// configured CAS redirect URL.
+        /// </summary>
+        /// <param name="sender">The <code>HttpApplication</code> executing the request</param>
+        /// <param name="e">Unused</param>
+        private void OnPreSendRequestHeaders(object sender, EventArgs e)
+        {
+            HttpApplication app = (HttpApplication)sender;
+            HttpContext context = app.Context;
+            HttpResponse response = context.Response;
+            if (!string.IsNullOrEmpty(response.Headers["Location"]) && response.Headers["Location"].StartsWith(FormsAuthConfig.LoginUrl))
+            {
+                string redirectUrl = context.Items[CommonUtils.CAS_KEY_REDIRECT_URI].ToString();
+                int newContentLength = HtmlRedirectTemplateLength + redirectUrl.Length;
+                response.Headers["Location"] = redirectUrl;
+                response.Headers["Content-Length"] = newContentLength.ToString();
+            }
+        }
+
+        /// <summary>
+        /// FormsAuthentication sends a minimal HTML response to the browser
+        /// with a link to the login page for browsers that don't support or 
+        /// disabled HTTP redirects.  We need to change the URL to the proper
+        /// CAS URL.  To eliminate the need for installing a Filter in the 
+        /// pipeline, the HTML that it renders is defined as a constant.  
+        /// </summary>
+        /// <param name="sender">The <code>HttpApplication</code> executing the request</param>
+        /// <param name="e">Unused</param>
+        private void OnPreSendRequestContent(object sender, EventArgs e)
+        {
+            HttpApplication app = (HttpApplication)sender;
+            HttpContext context = app.Context;
+            HttpResponse response = context.Response;
+            if (!string.IsNullOrEmpty(response.Headers["Location"]) && response.Headers["Location"].StartsWith(FormsAuthConfig.LoginUrl))
+            {
+                response.Clear();
+                response.Write(string.Format(HtmlRedirectTemplate, context.Items[CommonUtils.CAS_KEY_REDIRECT_URI]));
+                
+                // No need to call response.End() or application.CompleteRequest() 
+                // because the EndRequest event was already fired.
+            }
+        }
+
+        /// <summary>
+        /// Process SingleSignOut requests by removing the ticket from the state store.
+        /// </summary>
+        /// <param name="application"></param>
+        /// <returns>
+        /// Boolean indicating whether the request was a SingleSignOut request, regardless of
+        /// whether or not the request actually required processing (non-existent/already expired).
+        /// </returns>
+        public bool ProcessSingleSignOutRequest(HttpApplication application)
+        {
+            // TODO: Should we be checking to make sure that this special POST is coming from a trusted source?
+            //       It would be tricky to do this by IP address because there might be a white list or something.
+
+            // TODO: What about confirming that the original serviceName when the ticket was requested is the URL
+            //       that CAS' SSO is connecting to now.  This would require storing more than just the CAS ticket
+            //       in the FormsAuthenticationTicket's UserData property (possibly XML or URL Encoded?)
+
+            if (!SingleSignOut || TicketManager == null)
+            {
+                throw new InvalidOperationException("Single Sign Out request cannot be handled without the SingleSignoutProperty set and a FormsAuthenticationStateManager configured.");
+            }
+
+            HttpRequest request = application.Request;
+
+            bool logoutRequestReceived = false;
+            if (request.RequestType == "POST")
+            {
+                string logoutRequest = request.Params["logoutRequest"];
+                if (log.IsDebugEnabled)
+                {
+                    log.DebugFormat("{0}:POST logoutRequest={1}", CommonUtils.MethodName, (logoutRequest ?? "null"));
+                }
+                if (CommonUtils.IsNotBlank(logoutRequest))
+                {
+                    logoutRequestReceived = true;
+                    string casTicket = ExtractSingleSignOutTicketFromSamlResponse(logoutRequest);
+                    if (log.IsDebugEnabled)
+                    {
+                        log.DebugFormat("{0}:casTicket=[{1}]", CommonUtils.MethodName, casTicket);
+                    }
+                    if (CommonUtils.IsNotBlank(casTicket))
+                    {
+                        FormsAuthenticationTicket ticket = TicketManager.GetTicket(casTicket);
+                        if (ticket != null)
+                        {
+                            if (log.IsDebugEnabled)
+                            {
+                                log.DebugFormat("{0}:Revoked casTicket [{1}]]", CommonUtils.MethodName, casTicket);
+                            }
+                            TicketManager.RevokeTicket(casTicket);
+                        }
+                        else
+                        {
+                            if (log.IsDebugEnabled)
+                            {
+                                log.DebugFormat("{0}:Unable to revoke casTicket [{1}]", CommonUtils.MethodName, casTicket);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return logoutRequestReceived;
+        }
     }
-
-
-    /// <summary>
-    /// EndRequest fires on every HttpRequest.  If we get this far and have an HTTP 401, we redirect
-    /// the user to CAS.  An authenticated user via FAT that lacks authorization would get kicked
-    /// out of the pipeline at AuthorizeRequest???, so we assume we need to go to CAS, unless we 
-    /// already have a ticket.
-    /// </summary>
-    /// <param name="sender">the HttpApplication that fired the event</param>
-    /// <param name="args">the event arguments</param>
-    void OnEndRequest(object sender, EventArgs args)
-    {
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting:Summary:{1}", CommonUtils.MethodName,
-          DebugUtils.FormsAuthSummaryToString((HttpApplication)sender)));
-      }
-      // Make sure we are configured for Forms Authentication Mode, do we really have 
-      // to keep doing this? isn't once enough? should we have an initConfig()?
-      AuthenticationSection config = 
-        (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
-      if (config == null || config.Mode != AuthenticationMode.Forms) {
-        // I'm thinking we should throw an expection here to alert the deployer that
-        // the config is not right, otherwise they should have this module deployed. No?
-        return;
-      }
-
-      HttpApplication app = (HttpApplication)sender;
-      HttpRequest request = app.Context.Request;
-      HttpResponse response = app.Context.Response;
-      HttpContext context = app.Context;
-
-      // If we got an HTTP 401 Error (Unauthorized) and don't have a CAS ticket,
-      // redirect to CAS.
-      if ((response.StatusCode == 401 &&
-             request.QueryString[this.ticketValidator.ArtifactParameterName] == null))
-      {
-        // construct CASRedirectURL and do redirect
-        response.Redirect(this.ConstructRedirectUri(request, config.Forms.LoginUrl));
-      }
-    }
-
-    // TODO do want to fire Authenticate events?  Do we need this for ASP.NET?
-    //public event FormsAuthenticationEventHandler Authenticate;
-    /// <summary>
-    /// Validates a ticket if received in the request.
-    /// <para>
-    /// For successful ticket validation, the HttpRequest cache is updated with the
-    /// redirect URL.  The redirect needs to be delayed until the post-Authenticate
-    /// processing that must be performed in an event handler that has session access.
-    /// </para>
-    /// </summary>
-    /// <param name="args">access to the data needed for Forms Authentication</param>
-    /// <returns>
-    /// <code>true</code> if a ticket was successfully validated; otherwise returns
-    /// <code>false</code> to indicate no ticket was received
-    /// </returns>
-    /// <exception cref="TicketValidationException">
-    /// Thrown if a ticket was received and failed validation.
-    /// </exception>
-    bool Authenticate(FormsAuthenticationEventArgs args)
-    {
-      if (log.IsDebugEnabled) {
-        log.Debug(string.Format("{0}:starting:Summary:{1}", CommonUtils.MethodName,
-          DebugUtils.FormsAuthSummaryToString(args.Context)));
-      }
-
-      HttpContext context = args.Context;
-      HttpRequest request = context.Request;
-
-      // This looks for the ticket in HttpRequest.Cookies, HttpRequest.Form,
-      // HttpRequest.QueryString, and System.Web.HttpRequest.ServerVariables collections.
-      // TODO: is this what we want?  which one wins???
-      string ticket = request[this.ticketValidator.ArtifactParameterName];
-
-      if (CommonUtils.IsNotBlank(ticket)) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:Ticket found for validation: {1}",
-            CommonUtils.MethodName, ticket));
-        }
-        context.Items[CommonUtils.CAS_KEY_TICKET] = ticket;
-        ICasPrincipal principal = this.ticketValidator.Validate(ticket,
-          (Uri)context.Items[CommonUtils.CAS_KEY_REDIRECT_URI]);
-
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:Successfully authenticated user {1}",
-            CommonUtils.MethodName, principal.Identity.Name));
-        }
-
-        // Setup .Net User object and Forms Authentication Cookie
-        args.Context.User = principal;
-        System.Threading.Thread.CurrentPrincipal = args.Context.User;
-        FormsAuthentication.SetAuthCookie(principal.Identity.Name, false);
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:before Redirect to serviceURL:Summary:{1}",
-            CommonUtils.MethodName,
-            DebugUtils.FormsAuthSummaryToString(args.Context)));
-        }
-
-        // Store information in HttpRequest cache needed during the 
-        // AcquireRequestState event handler method, including the
-        // need for the redirect to the original URL but without the ticket.
-        // The redirect URL has already been stored in the cache.
-        context.Items[CommonUtils.CAS_KEY_REDIRECT_REQUIRED] = "true";
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-
-    /// <summary>
-    /// Checks for presence of a valid FAT.
-    /// </summary>
-    /// <param name="context">current HttpContext that may contain an existing FAT</param>
-    /// <returns>the Forms Authentication Ticket(FAT) <i>if</i> a Forms Authentication Cookie
-    /// containing a valid FAT exists; otherwise <code>null</code>.
-    /// </returns>
-    FormsAuthenticationTicket FindValidFat(HttpContext context)
-    {
-      AuthenticationSection config =
-        (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
-      // Is FAT cookie still valid?
-      HttpCookie cookie = context.Request.Cookies[config.Forms.Name];
-      if (cookie == null  ||
-          cookie.Expires != DateTime.MinValue && cookie.Expires < DateTime.Now)
-      {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:no valid cookie --> return null", CommonUtils.MethodName));
-        }
-        return null;
-      }
-
-      // got a cookie, does it contain a FAT?
-      if (CommonUtils.IsBlank(cookie.Value)) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:no FAT in cookie --> return null", CommonUtils.MethodName));
-          return null;
-        }
-      }
-      FormsAuthenticationTicket faTicket = null;
-      try {
-        faTicket = FormsAuthentication.Decrypt(cookie.Value);
-      } catch (ArgumentException) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:no decryptable FAT in cookie --> return null",
-            CommonUtils.MethodName));
-          return null;
-        }
-      }
-      if (faTicket == null  || faTicket.Expired) {
-        if (log.IsDebugEnabled) {
-          log.Debug(string.Format("{0}:no valid FAT --> return null", CommonUtils.MethodName));
-          return null;
-        }
-      }
-      return faTicket;
-    }
-  }
 }
