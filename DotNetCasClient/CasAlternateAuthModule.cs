@@ -352,7 +352,10 @@ namespace DotNetCasClient
 
           Uri serviceUri = this.ConstructServiceUri(request);
           ICasPrincipal principal = this.ticketValidator.Validate(ticket, serviceUri);
-          SessionUtils.SetCasPrincipal(session, principal);
+          if (this.UseSession)
+          {
+              SessionUtils.SetCasPrincipal(session, principal);
+          }
           application.Context.User = principal;
           System.Threading.Thread.CurrentPrincipal = principal;
           if (log.IsDebugEnabled) {
