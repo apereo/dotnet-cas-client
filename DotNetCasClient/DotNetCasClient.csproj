@@ -83,7 +83,11 @@
     <Compile Include="Session\ISingleSignOutHandler.cs" />
     <Compile Include="Session\SessionBasedSingleSignOutHandler.cs" />
     <Compile Include="Session\SessionUtils.cs" />
+    <Compile Include="State\AbstractFormsAuthenticationStateProvider.cs" />
+    <Compile Include="State\CacheAuthenticationStateProvider.cs" />
+    <Compile Include="State\IFormsAuthenticationStateProvider.cs" />
     <Compile Include="Utils\AbstractCasModule.cs" />
+    <Compile Include="Utils\AbstractFormsAuthenticationCasModule.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Utils\XmlUtils.cs" />

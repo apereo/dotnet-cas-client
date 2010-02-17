@@ -147,7 +147,7 @@ namespace DotNetCasClient.Utils
 
             HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, str);
             cookie.HttpOnly = true;
-            cookie.Path = ticket.CookiePath;
+            cookie.Path = FormsAuthConfig.Path;
             cookie.Secure = FormsAuthentication.RequireSSL;
 
             if (FormsAuthentication.CookieDomain != null)
@@ -163,7 +163,7 @@ namespace DotNetCasClient.Utils
             return cookie;
         }
 
-        internal static void ClearAuthCookie()
+        public static void ClearAuthCookie()
         {
             FormsAuthentication.Initialize();
             HttpContext current = HttpContext.Current;
@@ -220,11 +220,13 @@ namespace DotNetCasClient.Utils
 
             if (cookie.Expires != DateTime.MinValue && cookie.Expires < DateTime.Now)
             {
+                ClearAuthCookie();
                 return null;
             }
 
             if (CommonUtils.IsBlank(cookie.Value))
             {
+                ClearAuthCookie();
                 return null;
             }
 
@@ -235,11 +237,13 @@ namespace DotNetCasClient.Utils
             }
             catch (ArgumentException)
             {
+                ClearAuthCookie();
                 return null;
             }
 
             if (formsAuthTicket == null || formsAuthTicket.Expired)
             {
+                ClearAuthCookie();
                 return null;
             }
 

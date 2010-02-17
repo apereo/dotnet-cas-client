@@ -53,7 +53,7 @@ namespace DotNetCasClient.Configuration
     public const string PROXY_CALLBACK_URL = "proxyCallbackUrl";
     public const string PROXY_RECEPTOR_URL = "proxyReceptorUrl";
     public const string FORMS_AUTHENTICATION_STATE_PROVIDER = "formsAuthenticationStateProvider";
-
+    public const string NOT_AUTHORIZED_URL = "notAuthorizedUrl";
   
     /// <summary>
     /// Names for the supported ticket validators
@@ -290,6 +290,16 @@ namespace DotNetCasClient.Configuration
         get
         {
             return this[FORMS_AUTHENTICATION_STATE_PROVIDER] as string;
+        }
+    }
+
+
+    [ConfigurationProperty(NOT_AUTHORIZED_URL, IsRequired = false)]
+    public string NotAuthorizedUrl
+    {
+        get
+        {
+            return this[NOT_AUTHORIZED_URL] as string;
         }
     }
 
