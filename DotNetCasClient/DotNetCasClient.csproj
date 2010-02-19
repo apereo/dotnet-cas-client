@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -60,6 +60,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CasAlternateAuthModule.cs" />
+    <Compile Include="CasAuthentication.cs" />
+    <Compile Include="CasAuthenticationTicket.cs" />
     <Compile Include="Configuration\CasClientConfiguration.cs" />
     <Compile Include="CasAuthenticationModule.cs" />
     <Compile Include="Configuration\CasConfigurationException.cs" />
@@ -83,11 +85,9 @@
     <Compile Include="Session\ISingleSignOutHandler.cs" />
     <Compile Include="Session\SessionBasedSingleSignOutHandler.cs" />
     <Compile Include="Session\SessionUtils.cs" />
-    <Compile Include="State\AbstractFormsAuthenticationStateProvider.cs" />
-    <Compile Include="State\CacheAuthenticationStateProvider.cs" />
-    <Compile Include="State\IFormsAuthenticationStateProvider.cs" />
+    <Compile Include="State\CacheTicketManager.cs" />
+    <Compile Include="State\ITicketManager.cs" />
     <Compile Include="Utils\AbstractCasModule.cs" />
-    <Compile Include="Utils\AbstractFormsAuthenticationCasModule.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Utils\XmlUtils.cs" />

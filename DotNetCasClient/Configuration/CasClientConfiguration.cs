@@ -52,7 +52,7 @@ namespace DotNetCasClient.Configuration
     public const string PROXY_GRANTING_TICKET_RECEPTOR = "proxyGrantingTicketReceptor";
     public const string PROXY_CALLBACK_URL = "proxyCallbackUrl";
     public const string PROXY_RECEPTOR_URL = "proxyReceptorUrl";
-    public const string FORMS_AUTHENTICATION_STATE_PROVIDER = "formsAuthenticationStateProvider";
+    public const string TICKET_MANAGER = "ticketManager";
     public const string NOT_AUTHORIZED_URL = "notAuthorizedUrl";
   
     /// <summary>
@@ -65,7 +65,7 @@ namespace DotNetCasClient.Configuration
     /// <summary>
     /// Names for the supported Cache authentication state provider
     /// </summary>
-    public const string CACHE_AUTHENTICATION_STATE_PROVIDER = "CacheAuthenticationStateProvider";
+    public const string CACHE_TICKET_MANAGER = "CacheTicketManager";
 
     /// <summary>
     /// Defines the exact CAS server login URL.
@@ -279,17 +279,18 @@ namespace DotNetCasClient.Configuration
 
 
     /// <summary>
-    /// The ticket validator to use to validate tickets returned by the CAS server.
+    /// The ticket manager to use to store tickets returned by the CAS server
+    /// for validation, revocation, and single sign out support.
     /// <remarks>
-    /// Currently supported values: CacheAuthenticationStateProvider
+    /// Currently supported values: CacheTicketManager
     /// </remarks>
     /// </summary>
-    [ConfigurationProperty(FORMS_AUTHENTICATION_STATE_PROVIDER, IsRequired = false)]
-    public string FormsAuthenticationStateProvider
+    [ConfigurationProperty(TICKET_MANAGER, IsRequired = false)]
+    public string TicketManager
     {
         get
         {
-            return this[FORMS_AUTHENTICATION_STATE_PROVIDER] as string;
+            return this[TICKET_MANAGER] as string;
         }
     }
 

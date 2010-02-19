@@ -33,25 +33,17 @@
     CAS Config #1
     ======================
     Configure basic CAS client properties.
+
+    Required Attributes (CasAuthenticationModule or CasAlternateAuthModule):
     
-    Required Attributes:
-    casServerLoginUrl   - URL of CAS login form.
-    serverName          - Name of server hosting this application.
-    casServerUrlPrefix  - URL to root of CAS server application.
-    ticketValidatorName - Name of ticket validator that validates CAS tickets using a particular protocol.
-                          Valid values are Cas10, Cas20, and Saml11.
+    casServerLoginUrl       - URL of CAS login form.
+    serverName              - Name of server hosting this application.
+    casServerUrlPrefix      - URL to root of CAS server application.
+    ticketValidatorName     - Name of ticket validator that validates CAS tickets using a particular protocol.
+                              Valid values are Cas10, Cas20, and Saml11.
+
+    Optional Attributes (CasAuthenticationModule or CasAlternateAuthModule):
     
-    Optional Attributes:
-    secureUriRegex          - Regular expression describing URIs to be protected by CAS authentication.
-                              Default is .* to protect all application resources with CAS.
-    secureUriExceptionRegex - Regular expression describing URIs to be specifically excluded from CAS auth.
-                              This feature originated to easily exclude resources used by .NET AJAX controls.
-                              The value in the following example illustrates how to ignore the resource used
-                              to bootstrap AJAX controls.  Default is to have no exclusions.
-    redirectAfterValidation - Whether to redirect to the same URL after ticket validation, but without the
-                              ticket in the parameter.  Default is false.
-    useSession              - Use session to store CAS authenticated state and principal/attribute info.
-                              Default is true.
     gateway                 - Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
                               Default is false.
     renew                   - Force user to reauthenticate to CAS before accessing this application.
@@ -64,25 +56,55 @@
                               between artifact (ticket) timestamp and CAS server system time.  Increasing this
                               may have negative security consequences; we recommend fixing sources of clock drift
                               rather than increasing this value.
+
+    CasAuthenticationModule Optional Attributes:
+    
+    notAuthorizedUrl        - The URL to redirect to when the request has a valid CAS ticket but the user is 
+                              not authorized to access the URL or resource.  If this option is set, users will
+                              be redirected to this URL.  If it is not set, the user will be redirected to the 
+                              CAS login screen with a Renew option in the URL (to force for alternate credential
+                              collection).
+    ticketManager           - The ticket manager to use to store tickets returned by the CAS server for 
+                              validation, revocation, and single sign out support.  Without a ticket manager
+                              configured, these capabilities will be disabled.  Valid value is CacheTicketManager.
+
+       ****  NOTE: Additional configuration for this module is inherited from the  ****
+       ****        system.web/authentication and system.web/authentication/forms   ****
+
+    CasAlternateAuthModule Optional Attributes:
+
+    secureUriRegex          - Regular expression describing URIs to be protected by CAS authentication.
+                              Default is .* to protect all application resources with CAS. 
+    secureUriExceptionRegex - Regular expression describing URIs to be specifically excluded from CAS auth.
+                              This feature originated to easily exclude resources used by .NET AJAX controls.
+                              The value in the following example illustrates how to ignore the resource used
+                              to bootstrap AJAX controls.  Default is to have no exclusions. 
+    redirectAfterValidation - Whether to redirect to the same URL after ticket validation, but without the
+                              ticket in the parameter.  Default is false for CasAlternateAuthModule.
+    useSession              - Use session to store CAS authenticated state and principal/attribute info.
+                              Default is true.
   -->
   <casClientConfig
     casServerLoginUrl="https://cas.example.com/cas/login"
     serverName="https://localhost"
-    secureUriRegex="(?i)/ExampleWebApp/secure/.*"
-    secureUriExceptionRegex="(?i)/.*\.axd"
     casServerUrlPrefix="https://cas.example.com/cas/"
-    redirectAfterValidation="true"
-    useSession="true"
     gateway="false"    
     renew="false"    
     ticketValidatorName="Saml11"
-    ticketTimeTolerance="5000"    
+    ticketTimeTolerance="5000" 
+    ticketManager="CacheTicketManager"
     singleSignOut="true"    
   />
-
-
   <system.web>
-    <sessionState timeout="10" />
+    <!--
+      ======================
+      CAS Config #2
+      ======================
+      If you are using the CasAlternateAuthModule, you will need to configure
+      SessionState.  The CasAuthenticationModule (Forms Authentication) does
+      not require session state to function properly.
+    -->
+    <sessionState timeout="30" />
     <compilation debug="true">
       <assemblies>
         <add assembly="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
@@ -94,26 +116,27 @@
 
     <!--
       ======================
-      CAS Config #2
+      CAS Config #3
       ======================
       Configure the authentication method used by the application.
-      There are two basic approaches:
-        1. Windows Forms Authentication (WFA)
-        2. non-WFA
-      Use WFA if you specifically need/want the features of that authentication model,
-      otherwise use the simpler non-WFA approach.
       
-      Set mode="Forms" for WFA and provide the URL to the CAS login form:
-      <authentication mode="Forms">   
-        <forms loginUrl="https://cas.example.com/cas/login"
-               timeout="10"/>
-      </authentication>
-     
+      There are two basic approaches:
+        1. CasAuthenticationModule - Windows Forms Authentication (WFA)
+        2. CasAlternateAuthModule  - Non-WFA
+      
+      Use WFA if you specifically need/want the features of that authentication 
+      model (UrlAuthorization, user keyed Caching, code access security with 
+      PrincipalPermission, etc.).  Otherwise use the simpler non-WFA approach.
+           
       For non-WFA, set mode="None"
+      <authentication mode="None"/>
     -->
-    <authentication mode="None"/>
+    <authentication mode="Forms">
+      <forms loginUrl="https://fed.princeton.edu/cas/login" timeout="30" defaultUrl="~/Default.aspx" 
+             cookieless="UseCookies" slidingExpiration="true" path="/example/" />
+    </authentication>
 
-    <!-- The following is only used with WFA authentication. -->
+    <!-- The following is only used with CasAuthenticationModule WFA authentication. -->
     <authorization>
       <allow users="*" />
     </authorization>
@@ -134,27 +157,24 @@
 
     <!--
       ======================
-      CAS Config #3
+      CAS Config #4
       ======================
       Choose a CAS authentication module.
 
       The authentication module determines the authentication method, discussed in #2 above,
       and must match the configuration specified in that section.  The two available authentication
       modules:
-        1. CASAuthenticationModule - WFA
+        1. CasAuthenticationModule - WFA
         2. CasAlternateAuthModule - non-WFA
     -->
     <httpModules>
-      <remove name="FormsAuthentication"/>
-      <remove name="WindowsAuthentication"/>
-      <remove name="PassportAuthentication"/>
-      <add name="DotNetCasClient" type="DotNetCasClient.CasAlternateAuthModule,DotNetCasClient"/>
+      <add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient"/>
       <add name="ScriptModule" type="System.Web.Handlers.ScriptModule, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
     </httpModules>
   </system.web>
 
 
-  <!-- Customize the following if using WFA. -->
+  <!-- Customize the following if using CasAuthenticationModule WFA. -->
   <!--
   <location path="secure">
     <system.web>
@@ -174,13 +194,25 @@
       </compiler>
     </compilers>
   </system.codedom>
-  <!-- 
-        The system.webServer section is required for running ASP.NET AJAX under Internet
-        Information Services 7.0.  It is not necessary for previous version of IIS.
-    -->
   <system.webServer>
+    <!-- 
+      The system.webServer section is required for users running IIS 7 or later.
+      It is not necessary for previous version of IIS.
+    -->
     <validation validateIntegratedModeConfiguration="false"/>
     <modules>
+      <!--
+        ======================
+        CAS Config #4 (cont'd)
+        ======================
+        Remove the existing system.web/httpModules from the managed pipeline and 
+        re-insert it.  This will allow the configuration to work in IIS 5/6 and 
+        IIS 7 and beyond.  Use the same value here as you used in the 
+        system.web/httpModules.
+      -->
+      <remove name="DotNetCasClient" />
+      <add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient"/>
+
       <remove name="ScriptModule"/>
       <add name="ScriptModule" preCondition="managedHandler" type="System.Web.Handlers.ScriptModule, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
     </modules>
