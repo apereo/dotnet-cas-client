@@ -9,7 +9,7 @@ namespace DotNetCasClient.Authentication
         /// The name for the session attribute created when a request is being
         /// gatewayed.
         /// </summary>
-        const string ConstCasGateway = "_const_cas_gateway_";
+        const string CONST_CAS_GATEWAY = "_const_cas_gateway_";
 
         /// <summary>
         /// Determines the current gatewayed status and then sets the status to 'not gatewayed'.
@@ -22,7 +22,7 @@ namespace DotNetCasClient.Authentication
             HttpSessionState session = SessionUtils.GetSession();
             if (session != null)
             {
-                session.Remove(ConstCasGateway);
+                session.Remove(CONST_CAS_GATEWAY);
             }
             return result;
         }
@@ -38,7 +38,7 @@ namespace DotNetCasClient.Authentication
             {
                 return false;
             }
-            return (session[ConstCasGateway] != null);
+            return (session[CONST_CAS_GATEWAY] != null);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace DotNetCasClient.Authentication
             HttpSessionState session = SessionUtils.GetSession();
             if (session != null)
             {
-                session.Add(ConstCasGateway, "yes");
+                session.Add(CONST_CAS_GATEWAY, "yes");
             }
             return serviceUrl;
         }
