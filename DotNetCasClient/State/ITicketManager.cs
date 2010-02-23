@@ -13,7 +13,7 @@ namespace DotNetCasClient.State
         /// Removes expired entries from the ticket store
         /// </summary>
         void RemoveExpiredTickets();
-        
+
         /// <summary>
         /// Retrieve a CasAuthenticationTicket from the ticket store 
         /// by it's CAS Service Ticket
@@ -23,7 +23,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentNullException">serviceTicket is null</exception>
         /// <exception cref="ArgumentException">serviceTicket is empty</exception>
         CasAuthenticationTicket GetTicket(string serviceTicket);
-        
+
         /// <summary>
         /// Inserts a CasAuthenticationTicket to the ticket store with a corresponding 
         /// ticket expiration date.
@@ -32,7 +32,7 @@ namespace DotNetCasClient.State
         /// <param name="expiration">The date and time at which the ticket expires</param>
         /// <exception cref="ArgumentNullException">casAuthenticationTicket is null</exception>
         void InsertTicket(CasAuthenticationTicket casAuthenticationTicket, DateTime expiration);
-        
+
         /// <summary>
         /// Updates the expiration date & time for an existing ticket.  If the ticket does
         /// not exist in the ticket store, just return (do not throw an exception).
@@ -41,7 +41,7 @@ namespace DotNetCasClient.State
         /// <param name="newExpiration">The new expiration date and time</param>
         /// <exception cref="ArgumentNullException">casAuthenticationTicket is null</exception>
         void UpdateTicketExpiration(CasAuthenticationTicket casAuthenticationTicket, DateTime newExpiration);
-        
+
         /// <summary>
         /// Removes the ticket from the collection if it exists.  If the ticket does not
         /// exist in the ticket store, just return (do not throw an exception).
@@ -73,7 +73,7 @@ namespace DotNetCasClient.State
         /// </summary>
         /// <returns>An enumerable collection of CasAuthenticationTickets</returns>
         IEnumerable<CasAuthenticationTicket> GetAllTickets();
-        
+
         /// <summary>
         /// Retrieves all non-expired tickets in the ticket store associated with the 
         /// netId supplied.
