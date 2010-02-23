@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DotNetCasClient.Authentication;
 
 namespace DotNetCasClient.Security
 {

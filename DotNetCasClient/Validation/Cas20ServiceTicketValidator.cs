@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Security.Principal;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Web;
-using DotNetCasClient.Authentication;
 using DotNetCasClient.Configuration;
 using DotNetCasClient.Proxy;
 using DotNetCasClient.Security;

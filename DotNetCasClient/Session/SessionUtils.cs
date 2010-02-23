@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using System.Web;
 using System.Web.SessionState;
 using DotNetCasClient.Security;

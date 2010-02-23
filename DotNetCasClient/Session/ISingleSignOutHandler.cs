@@ -1,9 +1,4 @@
-﻿using System;
-using System.Web;
-using System.Web.SessionState;
-using DotNetCasClient.Configuration;
-using DotNetCasClient.Utils;
-using log4net;
+﻿using System.Web;
 
 namespace DotNetCasClient.Session
 {

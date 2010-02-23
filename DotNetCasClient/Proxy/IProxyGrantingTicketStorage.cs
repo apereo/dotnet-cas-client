@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DotNetCasClient.Proxy
+﻿namespace DotNetCasClient.Proxy
 {
     /// <summary>
     /// Interface for the storage and retrieval of ProxyGrantingTicketIds by mapping

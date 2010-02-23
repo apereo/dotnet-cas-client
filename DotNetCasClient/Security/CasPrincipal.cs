@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Principal;
 using DotNetCasClient.Proxy;
 using DotNetCasClient.Utils;

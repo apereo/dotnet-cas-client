@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Configuration;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Configuration;
 using DotNetCasClient.Proxy;
 using log4net;
 using DotNetCasClient.Authentication;

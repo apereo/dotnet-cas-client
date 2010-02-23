@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web.SessionState;
+﻿using System.Web.SessionState;
 
 namespace DotNetCasClient.Session
 {

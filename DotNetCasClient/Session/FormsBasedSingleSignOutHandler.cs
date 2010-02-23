@@ -1,12 +1,7 @@
-﻿using System;
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using System.Web;
-using System.Web.Caching;
-using System.Web.Security;
-using System.Web.SessionState;
 using DotNetCasClient.Configuration;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.Session
 {
