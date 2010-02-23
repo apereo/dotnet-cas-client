@@ -193,7 +193,7 @@ namespace DotNetCasClient.State
             IEnumerable<CasAuthenticationTicket> allTickets = GetAllTickets();
             foreach (CasAuthenticationTicket ticket in allTickets)
             {
-                if (string.Compare(ticket.NetId, netId, true) == 0)
+                if (String.Compare(ticket.NetId, netId, true) == 0)
                 {
                     RevokeTicket(ticket.ServiceTicket);
                 }
@@ -247,7 +247,7 @@ namespace DotNetCasClient.State
                 if (currentKey != null && currentKey.StartsWith(CACHE_TICKET_KEY_PREFIX))
                 {
                     CasAuthenticationTicket currentTicket = enumerator.Entry.Value as CasAuthenticationTicket;
-                    if (currentTicket != null && string.Compare(currentTicket.NetId, netId, true) == 0)
+                    if (currentTicket != null && String.Compare(currentTicket.NetId, netId, true) == 0)
                     {
                         yield return currentTicket;
                     }
@@ -303,7 +303,7 @@ namespace DotNetCasClient.State
                 if (currentKey != null && currentKey.StartsWith(CACHE_TICKET_KEY_PREFIX))
                 {
                     CasAuthenticationTicket currentAuthTicket = enumerator.Entry.Value as CasAuthenticationTicket;
-                    if (currentAuthTicket != null && string.Compare(currentAuthTicket.NetId, netId, true) == 0)
+                    if (currentAuthTicket != null && String.Compare(currentAuthTicket.NetId, netId, true) == 0)
                     {
                         yield return currentAuthTicket.ServiceTicket;
                     }
@@ -374,7 +374,7 @@ namespace DotNetCasClient.State
                     }
                     */
 
-                    if (string.Compare(cacheAuthTicket.NetId, casAuthenticationTicket.NetId, true) != 0)
+                    if (String.Compare(cacheAuthTicket.NetId, casAuthenticationTicket.NetId, true) != 0)
                     {
                         if (Log.IsDebugEnabled)
                         {
@@ -383,7 +383,7 @@ namespace DotNetCasClient.State
                         return false;
                     }
 
-                    if (string.Compare(cacheAuthTicket.Assertion.PrincipalName, casAuthenticationTicket.Assertion.PrincipalName, true) != 0)
+                    if (String.Compare(cacheAuthTicket.Assertion.PrincipalName, casAuthenticationTicket.Assertion.PrincipalName, true) != 0)
                     {
                         if (Log.IsDebugEnabled)
                         {

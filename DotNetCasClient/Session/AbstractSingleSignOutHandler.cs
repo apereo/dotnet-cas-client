@@ -63,7 +63,7 @@ namespace DotNetCasClient.Session
             CommonUtils.MethodName,
             (logoutRequest == null ? "null" : logoutRequest)));
         }
-        if (CommonUtils.IsNotBlank(logoutRequest)) {
+        if (!String.IsNullOrEmpty(logoutRequest)) {
           logoutRequestReceived = true;
           string serverKey = 
             XmlUtils.GetTextForElement(logoutRequest, XML_SESSION_INDEX_ELEMENT_NAME);
@@ -71,7 +71,7 @@ namespace DotNetCasClient.Session
             log.Debug(string.Format("{0}:serverKey=[{1}]",
               CommonUtils.MethodName, serverKey));
           }
-          if (CommonUtils.IsNotBlank(serverKey)) {
+          if (!String.IsNullOrEmpty(serverKey)) {
             HttpSessionState session = 
               SESSION_MAPPING_STORAGE.RemoveSessionByServerKey(serverKey);
             if (session != null) {
@@ -114,7 +114,7 @@ namespace DotNetCasClient.Session
                            string serverKey,
                            string clientKey)
     {
-      if (CommonUtils.IsNotBlank(serverKey)  && CommonUtils.IsNotBlank(clientKey)) {
+      if (!String.IsNullOrEmpty(serverKey)  && !String.IsNullOrEmpty(clientKey)) {
         HttpSessionState session = application.Session;
         if (session != null) {
           if (log.IsDebugEnabled) {

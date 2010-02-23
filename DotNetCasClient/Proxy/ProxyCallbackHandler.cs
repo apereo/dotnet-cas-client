@@ -35,7 +35,7 @@ namespace DotNetCasClient.Proxy
             string proxyGrantingTicketIou = request.Params[PARAM_PROXY_GRANTING_TICKET_IOU];
             string proxyGrantingTicket = request.Params[PARAM_PROXY_GRANTING_TICKET];
 
-            if(string.IsNullOrEmpty(proxyGrantingTicket) || string.IsNullOrEmpty(proxyGrantingTicketIou))
+            if(String.IsNullOrEmpty(proxyGrantingTicket) || String.IsNullOrEmpty(proxyGrantingTicketIou))
             {
                 // todo log.info that we handled the callback but didn't get the pgt
                 application.Response.Write("");
