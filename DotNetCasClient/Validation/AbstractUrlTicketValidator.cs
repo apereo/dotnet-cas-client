@@ -92,14 +92,14 @@ namespace DotNetCasClient.Validation
     protected AbstractUrlTicketValidator(CasClientConfiguration config)
     {
       // Validate configuration
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(config.CasServerUrlPrefix),
+      CommonUtils.AssertTrue(!String.IsNullOrEmpty(config.CasServerUrlPrefix),
         CasClientConfiguration.CAS_SERVER_URL_PREFIX +
         " cannot be null or empty.");
 
       this.CasServerUrlPrefix = config.CasServerUrlPrefix;
       log.Info("Set CasServerUrlPrefix property: " + this.CasServerUrlPrefix);
 
-      if (CommonUtils.IsNotBlank(config.ArtifactParameterName))
+      if (!String.IsNullOrEmpty(config.ArtifactParameterName))
       {
         this.ArtifactParameterName = config.ArtifactParameterName;
         log.Info("Set ArtifactParameterName property: " +
@@ -110,7 +110,7 @@ namespace DotNetCasClient.Validation
         this.ArtifactParameterName = this.DefaultArtifactParameterName;
       }
 
-      if (CommonUtils.IsNotBlank(config.ServiceParameterName))
+      if (!String.IsNullOrEmpty(config.ServiceParameterName))
       {
         this.ServiceParameterName = config.ServiceParameterName;
         log.Info("Set ServiceParameterName property: " +

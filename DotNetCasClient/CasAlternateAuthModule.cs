@@ -276,7 +276,7 @@ namespace DotNetCasClient
           (this.gatewayResolver == null ? "notApplicable" :
               this.gatewayResolver.IsGatewayed().ToString())));
       }
-      if (CommonUtils.IsBlank(ticket)  &&
+      if (String.IsNullOrEmpty(ticket)  &&
           (sessionPrincipal == null  || !this.UseSession)  &&
           (this.gatewayResolver == null  || !this.gatewayResolver.IsGatewayed()))
       {
@@ -333,7 +333,7 @@ namespace DotNetCasClient
       if (log.IsDebugEnabled) {
         log.Debug(string.Format("{0}:ticket=>{1}<", CommonUtils.MethodName, ticket));
       }
-      if (CommonUtils.IsNotBlank(ticket)) {
+      if (!String.IsNullOrEmpty(ticket)) {
         if (session != null) {
           try {
             this.singleSignOutHandler.StoreState(application, ticket, session.SessionID);

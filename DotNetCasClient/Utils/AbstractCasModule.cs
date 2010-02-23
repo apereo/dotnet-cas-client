@@ -172,7 +172,7 @@ namespace DotNetCasClient.Utils
     /// <param name="application">the application context</param>
     private void InitInternalAuthenticationBase(HttpApplication application)
     {
-      CommonUtils.AssertTrue(CommonUtils.IsNotBlank(this.config.CasServerLoginUrl),
+      CommonUtils.AssertTrue(!String.IsNullOrEmpty(this.config.CasServerLoginUrl),
                   CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
       this.CasServerLoginUrl = this.config.CasServerLoginUrl;
       log.Info("Set CasServerLoginUrl property: " + this.CasServerLoginUrl);

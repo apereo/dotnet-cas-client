@@ -154,35 +154,6 @@ namespace DotNetCasClient.Utils
       }
     }
 
-    /// <summary>
-    /// Determines if a string is blank.  A string is considered blank if
-    /// it is empty or if it only contains white-space characters.
-    /// </summary>
-    /// <param name="str">the string to check</param>
-    /// <returns>
-    /// <code>true</code> if the string is blank, otherwise returns
-    /// <code>false</code>
-    /// </returns>
-    public static bool IsBlank(string str)
-    {
-      return String.IsNullOrEmpty(str);
-    }
-
-
-    /// <summary>
-    /// Determines if a string is not blank.  A string is considered not blank if
-    /// it contains at least one non-white-space character.
-    /// </summary>
-    /// <param name="str">the string to check</param>
-    /// <returns>
-    /// <code>true</code> if the string is not blank, otherwise returns
-    /// <code>false</code>
-    /// </returns>
-    public static bool IsNotBlank(string str)
-    {
-      return !CommonUtils.IsBlank(str);
-    }
-
 
     /// <summary>
     /// Determines if the dictionary contains a non-null entry for the specified key,
@@ -215,7 +186,7 @@ namespace DotNetCasClient.Utils
                  string.Format("{0}: dictionary value for key {1} must be of type {2}",
                                baseMessage, key, valueType.Name));
       if (typeof(string).Equals(valueType)) {
-        AssertTrue(IsNotBlank((string)value),
+        AssertTrue(!String.IsNullOrEmpty((string)value),
           string.Format("{0}:dictionary value for key {1} must be non-empty string",
                         baseMessage, key));
       }

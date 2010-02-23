@@ -206,7 +206,7 @@ namespace DotNetCasClient.Validation
           "No NameIdentifier found in AttributeStatement of the CAS response.");
       }
       string subject = nameIdentifierNode.FirstChild.Value;
-      if (CommonUtils.IsBlank(subjectName) || !subjectName.Equals(subject)) {
+      if (String.IsNullOrEmpty(subjectName) || !subjectName.Equals(subject)) {
         throw new TicketValidationException(
           string.Format("AttributeStatement subject ({0})" +
             " does not match requested subject ({1}) in the CAS response.",
@@ -220,7 +220,7 @@ namespace DotNetCasClient.Validation
       foreach (XmlNode nextAttr in attributeNodes) {
         XmlAttributeCollection attrs = nextAttr.Attributes;
         string attrName = GetAttributeValue(attrs, "AttributeName");
-        if (CommonUtils.IsBlank(attrName)) {
+        if (String.IsNullOrEmpty(attrName)) {
           continue;
         }
         XmlNodeList attrValuesNodes = nextAttr.ChildNodes;
@@ -231,7 +231,7 @@ namespace DotNetCasClient.Validation
             continue;
           }
           string valueText = textNode.Value;
-          if (CommonUtils.IsNotBlank(valueText)) {
+          if (!String.IsNullOrEmpty(valueText)) {
             values.Add(valueText);
           }
         }
@@ -282,7 +282,7 @@ namespace DotNetCasClient.Validation
         XmlAttributeCollection attrColl = currentNode.Attributes;
         if (attrColl != null) {
           string attrValue = GetAttributeValue(attrColl, attrName);
-          if (CommonUtils.IsNotBlank(attrValue)) {
+          if (!String.IsNullOrEmpty(attrValue)) {
             return DateTime.Parse(attrValue).ToUniversalTime();
           }
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web;
 using DotNetCasClient.Configuration;
 using DotNetCasClient.Proxy;
@@ -91,17 +92,17 @@ namespace DotNetCasClient.Validation
     /// </exception>
     protected override ICasPrincipal ParseResponseFromServer(string response)
     {
-      if (CommonUtils.IsBlank(response)) {
+      if (String.IsNullOrEmpty(response)) {
         throw new TicketValidationException("CAS Server response was empty.");
       }
       string authErrorMessage = XmlUtils.GetTextForElement(response,
         XML_AUTHENTICATION_FAILURE_ELEMENT_NAME);
-      if (CommonUtils.IsNotBlank(authErrorMessage)) {
+      if (!String.IsNullOrEmpty(authErrorMessage)) {
         throw new TicketValidationException(authErrorMessage);
       }
       string userValue = XmlUtils.GetTextForElement(response,
         XML_USER_ELEMENT_NAME);
-      if (CommonUtils.IsBlank(userValue)) {
+      if (String.IsNullOrEmpty(userValue)) {
         throw new TicketValidationException(
           string.Format("CAS Server response parse failure: missing {0} element.",
             XML_USER_ELEMENT_NAME));

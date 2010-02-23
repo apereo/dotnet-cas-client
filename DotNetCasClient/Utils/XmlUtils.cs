@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml;
 using log4net;
 
@@ -26,8 +27,8 @@ namespace DotNetCasClient.Utils
     public static string GetTextForElement(string xmlAsString, string qualifiedElementName)
     {
       string elementText = null;
-      if (CommonUtils.IsNotBlank(xmlAsString)  &&
-          CommonUtils.IsNotBlank(qualifiedElementName))
+      if (!String.IsNullOrEmpty(xmlAsString)  &&
+          !String.IsNullOrEmpty(qualifiedElementName))
       {
         TextReader textReader = new StringReader(xmlAsString);
         XmlReaderSettings settings = new XmlReaderSettings();
