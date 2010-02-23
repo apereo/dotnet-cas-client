@@ -3,19 +3,79 @@ using System.Collections.Generic;
 using System.Text;
 using DotNetCasClient.Security;
 
-namespace DotNetCasClient.State
+namespace DotNetCasClient
 {
+    /// <summary>
+    /// Data object representing a Cas Authentication Ticket.  The ServiceTicket,
+    /// stored on the client in the UserData field of a FormsAuthenticationTicket,
+    /// is used as a key to retrieve the information in this class from a 
+    /// TicketManager instance.  Without a TicketManager configured, the 
+    /// CasAuthententicationTicket cannot be retrieved.
+    /// </summary>
     [Serializable]
     public sealed class CasAuthenticationTicket
     {
+        /// <summary>
+        /// The NetId username used to authenticate against the CAS server.  This
+        /// information is retrieved via ticket validation and should not from 
+        /// the web application.
+        /// </summary>
         public string NetId { get; private set; }
+        
+        /// <summary>
+        /// The CAS Service Ticket returned from the CAS Server (typically as the 
+        /// ticket parameter in the URL).
+        /// </summary>
         public string ServiceTicket { get; set; }
+        
+        /// <summary>
+        /// The ServiceName used during the initial authentication and ticket 
+        /// validation.  When a Single Sign Out request is received from the CAS s
+        /// server, this is used as a safety mechanism to confirm that the CAS 
+        /// server's SSO request is valid.
+        /// </summary>
         public string OriginatingServiceName { get; set; }
+
+        /// <summary>
+        /// The IP address of the client that originally requested the CAS Service 
+        /// Ticket.  By tracking IP addresses, this enables applications with a 
+        /// TicketManager configured to detect and/or prevent multiple logins by a 
+        /// user from different IP addresses.  
+        /// </summary>
         public string ClientHostAddress { get; set; }
+
+        /// <summary>
+        /// The CAS assertion associated with the service ticket.  This contains the 
+        /// principal name, the validity date/times, and the attributes associated
+        /// with the service ticket.
+        /// </summary>
         public IAssertion Assertion { get; set; }
+
+        /// <summary>
+        /// The ValidFromDate associated with the ticket.  This is derived from, but 
+        /// not the same as the Assertion's ValidFromDate.  If the Assertion's 
+        /// ValidFromDate is equal to DateTime.MinValue, the CasAuthenticationTicket's 
+        /// ValidFromDate is set to DateTime.Now.
+        /// </summary>
         public DateTime ValidFromDate { get; set; }
+
+        /// <summary>
+        /// The ValidUntilDate associated with the ticket.  This is derived from, but
+        /// not the same as the Assertion's ValidUntilDate.  If the Assertion's 
+        /// ValidUntilDate is equal to DateTime.MinValue, the following rule is 
+        /// applied:  If the Assertion's ValidUntilDate is in the future, the 
+        /// ValidUntilDate is used as is.  If the Assertion's ValidUntilDate is in 
+        /// the past, the ValidFromDate + FormsAuthentication.Timeout timespan is
+        /// used.
+        /// </summary>
         public DateTime ValidUntilDate { get; set; }
 
+        /// <summary>
+        /// Readonly property which indicates whether or not the ValidUntilDate is in
+        /// the past (i.e., the ticket is expired).  Expired tickets should/will be 
+        /// purged from the TicketManager during the RemoveExpiredTickets() call,
+        /// during the BeginRequest event handler.
+        /// </summary>
         public bool Expired
         {
             get
@@ -24,10 +84,21 @@ namespace DotNetCasClient.State
             }
         }
 
+        /// <summary>
+        /// Empty constructor (to be used during Serialization/Deserialization)
+        /// </summary>
         public CasAuthenticationTicket()
         {
+            CasAuthentication.Initialize();          
         }
 
+        /// <summary>
+        /// Public CasAuthenticationTicket constructor
+        /// </summary>
+        /// <param name="serviceTicket">CAS Service Ticket associated with this CasAuthenticationTicket</param>
+        /// <param name="originatingServiceName">ServiceName used during CAS authentication/validation</param>
+        /// <param name="clientHostAddress">IP address of the client initiating the authentication request</param>
+        /// <param name="assertion">CAS assertion returned from the CAS server during ticket validation</param>
         public CasAuthenticationTicket(string serviceTicket, string originatingServiceName, string clientHostAddress, IAssertion assertion)
         {
             CasAuthentication.Initialize();
@@ -58,6 +129,10 @@ namespace DotNetCasClient.State
             }
         }
 
+        /// <summary>
+        /// Exposes the CasAuthenticationTicket and all related properties as a multi-line string.
+        /// </summary>
+        /// <returns>A string representation of the CasAuthenticationTicket for use in debugging</returns>
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
@@ -85,5 +160,3 @@ namespace DotNetCasClient.State
         }
     }
 }
-
-

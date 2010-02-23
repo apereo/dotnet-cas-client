@@ -5,7 +5,6 @@ using System.Web;
 using System.Web.Security;
 using System.Xml;
 using DotNetCasClient.Security;
-using DotNetCasClient.State;
 using DotNetCasClient.Utils;
 using log4net;
 
@@ -20,24 +19,24 @@ namespace DotNetCasClient
         /// SAML element containing CAS ticket during SSO 
         /// request
         /// </summary>
-        private const string XmlSessionIndexElementName = "samlp:SessionIndex";
+        private const string XML_SESSION_INDEX_ELEMENT_NAME = "samlp:SessionIndex";
 
         /// <summary>
         /// XML Reader Settings for SAML parsing.
         /// </summary>
-        private static XmlReaderSettings xmlReaderSettings;
+        private static XmlReaderSettings _xmlReaderSettings;
 
         /// <summary>
         /// XML Name Table for namespace resolution in SSO 
         /// SAML Parsing routine
         /// </summary>
-        private static NameTable xmlNameTable;
+        private static NameTable _xmlNameTable;
 
         /// <summary>
         /// XML Namespace Manager for namespace resolution in 
         /// SSO SAML Parsing routine
         /// </summary>
-        private static XmlNamespaceManager xmlNamespaceManager;
+        private static XmlNamespaceManager _xmlNamespaceManager;
 
         /// <summary>
         /// Access to the log file
@@ -51,17 +50,18 @@ namespace DotNetCasClient
         /// <param name="context">the current HttpApplication</param>        
         public void Init(HttpApplication context)
         {
-            xmlReaderSettings = new XmlReaderSettings();
-            xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
-            xmlReaderSettings.IgnoreWhitespace = true;            
+            _xmlReaderSettings = new XmlReaderSettings();
+            _xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
+            _xmlReaderSettings.IgnoreWhitespace = true;
 
-            xmlNameTable = new NameTable();            
+            _xmlNameTable = new NameTable();
 
-            xmlNamespaceManager = new XmlNamespaceManager(xmlNameTable);
-            xmlNamespaceManager.AddNamespace("saml", "urn: oasis:names:tc:SAML:1.0:assertion");
-            xmlNamespaceManager.AddNamespace("saml2", "urn: oasis:names:tc:SAML:1.0:assertion");
-            xmlNamespaceManager.AddNamespace("samlp", "urn: oasis:names:tc:SAML:1.0:protocol");
-            
+            _xmlNamespaceManager = new XmlNamespaceManager(_xmlNameTable);
+            _xmlNamespaceManager.AddNamespace("cas", "http://www.yale.edu/tp/cas");
+            _xmlNamespaceManager.AddNamespace("saml", "urn: oasis:names:tc:SAML:1.0:assertion");
+            _xmlNamespaceManager.AddNamespace("saml2", "urn: oasis:names:tc:SAML:1.0:assertion");
+            _xmlNamespaceManager.AddNamespace("samlp", "urn: oasis:names:tc:SAML:1.0:protocol");
+
             // Register our event handlers.  These are fired on every HttpRequest.
             context.BeginRequest += OnBeginRequest;
             context.AuthenticateRequest += OnAuthenticateRequest;
@@ -72,7 +72,7 @@ namespace DotNetCasClient
         /// Performs cleanup when an instance of this HttpModule is being destroyed.
         /// </summary>
         public void Dispose()
-        {            
+        {
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace DotNetCasClient
             if (!string.IsNullOrEmpty(ticket))
             {
                 // Attempt to authenticate the ticket and resolve to an ICasPrincipal
-                principal = CasAuthentication.TicketValidator.Validate(ticket, new Uri(CasAuthentication.ConstructServiceUri()));                
-                
+                principal = CasAuthentication.TicketValidator.Validate(ticket, new Uri(CasAuthentication.ConstructServiceUri()));
+
                 // Save the ticket in the FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 
                 casTicket = new CasAuthenticationTicket(
                     ticket,
@@ -174,7 +174,7 @@ namespace DotNetCasClient
                     request.UserHostAddress,
                     principal.Assertion
                 );
-                
+
                 // TODO: Check the last 2 parameters.  We want to take the from/to dates from the 
                 // FormsAuthenticationTicket.  However, we may need to do some NTP-style clock
                 // calibration
@@ -270,7 +270,7 @@ namespace DotNetCasClient
                         }
                     }
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace DotNetCasClient
             int artifactIndex = request.Url.AbsoluteUri.IndexOf(CasAuthentication.TicketValidator.ArtifactParameterName);
 
             bool responseIsRedirection = (response.StatusCode == 302);
-            
+
             bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !string.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
             bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
             bool userIsAuthenticated = (context.User != null && context.User.Identity != null && context.User.Identity.IsAuthenticated);
@@ -329,8 +329,9 @@ namespace DotNetCasClient
                     redirectCasRenewUrl = redirectCasUrl
                         .Replace("?gateway=", "?renew=")
                         .Replace("&gateway=", "&renew=");
-                } 
-                else {
+                }
+                else
+                {
                     redirectCasRenewUrl = redirectCasUrl + "&renew=true";
                 }
 
@@ -419,15 +420,15 @@ namespace DotNetCasClient
         {
             // XmlUtils.GetTextForElement wasn't handling namespaces correctly. 
             // Existing SingleSignOut implementation wasn't working correctly.
-            XmlParserContext xmlParserContext = new XmlParserContext(null, xmlNamespaceManager, null, XmlSpace.None);
+            XmlParserContext xmlParserContext = new XmlParserContext(null, _xmlNamespaceManager, null, XmlSpace.None);
 
             string elementText = null;
-            if (!string.IsNullOrEmpty(xmlAsString) && !string.IsNullOrEmpty(XmlSessionIndexElementName))
+            if (!string.IsNullOrEmpty(xmlAsString) && !string.IsNullOrEmpty(XML_SESSION_INDEX_ELEMENT_NAME))
             {
                 using (TextReader textReader = new StringReader(xmlAsString))
                 {
-                    XmlReader reader = XmlReader.Create(textReader, xmlReaderSettings, xmlParserContext);
-                    bool foundElement = reader.ReadToFollowing(XmlSessionIndexElementName);
+                    XmlReader reader = XmlReader.Create(textReader, _xmlReaderSettings, xmlParserContext);
+                    bool foundElement = reader.ReadToFollowing(XML_SESSION_INDEX_ELEMENT_NAME);
                     if (foundElement)
                     {
                         elementText = reader.ReadElementString();

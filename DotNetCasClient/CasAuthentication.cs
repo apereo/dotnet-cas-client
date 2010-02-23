@@ -13,69 +13,93 @@ using log4net;
 
 namespace DotNetCasClient
 {
-    public static class CasAuthentication
+    /// <summary>
+    /// CasAuthentication exposes a public API for use in working with CAS Authentication
+    /// in the .NET framework.  It also exposes all configured CAS client configuration 
+    /// parameters as public static properties.
+    /// </summary>
+    public sealed class CasAuthentication
     {
+        #region Fields
         /// <summary>
         /// Access to the log file
         /// </summary>
         private static readonly ILog Log = LogManager.GetLogger("CasAuthentication");
 
+        private static readonly object LockObject;
+        private static bool _initialized;
+
+        // system.web/authentication and system.web/authentication/forms static classes
         internal static AuthenticationSection AuthenticationConfig;
         internal static CasClientConfiguration CasClientConfig;
 
-        // Fields
-        private static object _lockObject = new object();
-        private static bool _Initialized = false;
+        // Ticket validator support
+        private static string _ticketValidatorName;
+        private static AbstractUrlTicketValidator _ticketValidator;
 
-        private static string _FormsLoginUrl;
-        private static TimeSpan _FormsTimeout;        
-        private static string _CasServerLoginUrl;
-        private static string _CasServerUrlPrefix;
-        private static string _TicketValidatorName;
-        private static long _TicketTimeTolerance;
-        private static string _Service;
-        private static string _DefaultServiceUrl;
-        private static string _ServerName;
-        private static bool _Renew;
-        private static bool _Gateway;
-        private static string _ArtifactParameterName;
-        private static string _ServiceParameterName;
-        private static bool _RedirectAfterValidation;
-        private static bool _EncodeServiceUrl;
-        private static bool _SingleSignOut;
-        private static bool _ProxyGrantingTicketReceptor;
-        private static string _ProxyCallbackUrl;
-        private static string _ProxyReceptorUrl;
-        private static string _TicketManagerProvider;
-        private static string _NotAuthorizedUrl;
-        private static bool _UseSession;
-        private static string _SecureUriRegex;
-        private static string _SecureUriExceptionRegex;
+        // Ticket manager support
+        private static string _ticketManagerProvider;
+        private static ITicketManager _ticketManager;
 
-        private static IGatewayResolver _GatewayResolver;
-        private static AbstractUrlTicketValidator _TicketValidator;
-        private static ProxyCallbackHandler _ProxyCallbackHandler;
-        private static ITicketManager _TicketManager;
+        // Gateway support
+        private static bool _gateway;
+        private static IGatewayResolver _gatewayResolver;
 
-        // Methods
+        // Proxy support
+        private static bool _proxyGrantingTicketReceptor;
+        private static ProxyCallbackHandler _proxyCallbackHandler;
+        private static string _proxyCallbackUrl;
+        private static string _proxyReceptorUrl;
+
+        private static string _formsLoginUrl;
+        private static TimeSpan _formsTimeout;
+        private static string _casServerLoginUrl;
+        private static string _casServerUrlPrefix;
+        private static long _ticketTimeTolerance;
+        private static string _service;
+        private static string _defaultServiceUrl;
+        private static string _serverName;
+        private static bool _renew;
+        private static string _artifactParameterName;
+        private static string _serviceParameterName;
+        private static bool _redirectAfterValidation;
+        private static bool _encodeServiceUrl;
+        private static bool _singleSignOut;
+        private static string _notAuthorizedUrl;
+        private static bool _useSession;
+        private static string _secureUriRegex;
+        private static string _secureUriExceptionRegex;
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static CasAuthentication()
+        {
+            LockObject = new object();
+        }
+
+        /// <summary>
+        /// Initializes configuration-related properties and validates configuration.
+        /// </summary>
         public static void Initialize()
         {
-            if (!_Initialized)
+            if (!_initialized)
             {
-                lock (_lockObject) {
-                    if (!_Initialized)
+                lock (LockObject)
+                {
+                    if (!_initialized)
                     {
                         FormsAuthentication.Initialize();
-                        AuthenticationConfig = (AuthenticationSection) WebConfigurationManager.GetSection("system.web/authentication");
+                        AuthenticationConfig = (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
                         CasClientConfig = CasClientConfiguration.Config;
 
-                        // Make sure we are configured for Forms Authentication Mode, do we really have 
-                        // to keep doing this? isn't once enough? should we have an initConfig()?
                         if (AuthenticationConfig == null)
                         {
                             if (Log.IsDebugEnabled)
                             {
-                                Log.Debug("Not configured for any Authentication");
+                                Log.Debug("Application is not configured for Authentication");
                             }
                             throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
@@ -84,7 +108,7 @@ namespace DotNetCasClient
                         {
                             if (Log.IsDebugEnabled)
                             {
-                                Log.Debug("Not configured for Forms Authentication");
+                                Log.Debug("Application is not configured for Forms Authentication");
                             }
                             throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
@@ -94,106 +118,116 @@ namespace DotNetCasClient
                             throw new CasConfigurationException("CAS requires Forms Authentication to use cookies (cookieless='UseCookies').");
                         }
 
-                        _FormsLoginUrl = AuthenticationConfig.Forms.LoginUrl;
-                        _FormsTimeout = AuthenticationConfig.Forms.Timeout;
+                        _formsLoginUrl = AuthenticationConfig.Forms.LoginUrl;
+                        _formsTimeout = AuthenticationConfig.Forms.Timeout;
 
-                        _CasServerLoginUrl = CasClientConfig.CasServerLoginUrl;
-                        _CasServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
-                        _TicketValidatorName = CasClientConfig.TicketValidatorName;
-                        _TicketTimeTolerance = CasClientConfig.TicketTimeTolerance;
-                        _Service = CasClientConfig.Service;
-                        _DefaultServiceUrl = CasClientConfig.Service;
-                        _ServerName = CasClientConfig.ServerName;
-                        _Renew = CasClientConfig.Renew;
-                        _Gateway = CasClientConfig.Gateway;
-                        _ArtifactParameterName = CasClientConfig.ArtifactParameterName;
-                        _ServiceParameterName = CasClientConfig.ServiceParameterName;
-                        _RedirectAfterValidation = CasClientConfig.RedirectAfterValidation;
-                        _EncodeServiceUrl = CasClientConfig.EncodeServiceUrl;
-                        _SingleSignOut = CasClientConfig.SingleSignOut;
-                        _ProxyGrantingTicketReceptor = CasClientConfig.ProxyGrantingTicketReceptor;
-                        _ProxyCallbackUrl = CasClientConfig.ProxyCallbackUrl;
-                        _ProxyReceptorUrl = CasClientConfig.ProxyReceptorUrl;
-                        _TicketManagerProvider = CasClientConfig.TicketManager;
-                        _NotAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
-                        _UseSession = CasClientConfig.UseSession;
-                        _SecureUriRegex = CasClientConfig.SecureUriRegex;
-                        _SecureUriExceptionRegex = CasClientConfig.SecureUriExceptionRegex;
+                        _casServerLoginUrl = CasClientConfig.CasServerLoginUrl;
+                        _casServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
+                        _ticketValidatorName = CasClientConfig.TicketValidatorName;
+                        _ticketTimeTolerance = CasClientConfig.TicketTimeTolerance;
+                        _service = CasClientConfig.Service;
+                        _defaultServiceUrl = CasClientConfig.Service;
+                        _serverName = CasClientConfig.ServerName;
+                        _renew = CasClientConfig.Renew;
+                        _gateway = CasClientConfig.Gateway;
+                        _artifactParameterName = CasClientConfig.ArtifactParameterName;
+                        _serviceParameterName = CasClientConfig.ServiceParameterName;
+                        _redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
+                        _encodeServiceUrl = CasClientConfig.EncodeServiceUrl;
+                        _singleSignOut = CasClientConfig.SingleSignOut;
+                        _ticketManagerProvider = CasClientConfig.TicketManager;
+                        _notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
+                        _useSession = CasClientConfig.UseSession;
+                        _secureUriRegex = CasClientConfig.SecureUriRegex;
+                        _secureUriExceptionRegex = CasClientConfig.SecureUriExceptionRegex;
 
-                        // Initialize default values
-                        if (!string.IsNullOrEmpty(_Service))
+                        if (CasClientConfig.ProxyGrantingTicketReceptor)
                         {
-                            _DefaultServiceUrl = _Service;
+                            throw new NotImplementedException("Proxy support is not implemented at this time.");
+                            /*
+                            _proxyGrantingTicketReceptor = CasClientConfig.ProxyGrantingTicketReceptor;
+                            _proxyCallbackUrl = CasClientConfig.ProxyCallbackUrl;
+                            _proxyReceptorUrl = CasClientConfig.ProxyReceptorUrl;
+                            */
                         }
 
-                        if (_Gateway)
+                        // Initialize default values
+                        if (!string.IsNullOrEmpty(_service))
                         {
-                            _GatewayResolver = new SessionAttrGatewayResolver();
+                            _defaultServiceUrl = _service;
+                        }
+
+                        if (_gateway)
+                        {
+                            throw new NotImplementedException("Gateway has not been implemented yet.");
+                            // _gatewayResolver = new SessionAttrGatewayResolver();
                         }
 
                         // Parse "enumerated" values 
-                        if (string.Compare(_TicketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0) 
+                        if (string.Compare(_ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _TicketValidator = new Cas10TicketValidator(CasClientConfig);
+                            _ticketValidator = new Cas10TicketValidator(CasClientConfig);
                         }
-                        else if (string.Compare(_TicketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
+                        else if (string.Compare(_ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _TicketValidator = new Cas20ServiceTicketValidator(CasClientConfig);
-                        } 
-                        else if (string.Compare(_TicketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
+                            _ticketValidator = new Cas20ServiceTicketValidator(CasClientConfig);
+                        }
+                        else if (string.Compare(_ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _TicketValidator = new Saml11TicketValidator(CasClientConfig);
+                            _ticketValidator = new Saml11TicketValidator(CasClientConfig);
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown ticket validator " + _TicketValidatorName);
+                            throw new CasConfigurationException("Unknown ticket validator " + _ticketValidatorName);
                         }
-                        
-                        if (string.IsNullOrEmpty(_TicketManagerProvider))
+
+                        if (string.IsNullOrEmpty(_ticketManagerProvider))
                         {
                             // Web server cannot maintain ticket state, verify tickets, perform SSO, etc.
-                        } 
-                        else if (string.Compare(_TicketManagerProvider, CasClientConfiguration.CACHE_TICKET_MANAGER) == 0)
+                        }
+                        else if (string.Compare(_ticketManagerProvider, CasClientConfiguration.CACHE_TICKET_MANAGER) == 0)
                         {
-                            _TicketManager = new CacheTicketManager();
-                        } 
-                        else 
+                            _ticketManager = new CacheTicketManager();
+                        }
+                        else
                         {
-                            throw new CasConfigurationException("Unknown forms authentication state provider " + _TicketManagerProvider);
+                            throw new CasConfigurationException("Unknown forms authentication state provider " + _ticketManagerProvider);
                         }
 
                         // Validate configuration
-                        bool haveServerName = !string.IsNullOrEmpty(_ServerName);
-                        bool haveService = !string.IsNullOrEmpty(_Service);
+                        bool haveServerName = !string.IsNullOrEmpty(_serverName);
+                        bool haveService = !string.IsNullOrEmpty(_service);
                         if ((haveServerName && haveService) || (!haveServerName && !haveService))
                         {
                             throw new CasConfigurationException(string.Format("Either {0} or {1} must be set (but not both).", CasClientConfiguration.SERVER_NAME, CasClientConfiguration.SERVICE));
                         }
 
-                        if (string.IsNullOrEmpty(_CasServerLoginUrl))
+                        if (string.IsNullOrEmpty(_casServerLoginUrl))
                         {
                             throw new CasConfigurationException(CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
                         }
 
-                        if (_TicketManager == null && _SingleSignOut)
+                        if (_ticketManager == null && _singleSignOut)
                         {
                             throw new CasConfigurationException("Single Sign Out requires a FormsAuthenticationStateProvider.");
                         }
 
-                        if (_Gateway && _Renew)
+                        if (_gateway && _renew)
                         {
                             throw new CasConfigurationException("Gateway and renew functionalities are mutually exclusive");
                         }
 
-                        if (_EncodeServiceUrl)
+                        if (_encodeServiceUrl)
                         {
                             throw new CasConfigurationException("Encode URL with session ID functionality not yet implemented.");
                         }
 
-                        if (!_RedirectAfterValidation)
+                        if (!_redirectAfterValidation)
                         {
                             throw new CasConfigurationException("Forms Authentication based modules require RedirectAfterValidation to be set to true.");
                         }
+
+                        _initialized = true;
                     }
                 }
             }
@@ -215,7 +249,7 @@ namespace DotNetCasClient
         internal static string ConstructServiceUri()
         {
             Initialize();
-            
+
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
 
@@ -241,6 +275,7 @@ namespace DotNetCasClient
                 buffer.Append("/");
             }
             buffer.Append(absolutePath);
+
             StringBuilder queryBuffer = new StringBuilder();
             if (request.QueryString.Count > 0)
             {
@@ -292,8 +327,7 @@ namespace DotNetCasClient
         /// The server name is not parsed from the request for security reasons, which
         /// is why the service and server name configuration parameters exist.
         /// </remarks>
-        /// <param name="casServerLoginUrl">the exact CAS server login URL</param>
-        /// <returns>the redirection URL to use, not encoded</returns>
+        /// <returns>the redirection URL to use</returns>
         internal static string ConstructLoginRedirectUrl()
         {
             Initialize();
@@ -318,6 +352,14 @@ namespace DotNetCasClient
             return redirectToUrl;
         }
 
+        /// <summary>
+        /// Constructs the URL to use for redirection to the CAS server for single
+        /// signout.  The CAS server will invalidate the ticket granting ticket and
+        /// redirect back to the current page.  The web application must then call
+        /// ClearAuthCookie and revoke the ticket from the TicketManager to sign 
+        /// the client out.
+        /// </summary>
+        /// <returns>the redirection URL to use, not encoded</returns>
         internal static string ConstructSingleSignOutRedirectUrl()
         {
             Initialize();
@@ -391,7 +433,7 @@ namespace DotNetCasClient
             Initialize();
 
             string str = FormsAuthentication.Encrypt(ticket);
-            
+
             if (string.IsNullOrEmpty(str))
             {
                 throw new HttpException("Unable to encrypt cookie ticket");
@@ -542,55 +584,410 @@ namespace DotNetCasClient
         /// </summary>
         /// <param name="url">The Url to resolve</param>
         /// <returns></returns>
-        internal static string ResolveUrl(string url) {
-            if (url == null) throw new ArgumentNullException("url", "url can not be null"); 
-        	if (url.Length == 0) throw new ArgumentException("The url can not be an empty string", "url"); 
-        	if (url[0] != '~') return url; 
+        internal static string ResolveUrl(string url)
+        {
+            if (url == null) throw new ArgumentNullException("url", "url can not be null");
+            if (url.Length == 0) throw new ArgumentException("The url can not be an empty string", "url");
+            if (url[0] != '~') return url;
 
-        	string applicationPath = HttpContext.Current.Request.ApplicationPath; 
-        	if (url.Length == 1) return	applicationPath; 
+            string applicationPath = HttpContext.Current.Request.ApplicationPath;
+            if (url.Length == 1) return applicationPath;
 
-        	// assume url looks like ~somePage 
-        	int indexOfUrl = 1; 
+            // assume url looks like ~somePage 
+            int indexOfUrl = 1;
 
-        	// determine the middle character 
-        	string midPath = (applicationPath.Length > 1 ) ? "/" : string.Empty; 
+            // determine the middle character 
+            string midPath = (applicationPath.Length > 1) ? "/" : string.Empty;
 
-        	// if url looks like ~/ or ~\ change the indexOfUrl to 2 
-        	if (url[1] == '/' || url[1] == '\\') indexOfUrl = 2; 
+            // if url looks like ~/ or ~\ change the indexOfUrl to 2 
+            if (url[1] == '/' || url[1] == '\\') indexOfUrl = 2;
 
-        	return applicationPath + midPath + url.Substring(indexOfUrl); 
+            return applicationPath + midPath + url.Substring(indexOfUrl);
+        }
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// Name of ticket validator that validates CAS tickets using a 
+        /// particular protocol.  Valid values are Cas10, Cas20, and Saml11.
+        /// </summary>
+        public static string TicketValidatorName
+        {
+            get
+            {
+                Initialize();
+                return _ticketValidatorName;
+            }
         }
 
-        // Properties
-        public static string FormsLoginUrl { get { Initialize(); return _FormsLoginUrl; } }
-        public static TimeSpan FormsTimeout { get { Initialize(); return _FormsTimeout; } }
-        public static string CasServerLoginUrl { get { Initialize(); return _CasServerLoginUrl; } }
-        public static string CasServerUrlPrefix { get { Initialize(); return _CasServerUrlPrefix; } }
-        public static string TicketValidatorName { get { Initialize(); return _TicketValidatorName; } }
-        public static long TicketTimeTolerance { get { Initialize(); return _TicketTimeTolerance; } }
-        public static string Service { get { Initialize(); return _Service; } }
-        public static string DefaultServiceUrl { get { Initialize(); return _DefaultServiceUrl; } }
-        public static string ServerName { get { Initialize(); return _ServerName; } }
-        public static bool Renew { get { Initialize(); return _Renew; } }
-        public static bool Gateway { get { Initialize(); return _Gateway; } }
-        public static string ArtifactParameterName { get { Initialize(); return _ArtifactParameterName; } }
-        public static string ServiceParameterName { get { Initialize(); return _ServiceParameterName; } }
-        public static bool RedirectAfterValidation { get { Initialize(); return _RedirectAfterValidation; } }
-        public static bool EncodeServiceUrl { get { Initialize(); return _EncodeServiceUrl; } }
-        public static bool SingleSignOut { get { Initialize(); return _SingleSignOut; } }
-        public static bool ProxyGrantingTicketReceptor { get { Initialize(); return _ProxyGrantingTicketReceptor; } }
-        public static string ProxyCallbackUrl { get { Initialize(); return _ProxyCallbackUrl; } }
-        public static string ProxyReceptorUrl { get { Initialize(); return _ProxyReceptorUrl; } }
-        public static string TicketManagerProvider { get { Initialize(); return _TicketManagerProvider; } }
-        public static string NotAuthorizedUrl { get { Initialize(); return _NotAuthorizedUrl; } }
-        public static bool UseSession { get { Initialize(); return _UseSession; } }
-        public static string SecureUriRegex { get { Initialize(); return _SecureUriRegex; } }
-        public static string SecureUriExceptionRegex { get { Initialize(); return _SecureUriExceptionRegex; } }
+        /// <summary>
+        /// An instance of the TicketValidator specified in the 
+        /// TicketValidatorName property.  This will either be an instance of 
+        /// a Cas10TicketValidator, Cas20TicketValidator, or 
+        /// Saml11TicketValidator.
+        /// </summary>
+        internal static AbstractUrlTicketValidator TicketValidator
+        {
+            get
+            {
+                Initialize();
+                return _ticketValidator;
+            }
+        }
 
-        public static ITicketManager TicketManager { get { Initialize(); return _TicketManager; } }
-        internal static IGatewayResolver GatewayResolver { get { Initialize(); return _GatewayResolver; } }
-        internal static AbstractUrlTicketValidator TicketValidator { get { Initialize(); return _TicketValidator; } }
-        internal static ProxyCallbackHandler ProxyCallbackHandler { get { Initialize(); return _ProxyCallbackHandler; } }
+        /// <summary>
+        /// The ticket manager to use to store tickets returned by the CAS server
+        /// for validation, revocation, and single sign out support.
+        /// <remarks>
+        /// Currently supported values: CacheTicketManager
+        /// </remarks>
+        /// </summary>
+        public static string TicketManagerProvider
+        {
+            get
+            {
+                Initialize();
+                return _ticketManagerProvider;
+            }
+        }
+
+        /// <summary>
+        /// An instance of the provider specified in the TicketManagerProvider property.
+        /// CasAuthentication.TicketManager will be null if no ticketManager is 
+        /// defined in web.config.  If a TicketManager is defined, this will allow 
+        /// access to and revocation of outstanding CAS service tickets along with 
+        /// additional information about the service tickets (i.e., IP address, 
+        /// assertions, etc.).
+        /// </summary>
+        public static ITicketManager TicketManager
+        {
+            get
+            {
+                Initialize();
+                return _ticketManager;
+            }
+        }
+
+        /// <summary>
+        /// Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
+        /// Default is false.
+        /// </summary>
+        public static bool Gateway
+        {
+            get
+            {
+                Initialize();
+                return _gateway;
+            }
+        }
+
+        /// <summary>
+        /// Gateway resolver handles CAS gateway requests & responses. 
+        /// http://www.ja-sig.org/wiki/display/CAS/gateway
+        /// </summary>
+        internal static IGatewayResolver GatewayResolver
+        {
+            get
+            {
+                Initialize();
+                return _gatewayResolver;
+            }
+        }
+
+        /// <summary>
+        /// Specifies whether proxy granting tickets are being accepted.
+        /// </summary>
+        public static bool ProxyGrantingTicketReceptor
+        {
+            get
+            {
+                Initialize();
+                return _proxyGrantingTicketReceptor;
+            }
+        }
+
+        /// <summary>
+        /// Proxy callback handler responsible for handling CAS proxy 
+        /// tickets.
+        /// </summary>
+        internal static ProxyCallbackHandler ProxyCallbackHandler
+        {
+            get
+            {
+                Initialize();
+                return _proxyCallbackHandler;
+            }
+        }
+
+        /// <summary>
+        /// The callback URL provided to the CAS server for receiving Proxy Granting Tickets.
+        /// e.g. https://www.example.edu/cas-client-app/proxyCallback
+        /// </summary>
+        public static string ProxyCallbackUrl
+        {
+            get
+            {
+                Initialize();
+                return _proxyCallbackUrl;
+            }
+        }
+
+        /// <summary>
+        /// The URL to watch for PGTIOU/PGT responses from the CAS server. Should be defined from
+        /// the root of the context. For example, if your application is deployed in /cas-client-app
+        /// and you want the proxy receptor URL to be /cas-client-app/my/receptor you need to configure
+        /// proxyReceptorUrl to be /my/receptor
+        /// e.g. /proxyCallback
+        /// </summary>
+        public static string ProxyReceptorUrl
+        {
+            get
+            {
+                Initialize();
+                return _proxyReceptorUrl;
+            }
+        }
+
+        /// <summary>
+        /// The Forms LoginUrl property set in system.web/authentication/forms
+        /// </summary>
+        public static string FormsLoginUrl
+        {
+            get
+            {
+                Initialize();
+                return _formsLoginUrl;
+            }
+        }
+
+        /// <summary>
+        /// The Forms Timeout property set in system.web/authentication/forms
+        /// </summary>
+        public static TimeSpan FormsTimeout
+        {
+            get
+            {
+                Initialize();
+                return _formsTimeout;
+            }
+        }
+
+        /// <summary>
+        /// URL of CAS login form.
+        /// </summary>
+        public static string CasServerLoginUrl
+        {
+            get
+            {
+                Initialize();
+                return _casServerLoginUrl;
+            }
+        }
+
+        /// <summary>
+        /// URL to root of CAS server application.  For example, if your 
+        /// CasServerLoginUrl is https://fed.example.com/cas/login
+        /// then your CasServerUrlPrefix would be https://fed.example.com/cas/
+        /// </summary>
+        public static string CasServerUrlPrefix
+        {
+            get
+            {
+                Initialize();
+                return _casServerUrlPrefix;
+            }
+        }
+
+        /// <summary>
+        /// SAML ticket validator property to allow at most the given time 
+        /// difference in ms between artifact (ticket) timestamp and CAS server 
+        /// system time.  Increasing this may have negative security consequences; 
+        /// we recommend fixing sources of clock drift rather than increasing 
+        /// this value.
+        /// </summary>
+        public static long TicketTimeTolerance
+        {
+            get
+            {
+                Initialize();
+                return _ticketTimeTolerance;
+            }
+        }
+
+        /// <summary>
+        /// The Service URL to send to the CAS server. 
+        /// e.g. https://app.princeton.edu/example/
+        /// </summary>
+        public static string Service
+        {
+            get
+            {
+                Initialize();
+                return _service;
+            }
+        }
+
+        /// <summary>
+        /// The service URL that will be used if a Service value is
+        /// configured.
+        /// </summary>
+        public static string DefaultServiceUrl
+        {
+            get
+            {
+                Initialize();
+                return _defaultServiceUrl;
+            }
+        }
+
+        /// <summary>
+        /// The server name of the server hosting the client application.  Service URL
+        /// will be dynamically constructed using this value if Service is not specified.
+        /// e.g. https://app.princeton.edu/
+        /// </summary>
+        public static string ServerName
+        {
+            get
+            {
+                Initialize();
+                return _serverName;
+            }
+        }
+
+        /// <summary>
+        /// Force user to reauthenticate to CAS before accessing this application.
+        /// This provides additional security at the cost of usability since it effectively
+        /// disables SSO for this application.
+        /// </summary>
+        public static bool Renew
+        {
+            get
+            {
+                Initialize();
+                return _renew;
+            }
+        }
+
+        /// <summary>
+        /// The name of the request parameter whose value is the artifact
+        /// (e.g. "ticket").
+        /// </summary>
+        public static string ArtifactParameterName
+        {
+            get
+            {
+                Initialize();
+                return _artifactParameterName;
+            }
+        }
+
+        /// <summary>
+        /// The name of the request parameter whose value is the service
+        /// (e.g. "service")
+        /// </summary>
+        public static string ServiceParameterName
+        {
+            get
+            {
+                Initialize();
+                return _serviceParameterName;
+            }
+        }
+
+        /// <summary>
+        /// Whether to redirect to the same URL after ticket validation, but without the ticket
+        /// in the parameter.
+        /// </summary>
+        public static bool RedirectAfterValidation
+        {
+            get
+            {
+                Initialize();
+                return _redirectAfterValidation;
+            }
+        }
+
+        /// <summary>
+        /// Whether to encode the session ID into the Service URL.
+        /// constructed.
+        /// </summary>
+        public static bool EncodeServiceUrl
+        {
+            get
+            {
+                Initialize();
+                return _encodeServiceUrl;
+            }
+        }
+
+        /// <summary>
+        /// Specifies whether single sign out functionality should be enabled.
+        /// </summary>
+        public static bool SingleSignOut
+        {
+            get
+            {
+                Initialize();
+                return _singleSignOut;
+            }
+        }
+
+        /// <summary>
+        /// The URL to redirect to when the request has a valid CAS ticket but the user is 
+        /// not authorized to access the URL or resource.  If this option is set, users will
+        /// be redirected to this URL.  If it is not set, the user will be redirected to the 
+        /// CAS login screen with a Renew option in the URL (to force for alternate credential
+        /// collection).
+        /// </summary>
+        public static string NotAuthorizedUrl
+        {
+            get
+            {
+                Initialize();
+                return _notAuthorizedUrl;
+            }
+        }
+
+        /// <summary>
+        /// Use session to store CAS authenticated state and principal/attribute info.
+        /// Default is true.
+        /// </summary>
+        public static bool UseSession
+        {
+            get
+            {
+                Initialize();
+                return _useSession;
+            }
+        }
+
+        /// <summary>
+        /// Regular expression describing URIs to be protected by CAS authentication.
+        /// Default is .* to protect all application resources with CAS. 
+        /// </summary>
+        public static string SecureUriRegex
+        {
+            get
+            {
+                Initialize();
+                return _secureUriRegex;
+            }
+        }
+
+        /// <summary>
+        /// Regular expression describing URIs to be specifically excluded from CAS auth.
+        /// This feature originated to easily exclude resources used by .NET AJAX controls.
+        /// The value in the following example illustrates how to ignore the resource used
+        /// to bootstrap AJAX controls.  Default is to have no exclusions. 
+        /// </summary>
+        public static string SecureUriExceptionRegex
+        {
+            get
+            {
+                Initialize();
+                return _secureUriExceptionRegex;
+            }
+        }
+        #endregion
     }
 }
