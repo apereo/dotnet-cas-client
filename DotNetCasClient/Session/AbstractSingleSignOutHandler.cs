@@ -52,6 +52,7 @@ namespace DotNetCasClient.Session
     /// <remarks>
     /// See interface class for details.
     /// </remarks>
+    /// </summary>
     public virtual bool ProcessRequest(HttpApplication application)
     {
       HttpRequest request = application.Request;

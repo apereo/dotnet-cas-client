@@ -25,6 +25,7 @@ namespace DotNetCasClient.Session
     /// <item><description>
     /// no-op for all other types of requests
     /// </description></item>
+    /// </list>
     /// </remarks>
     /// </summary>
     /// <param name="application">the current application</param>

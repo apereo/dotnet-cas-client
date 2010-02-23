@@ -30,7 +30,7 @@ namespace DotNetCasClient.Security
         /// <summary>
         /// Retrieves a CAS proxy ticket for this Principal.
         /// </summary>
-        /// <param Name="service">
+        /// <param name="service">
         /// the service to which this user is to be proxied.
         /// </param>
         /// <returns>a string representing the proxy ticket.</returns>

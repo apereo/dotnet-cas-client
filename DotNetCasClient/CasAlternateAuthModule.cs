@@ -74,6 +74,7 @@ namespace DotNetCasClient
     /// <summary>
     /// Performs initializations / startup functionality common to all the methods of
     /// this HttpModule.
+    /// </summary>
     /// <param name="application">the application context</param>
     private void InitCommon(HttpApplication application)
     {
@@ -239,7 +240,7 @@ namespace DotNetCasClient
         DebugUtils.LogPrincipals((HttpApplication)sender);
       }
     }
-
+      
 
     //TODO renew and gateway
     /// <summary>
@@ -250,6 +251,7 @@ namespace DotNetCasClient
     /// session CasPrincipal either does <i>not</i> exist or is not
     /// being used for re-authentication
     /// </description></item>
+    /// </list>
     /// </summary>
     /// <param name="application">the application context</param>
     /// <param name="e">event data</param>

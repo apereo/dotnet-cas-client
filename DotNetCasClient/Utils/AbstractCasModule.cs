@@ -43,6 +43,7 @@ namespace DotNetCasClient.Utils
     
     /// <summary>
     /// The exact url of the service.
+    /// </summary>
     protected string Service { get; private set; }
 
     /// <summary>
@@ -132,6 +133,7 @@ namespace DotNetCasClient.Utils
     /// <summary>
     /// Performs initializations / startup functionality common to all the methods of
     /// this HttpModule.
+    /// </summary>
     /// <param name="application">the application context</param>
     private void InitCommonBase(HttpApplication application)
     {

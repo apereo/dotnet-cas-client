@@ -16,7 +16,7 @@ namespace DotNetCasClient.Authentication
     /// <summary>
     /// Determines the current gatewayed status and then sets the status to 'not gatewayed'.
     /// </summary>
-    /// <param Name="serviceUrl">the service url</param>
+    /// <param name="serviceUrl">the service url</param>
     /// <returns>the starting gatewayed status</returns>
     bool WasGatewayed(string serviceUrl);
 
@@ -31,7 +31,7 @@ namespace DotNetCasClient.Authentication
     /// <code>true</code> and returns the service url to use for redirection,
     /// based on the submitted service URL with modifications as needed.
     /// </summary>
-    /// <param Name="serviceUrl">the original service url</param>
+    /// <param name="serviceUrl">the original service url</param>
     /// <returns>the service url for redirection</returns>
     string StoreGatewayInformation(string serviceUrl);
   }

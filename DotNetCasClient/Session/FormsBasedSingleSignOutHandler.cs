@@ -33,6 +33,7 @@ namespace DotNetCasClient.Session
     /// <remarks>
     /// See interface class for details.
     /// </remarks>
+    /// </summary>
     public override bool ProcessRequest(HttpApplication application)
     {
       bool logoutRequestProcessed = base.ProcessRequest(application);
