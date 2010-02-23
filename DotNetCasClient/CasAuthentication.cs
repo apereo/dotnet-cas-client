@@ -152,7 +152,7 @@ namespace DotNetCasClient
                         }
 
                         // Initialize default values
-                        if (!string.IsNullOrEmpty(_service))
+                        if (!String.IsNullOrEmpty(_service))
                         {
                             _defaultServiceUrl = _service;
                         }
@@ -164,15 +164,15 @@ namespace DotNetCasClient
                         }
 
                         // Parse "enumerated" values 
-                        if (string.Compare(_ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
+                        if (String.Compare(_ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
                             _ticketValidator = new Cas10TicketValidator(CasClientConfig);
                         }
-                        else if (string.Compare(_ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
+                        else if (String.Compare(_ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
                         {
                             _ticketValidator = new Cas20ServiceTicketValidator(CasClientConfig);
                         }
-                        else if (string.Compare(_ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
+                        else if (String.Compare(_ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
                         {
                             _ticketValidator = new Saml11TicketValidator(CasClientConfig);
                         }
@@ -181,11 +181,11 @@ namespace DotNetCasClient
                             throw new CasConfigurationException("Unknown ticket validator " + _ticketValidatorName);
                         }
 
-                        if (string.IsNullOrEmpty(_ticketManagerProvider))
+                        if (String.IsNullOrEmpty(_ticketManagerProvider))
                         {
                             // Web server cannot maintain ticket state, verify tickets, perform SSO, etc.
                         }
-                        else if (string.Compare(_ticketManagerProvider, CasClientConfiguration.CACHE_TICKET_MANAGER) == 0)
+                        else if (String.Compare(_ticketManagerProvider, CasClientConfiguration.CACHE_TICKET_MANAGER) == 0)
                         {
                             _ticketManager = new CacheTicketManager();
                         }
@@ -195,14 +195,14 @@ namespace DotNetCasClient
                         }
 
                         // Validate configuration
-                        bool haveServerName = !string.IsNullOrEmpty(_serverName);
-                        bool haveService = !string.IsNullOrEmpty(_service);
+                        bool haveServerName = !String.IsNullOrEmpty(_serverName);
+                        bool haveService = !String.IsNullOrEmpty(_service);
                         if ((haveServerName && haveService) || (!haveServerName && !haveService))
                         {
                             throw new CasConfigurationException(string.Format("Either {0} or {1} must be set (but not both).", CasClientConfiguration.SERVER_NAME, CasClientConfiguration.SERVICE));
                         }
 
-                        if (string.IsNullOrEmpty(_casServerLoginUrl))
+                        if (String.IsNullOrEmpty(_casServerLoginUrl))
                         {
                             throw new CasConfigurationException(CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
                         }
@@ -253,7 +253,7 @@ namespace DotNetCasClient
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
 
-            if (!string.IsNullOrEmpty(DefaultServiceUrl))
+            if (!String.IsNullOrEmpty(DefaultServiceUrl))
             {
                 if (Log.IsDebugEnabled)
                 {
@@ -434,7 +434,7 @@ namespace DotNetCasClient
 
             string str = FormsAuthentication.Encrypt(ticket);
 
-            if (string.IsNullOrEmpty(str))
+            if (String.IsNullOrEmpty(str))
             {
                 throw new HttpException("Unable to encrypt cookie ticket");
             }
@@ -477,12 +477,12 @@ namespace DotNetCasClient
         /// <returns>Instance of a FormsAuthenticationTicket</returns>
         public static FormsAuthenticationTicket CreateFormsAuthenticationTicket(string netId, string cookiePath, string serviceTicket, DateTime? validFromDate, DateTime? validUntilDate)
         {
-            if (string.IsNullOrEmpty(netId))
+            if (String.IsNullOrEmpty(netId))
             {
                 throw new ArgumentNullException("netId");
             }
 
-            if (string.IsNullOrEmpty(serviceTicket))
+            if (String.IsNullOrEmpty(serviceTicket))
             {
                 throw new ArgumentNullException("serviceTicket");
             }
@@ -537,7 +537,7 @@ namespace DotNetCasClient
                 return null;
             }
 
-            if (string.IsNullOrEmpty(cookie.Value))
+            if (String.IsNullOrEmpty(cookie.Value))
             {
                 ClearAuthCookie();
                 return null;
@@ -566,7 +566,7 @@ namespace DotNetCasClient
                 return null;
             }
 
-            if (string.IsNullOrEmpty(formsAuthTicket.UserData))
+            if (String.IsNullOrEmpty(formsAuthTicket.UserData))
             {
                 ClearAuthCookie();
                 return null;

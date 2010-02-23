@@ -162,7 +162,7 @@ namespace DotNetCasClient
             // See if this request is the first request redirected from the CAS server 
             // with a Ticket parameter.
             string ticket = request[CasAuthentication.TicketValidator.ArtifactParameterName];
-            if (!string.IsNullOrEmpty(ticket))
+            if (!String.IsNullOrEmpty(ticket))
             {
                 // Attempt to authenticate the ticket and resolve to an ICasPrincipal
                 principal = CasAuthentication.TicketValidator.Validate(ticket, new Uri(CasAuthentication.ConstructServiceUri()));
@@ -188,7 +188,7 @@ namespace DotNetCasClient
                 }
 
                 int artifactIndex = request.Url.AbsoluteUri.IndexOf(CasAuthentication.TicketValidator.ArtifactParameterName);
-                bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !string.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
+                bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
                 bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
                 if (requestIsInboundCasResponse)
                 {
@@ -303,10 +303,10 @@ namespace DotNetCasClient
 
             bool responseIsRedirection = (response.StatusCode == 302);
 
-            bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !string.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
+            bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
             bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
             bool userIsAuthenticated = (context.User != null && context.User.Identity != null && context.User.Identity.IsAuthenticated);
-            bool responseIsOutboundCasRequest = (!requestHasCasTicket && response.IsRequestBeingRedirected && !string.IsNullOrEmpty(response.RedirectLocation) && response.RedirectLocation.StartsWith(CasAuthentication.FormsLoginUrl));
+            bool responseIsOutboundCasRequest = (!requestHasCasTicket && response.IsRequestBeingRedirected && !String.IsNullOrEmpty(response.RedirectLocation) && response.RedirectLocation.StartsWith(CasAuthentication.FormsLoginUrl));
             bool requestIsUnAuthenticated = (!userIsAuthenticated && responseIsOutboundCasRequest);
             bool requestIsUnAuthorized = (userIsAuthenticated && responseIsRedirection && responseIsOutboundCasRequest);
 
@@ -350,7 +350,7 @@ namespace DotNetCasClient
                     // notAuthorizedUrl is not defined, the request will be sent to CAS 
                     // again for alternate credentials.  This forces the Renew parameter 
                     // to prevent an endless loop between this server and the CAS server.
-                    response.Redirect(!string.IsNullOrEmpty(redirectNotAuthorizedUrl) ? redirectNotAuthorizedUrl : redirectCasRenewUrl, false);
+                    response.Redirect(!String.IsNullOrEmpty(redirectNotAuthorizedUrl) ? redirectNotAuthorizedUrl : redirectCasRenewUrl, false);
                 }
                 else
                 {
@@ -389,7 +389,7 @@ namespace DotNetCasClient
                 {
                     Log.DebugFormat("{0}:POST logoutRequest={1}", CommonUtils.MethodName, (logoutRequest ?? "null"));
                 }
-                if (!string.IsNullOrEmpty(logoutRequest))
+                if (!String.IsNullOrEmpty(logoutRequest))
                 {
                     logoutRequestReceived = true;
                     string casTicket = ExtractSingleSignOutTicketFromSamlResponse(logoutRequest);
@@ -397,7 +397,7 @@ namespace DotNetCasClient
                     {
                         Log.DebugFormat("{0}:casTicket=[{1}]", CommonUtils.MethodName, casTicket);
                     }
-                    if (!string.IsNullOrEmpty(casTicket))
+                    if (!String.IsNullOrEmpty(casTicket))
                     {
                         CasAuthentication.TicketManager.RevokeTicket(casTicket);
                         if (Log.IsDebugEnabled)
@@ -423,7 +423,7 @@ namespace DotNetCasClient
             XmlParserContext xmlParserContext = new XmlParserContext(null, _xmlNamespaceManager, null, XmlSpace.None);
 
             string elementText = null;
-            if (!string.IsNullOrEmpty(xmlAsString) && !string.IsNullOrEmpty(XML_SESSION_INDEX_ELEMENT_NAME))
+            if (!String.IsNullOrEmpty(xmlAsString) && !String.IsNullOrEmpty(XML_SESSION_INDEX_ELEMENT_NAME))
             {
                 using (TextReader textReader = new StringReader(xmlAsString))
                 {
