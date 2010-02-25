@@ -143,7 +143,7 @@ namespace DotNetCasClient
 
                         if (CasClientConfig.ProxyGrantingTicketReceptor)
                         {
-                            throw new NotImplementedException("Proxy support is not implemented at this time.");
+                            // throw new NotImplementedException("Proxy support is not implemented at this time.");
                             /*
                             _proxyGrantingTicketReceptor = CasClientConfig.ProxyGrantingTicketReceptor;
                             _proxyCallbackUrl = CasClientConfig.ProxyCallbackUrl;
