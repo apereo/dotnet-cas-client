@@ -34,12 +34,21 @@ div.logout
     padding: 3px 5px 3px 5px;
     background-color: #76bb78;
     text-align: right;    
+    font-weight: bold;
 }
 
 div.logout a 
 {
 	color: White;
+	text-decoration: none;
 }
+
+div.logout a:hover
+{
+	color: White;
+	text-decoration: underline;
+}
+
 
 div.body 
 {
@@ -92,14 +101,11 @@ div.clear
 
 table.block
 {
-    border-collapse: collapse;
     width: 100%;
-    border: 1px solid #a0a0a0;
 }
 
 table.block th 
 {    
-    border: 1px solid #a0a0a0;
     background-color: #76aed2;
     color: White;
     padding: 3px;
