@@ -36,6 +36,7 @@ namespace DotNetCasClient.Configuration
         /// </summary>
         public const string RENEW = "renew";
         public const string GATEWAY = "gateway";
+        public const string GATEWAY_STATUS_COOKIE_NAME = "gatewayStatusCookieName";
         public const string ARTIFACT_PARAMETER_NAME = "artifactParameterName";
         public const string SERVICE_PARAMETER_NAME = "serviceParameterName";
         public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
@@ -52,6 +53,8 @@ namespace DotNetCasClient.Configuration
         public const string PROXY_RECEPTOR_URL = "proxyReceptorUrl";
         public const string TICKET_MANAGER = "ticketManager";
         public const string NOT_AUTHORIZED_URL = "notAuthorizedUrl";
+        public const string COOKIES_REQUIRED_URL = "cookiesRequiredUrl";
+        public const string GATEWAY_PARAMETER_NAME = "gatewayParameterName";
 
         /// <summary>
         /// Names for the supported ticket validators
@@ -170,6 +173,20 @@ namespace DotNetCasClient.Configuration
             get
             {
                 return Convert.ToBoolean(this[GATEWAY]);
+            }
+        }
+
+        /// <summary>
+        /// The name of the cookie used to store the Gateway status (NotAttempted, 
+        /// Success, Failed).  This cookie is used to prevent the client from 
+        /// attempting to gateway authenticate every request.
+        /// </summary>
+        [ConfigurationProperty(GATEWAY_STATUS_COOKIE_NAME, IsRequired = false, DefaultValue = "cas_gateway_status")]
+        public string GatewayStatusCookieName
+        {
+            get
+            {
+                return this[GATEWAY_STATUS_COOKIE_NAME] as string;
             }
         }
 
@@ -309,6 +326,41 @@ namespace DotNetCasClient.Configuration
             }
         }
 
+        /// <summary>
+        /// The URL to redirect to when the client is not accepting session 
+        /// cookies.  This condition is detected only when gateway is enabled.  
+        /// This will lock the users onto a specific page.  Otherwise, every 
+        /// request will cause a silent round-trip to the CAS server, adding 
+        /// a parameter to the URL.
+        /// </summary>
+        [ConfigurationProperty(COOKIES_REQUIRED_URL, IsRequired = false, DefaultValue = null)]
+        public string CookiesRequiredUrl
+        {
+            get
+            {
+                return this[COOKIES_REQUIRED_URL] as string;
+            }
+        }
+
+        /// <summary>
+        /// The URL parameter to append to outbound CAS request's ServiceName 
+        /// when initiating an automatic CAS Gateway request.  This parameter 
+        /// plays a role in detecting whether or not the client has cookies 
+        /// enabled.  The default value is 'gatewayResponse' and only needs to 
+        /// be explicitly defined if that URL parameter has a meaning elsewhere
+        /// in your application.  If you choose not define the CookiesRequiredUrl,
+        /// you can detect that session cookies are not enabled in your application
+        /// by testing for this parameter in the Request.QueryString having the 
+        /// value 'true'.
+        /// </summary>
+        [ConfigurationProperty(GATEWAY_PARAMETER_NAME, IsRequired = false, DefaultValue = "gatewayResponse")]
+        public string GatewayParameterName
+        {
+            get
+            {
+                return this[GATEWAY_PARAMETER_NAME] as string;
+            }
+        }
 
         /// <summary>
         /// Specifies whether authentication based on the presence of the CAS

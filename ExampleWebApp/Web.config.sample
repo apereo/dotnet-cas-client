@@ -67,6 +67,18 @@
     ticketManager           - The ticket manager to use to store tickets returned by the CAS server for 
                               validation, revocation, and single sign out support.  Without a ticket manager
                               configured, these capabilities will be disabled.  Valid value is CacheTicketManager.
+    gatewayStatusCookieName - The name of the cookie used to store the Gateway status (NotAttempted, Success, 
+                              Failed).  This cookie is used to prevent the client from attempting to gateway 
+                              authenticate every request.
+    cookiesRequiredUrl      - The URL to redirect to when the client is not accepting session cookies.  This 
+                              condition is detected only when gateway is enabled.  This will lock the users onto
+                              a specific page.  Otherwise, every request will cause a silent round-trip to the 
+                              CAS server, adding a parameter to the URL.
+    gatewayParameterName    - The URL parameter to append to outbound CAS request's ServiceName when initiating
+                              an automatic CAS Gateway request.  This parameter plays a role in detecting whether
+                              or not the client has cookies enabled.  The default value is 'gatewayResponse' and
+                              only needs to be explicitly defined if that URL parameter has a meaning elsewhere
+                              in your application.                              
 
        ****  NOTE: Additional configuration for this module is inherited from the  ****
        ****        system.web/authentication and system.web/authentication/forms   ****
@@ -130,8 +142,8 @@
            
       For non-WFA, set mode="None"
       <authentication mode="None"/>
-    -->
-    <authentication mode="Forms">
+    -->    
+    <authentication mode="Forms">     
       <forms loginUrl="https://fed.princeton.edu/cas/login" timeout="30" defaultUrl="~/Default.aspx" 
              cookieless="UseCookies" slidingExpiration="true" path="/example/" />
     </authentication>

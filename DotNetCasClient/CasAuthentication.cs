@@ -20,6 +20,36 @@ namespace DotNetCasClient
     /// </summary>
     public sealed class CasAuthentication
     {
+        /// <summary>
+        /// Lists the possible states of the gateway feature. 
+        /// </summary>
+        public enum GatewayStatus
+        {
+            /// <summary>
+            /// Gateway authentication has not been attempted or the client is not 
+            /// accepting session cookies
+            /// </summary>
+            NotAttempted,
+
+            /// <summary>
+            /// Gateway authentication is in progress
+            /// </summary>
+            Attempting,
+            
+            /// <summary>
+            /// The Gateway authentication attempt was successful.  Gateway 
+            /// authentication will not be attempted in subsequent requests
+            /// </summary>
+            Success,
+
+            /// <summary>
+            /// The Gateway authentication attempt was attempted, but a service 
+            /// ticket was not returned.  Gateway authentication will not be 
+            /// attempted in subsequent requests.
+            /// </summary>
+            Failed
+        }
+
         #region Fields
         /// <summary>
         /// Access to the log file
@@ -44,6 +74,7 @@ namespace DotNetCasClient
         // Gateway support
         private static bool _gateway;
         private static IGatewayResolver _gatewayResolver;
+        private static string _gatewayStatusCookieName;
 
         // Proxy support
         private static bool _proxyGrantingTicketReceptor;
@@ -66,6 +97,8 @@ namespace DotNetCasClient
         private static bool _encodeServiceUrl;
         private static bool _singleSignOut;
         private static string _notAuthorizedUrl;
+        private static string _cookiesRequiredUrl;
+        private static string _gatewayParameterName;
         private static bool _useSession;
         private static string _secureUriRegex;
         private static string _secureUriExceptionRegex;
@@ -130,6 +163,7 @@ namespace DotNetCasClient
                         _serverName = CasClientConfig.ServerName;
                         _renew = CasClientConfig.Renew;
                         _gateway = CasClientConfig.Gateway;
+                        _gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
                         _artifactParameterName = CasClientConfig.ArtifactParameterName;
                         _serviceParameterName = CasClientConfig.ServiceParameterName;
                         _redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
@@ -137,6 +171,8 @@ namespace DotNetCasClient
                         _singleSignOut = CasClientConfig.SingleSignOut;
                         _ticketManagerProvider = CasClientConfig.TicketManager;
                         _notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
+                        _cookiesRequiredUrl = CasClientConfig.CookiesRequiredUrl;
+                        _gatewayParameterName = CasClientConfig.GatewayParameterName;
                         _useSession = CasClientConfig.UseSession;
                         _secureUriRegex = CasClientConfig.SecureUriRegex;
                         _secureUriExceptionRegex = CasClientConfig.SecureUriExceptionRegex;
@@ -159,7 +195,7 @@ namespace DotNetCasClient
 
                         if (_gateway)
                         {
-                            throw new NotImplementedException("Gateway has not been implemented yet.");
+                            // throw new NotImplementedException("Gateway has not been implemented yet.");
                             // _gatewayResolver = new SessionAttrGatewayResolver();
                         }
 
@@ -246,7 +282,7 @@ namespace DotNetCasClient
         /// website.
         /// </remarks>
         /// <returns>the service URI to use, not encoded</returns>
-        internal static string ConstructServiceUri()
+        internal static string ConstructServiceUri(bool gateway)
         {
             Initialize();
 
@@ -317,6 +353,12 @@ namespace DotNetCasClient
             {
                 Log.DebugFormat("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, buffer);
             }
+
+            if (gateway)
+            {
+                buffer.Append(buffer.ToString().Contains("?") ? "&gatewayResponse=true" : "?gatewayResponse=true");
+            }
+
             return buffer.ToString();
         }
 
@@ -328,20 +370,19 @@ namespace DotNetCasClient
         /// is why the service and server name configuration parameters exist.
         /// </remarks>
         /// <returns>the redirection URL to use</returns>
-        internal static string ConstructLoginRedirectUrl()
+        internal static string ConstructLoginRedirectUrl(bool gateway)
         {
             Initialize();
 
             // string casServerLoginUrl = CasServerUrlPrefix + (CasServerUrlPrefix.EndsWith("/") ? string.Empty : "/") + "login";
 
             string casServerLoginUrl = FormsLoginUrl;
-            string serviceUri = ConstructServiceUri();
-            string redirectToUrl = string.Format("{0}?{1}={2}{3}{4}",
+            string serviceUri = ConstructServiceUri(gateway);
+            string redirectToUrl = string.Format("{0}?{1}={2}{3}",
                 casServerLoginUrl,
                 TicketValidator.ServiceParameterName,
                 HttpUtility.UrlEncode(serviceUri, Encoding.UTF8),
-                (Renew ? "&renew=true" : ""),
-                (Gateway ? "&gateway=true" : "")
+                (gateway ? "&gateway=true" : (Renew ? "&renew=true" : ""))
             );
 
             if (Log.IsDebugEnabled)
@@ -365,7 +406,7 @@ namespace DotNetCasClient
             Initialize();
 
             string casServerLogoutUrl = CasServerUrlPrefix + (CasServerUrlPrefix.EndsWith("/") ? string.Empty : "/") + "logout";
-            string serviceUri = ConstructServiceUri();
+            string serviceUri = ConstructServiceUri(false);
             string redirectToUrl = string.Format("{0}?{1}={2}",
                 casServerLogoutUrl,
                 TicketValidator.ServiceParameterName,
@@ -379,6 +420,78 @@ namespace DotNetCasClient
 
             return redirectToUrl;
         }
+
+        internal static void ClearGatewayStatusCookie()
+        {
+            Initialize();
+            HttpContext current = HttpContext.Current;
+
+            // Don't let anything see the incoming cookie 
+            current.Request.Cookies.Remove(GatewayStatusCookieName);
+
+            // Remove the cookie from the response collection (by adding an expired/empty version).
+            HttpCookie cookie = new HttpCookie(GatewayStatusCookieName);
+            cookie.Expires = DateTime.Now.AddMonths(-1);
+            cookie.Domain = FormsAuthentication.CookieDomain;
+            cookie.Path = FormsAuthentication.FormsCookiePath;
+            current.Response.Cookies.Add(cookie);
+        }
+        
+        internal static void SetGatewayStatusCookie(GatewayStatus gatewayStatus)
+        {
+            Initialize();
+            HttpContext current = HttpContext.Current;
+            HttpCookie cookie = new HttpCookie(GatewayStatusCookieName, gatewayStatus.ToString());
+            
+            cookie.HttpOnly = false;
+            cookie.Path = FormsAuthentication.FormsCookiePath;
+            cookie.Secure = false;
+
+            if (FormsAuthentication.CookieDomain != null)
+            {
+                cookie.Domain = FormsAuthentication.CookieDomain;
+            }
+
+            // Add it to the request collection for later processing during this request
+            current.Request.Cookies.Remove(GatewayStatusCookieName);
+            current.Request.Cookies.Add(cookie);
+
+            // Add it to the response collection for delivery to client
+            current.Response.Cookies.Add(cookie);
+        }
+        
+        public static GatewayStatus GetGatewayStatus()
+        {
+            Initialize();
+            HttpContext context = HttpContext.Current;
+            HttpCookie cookie = context.Request.Cookies[GatewayStatusCookieName];
+
+            GatewayStatus status;
+
+            if (cookie != null && !string.IsNullOrEmpty(cookie.Value))
+            {
+                try
+                {
+                    // Parse the value out of the cookie
+                    status = (GatewayStatus) Enum.Parse(typeof (GatewayStatus), cookie.Value);
+                }
+                catch (ArgumentException)
+                {
+                    // If the cookie contains an invalid value, clear the cookie 
+                    // and return GatewayStatus.NotAttempted
+                    ClearGatewayStatusCookie();
+                    status = GatewayStatus.NotAttempted;
+                }
+            } 
+            else
+            {
+                // Use the default value GatewayStatus.NotAttempted
+                status = GatewayStatus.NotAttempted;
+            }
+
+            return status;
+        }
+
 
         /// <summary>
         /// Sends a blank and expired FormsAuthentication cookie to the 
@@ -695,6 +808,20 @@ namespace DotNetCasClient
         }
 
         /// <summary>
+        /// The name of the cookie used to store the Gateway status (NotAttempted, 
+        /// Success, Failed).  This cookie is used to prevent the client from 
+        /// attempting to gateway authenticate every request.
+        /// </summary>
+        public static string GatewayStatusCookieName
+        {
+            get
+            {
+                Initialize();
+                return _gatewayStatusCookieName;
+            }
+        }
+
+        /// <summary>
         /// Specifies whether proxy granting tickets are being accepted.
         /// </summary>
         public static bool ProxyGrantingTicketReceptor
@@ -945,6 +1072,39 @@ namespace DotNetCasClient
             {
                 Initialize();
                 return _notAuthorizedUrl;
+            }
+        }
+
+        /// <summary>
+        /// The URL to redirect to when the client is not accepting session 
+        /// cookies.  This condition is detected only when gateway is enabled.  
+        /// This will lock the users onto a specific page.  Otherwise, every 
+        /// request will cause a silent round-trip to the CAS server, adding 
+        /// a parameter to the URL.
+        /// </summary>        
+        public static string CookiesRequiredUrl
+        {            
+            get
+            {
+                Initialize();
+                return _cookiesRequiredUrl;
+            }
+        }
+
+        /// <summary>
+        /// The URL parameter to append to outbound CAS request's ServiceName 
+        /// when initiating an automatic CAS Gateway request.  This parameter 
+        /// plays a role in detecting whether or not the client has cookies 
+        /// enabled.  The default value is 'gatewayResponse' and only needs to 
+        /// be explicitly defined if that URL parameter has a meaning elsewhere
+        /// in your application.                              
+        /// </summary>        
+        public static string GatewayParameterName
+        {
+            get
+            {
+                Initialize();
+                return _gatewayParameterName;
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Web;
@@ -6,6 +7,7 @@ using System.Web.Security;
 using System.Xml;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
+using DotNetCasClient.Validation;
 using log4net;
 
 namespace DotNetCasClient
@@ -164,38 +166,50 @@ namespace DotNetCasClient
             string ticket = request[CasAuthentication.TicketValidator.ArtifactParameterName];
             if (!String.IsNullOrEmpty(ticket))
             {
-                // Attempt to authenticate the ticket and resolve to an ICasPrincipal
-                principal = CasAuthentication.TicketValidator.Validate(ticket, new Uri(CasAuthentication.ConstructServiceUri()));
-
-                // Save the ticket in the FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 
-                casTicket = new CasAuthenticationTicket(
-                    ticket,
-                    RemoveQueryStringVariableFromUrl(request.RawUrl, request[CasAuthentication.TicketValidator.ArtifactParameterName]),
-                    request.UserHostAddress,
-                    principal.Assertion
-                );
-
-                // TODO: Check the last 2 parameters.  We want to take the from/to dates from the 
-                // FormsAuthenticationTicket.  However, we may need to do some NTP-style clock
-                // calibration
-                FormsAuthenticationTicket formsAuthTicket = CasAuthentication.CreateFormsAuthenticationTicket(principal.Identity.Name, FormsAuthentication.FormsCookiePath, ticket, null, null);
-                CasAuthentication.SetAuthCookie(formsAuthTicket);
-
-                // Also save the ticket in the server store (if configured)
-                if (CasAuthentication.TicketManager != null)
+                try
                 {
-                    CasAuthentication.TicketManager.UpdateTicketExpiration(casTicket, formsAuthTicket.Expiration);
+                    // Attempt to authenticate the ticket and resolve to an ICasPrincipal
+                    principal = CasAuthentication.TicketValidator.Validate(ticket, new Uri(CasAuthentication.ConstructServiceUri(false)));
+                } catch (TicketValidationException)
+                {
+                    principal = null;
                 }
 
-                int artifactIndex = request.Url.AbsoluteUri.IndexOf(CasAuthentication.TicketValidator.ArtifactParameterName);
-                bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
-                bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
-                if (requestIsInboundCasResponse)
+                if (principal != null)
                 {
-                    // Jump directly to EndRequest.  Don't allow the Page and/or Handler to execute
-                    app.CompleteRequest();
-                    return;
-                }
+                    string requestUrlSansTicket = RemoveQueryStringVariableFromUrl(request.RawUrl, CasAuthentication.TicketValidator.ArtifactParameterName);
+                    string requestUrl = RemoveQueryStringVariableFromUrl(requestUrlSansTicket, CasAuthentication.GatewayParameterName);
+
+                    // Save the ticket in the FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 
+                    casTicket = new CasAuthenticationTicket(
+                        ticket,
+                        requestUrl,
+                        request.UserHostAddress,
+                        principal.Assertion
+                        );
+
+                    // TODO: Check the last 2 parameters.  We want to take the from/to dates from the 
+                    // FormsAuthenticationTicket.  However, we may need to do some NTP-style clock
+                    // calibration
+                    FormsAuthenticationTicket formsAuthTicket = CasAuthentication.CreateFormsAuthenticationTicket(principal.Identity.Name, FormsAuthentication.FormsCookiePath, ticket, null, null);
+                    CasAuthentication.SetAuthCookie(formsAuthTicket);
+
+                    // Also save the ticket in the server store (if configured)
+                    if (CasAuthentication.TicketManager != null)
+                    {
+                        CasAuthentication.TicketManager.UpdateTicketExpiration(casTicket, formsAuthTicket.Expiration);
+                    }
+
+                    int artifactIndex = request.Url.AbsoluteUri.IndexOf(CasAuthentication.TicketValidator.ArtifactParameterName);
+                    bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
+                    bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
+                    if (requestIsInboundCasResponse)
+                    {
+                        // Jump directly to EndRequest.  Don't allow the Page and/or Handler to execute
+                        app.CompleteRequest();
+                        return;
+                    }
+                } 
             }
 
             // Look for a valid FormsAuthenticationTicket encrypted in a cookie.
@@ -276,20 +290,27 @@ namespace DotNetCasClient
         /// <summary>
         /// EndRequest is used to trigger the appropriate redirection.  There are
         /// currently three scenarios that require special redirections.  
-        /// 
-        ///  - Request is unauthenticated and is being routed to the FormsLoginUrl
-        ///    (typically caused by UrlAuthorizationModule).  This request needs to
-        ///    be intercepted to change the 'ReturnUrl' parameter to 'serviceName'
-        ///  - Request contains a CAS ticket in the URL.  This request needs to be
-        ///    redirected back to itself without the 'ticket' parameter in order to
-        ///    avoid potential infinite automatic ticket validation loops for when
-        ///    a the ticket in the URL has expired or was revoked and the Renew 
-        ///    configuration parameter is set.
-        ///  - Request is authenticated, but is not authorized to access the 
-        ///    requested resource (by UrlAuthorizationModule).  If the CAS is 
-        ///    configured with a NotAuthorizedUrl, the request is redirected to 
-        ///    that page.  Otherwise, it is redirected to the CAS login page with
-        ///    a forced 'Renew' property (to prevent infinite redirect loops).
+        /// <list>
+        ///     <item>
+        ///         Request is unauthenticated and is being routed to the FormsLoginUrl
+        ///         (typically caused by UrlAuthorizationModule).  This request needs to
+        ///         be intercepted to change the 'ReturnUrl' parameter to 'serviceName'
+        ///     </item>
+        ///     <item>
+        ///         Request contains a CAS ticket in the URL.  This request needs to be
+        ///         redirected back to itself without the 'ticket' parameter in order to
+        ///         avoid potential infinite automatic ticket validation loops for when
+        ///         a the ticket in the URL has expired or was revoked and the Renew 
+        ///         configuration parameter is set.
+        ///     </item>
+        ///     <item>
+        ///         Request is authenticated, but is not authorized to access the 
+        ///         requested resource (by UrlAuthorizationModule).  If the CAS is 
+        ///         configured with a NotAuthorizedUrl, the request is redirected to 
+        ///         that page.  Otherwise, it is redirected to the CAS login page with
+        ///         a forced 'Renew' property (to prevent infinite redirect loops).
+        ///     </item>
+        /// </list>
         /// </summary>
         /// <param name="sender">The HttpApplication that sent the request</param>
         /// <param name="e">Not used</param>
@@ -299,66 +320,409 @@ namespace DotNetCasClient
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
 
-            int artifactIndex = request.Url.AbsoluteUri.IndexOf(CasAuthentication.TicketValidator.ArtifactParameterName);
-
-            bool responseIsRedirection = (response.StatusCode == 302);
-
-            bool requestHasCasTicket = (request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName]));
-            bool requestIsInboundCasResponse = (requestHasCasTicket && artifactIndex > 0 && (request.Url.AbsoluteUri[artifactIndex - 1] == '?' || request.Url.AbsoluteUri[artifactIndex - 1] == '&'));
-            bool userIsAuthenticated = (context.User != null && context.User.Identity != null && context.User.Identity.IsAuthenticated);
-            bool responseIsOutboundCasRequest = (!requestHasCasTicket && response.IsRequestBeingRedirected && !String.IsNullOrEmpty(response.RedirectLocation) && response.RedirectLocation.StartsWith(CasAuthentication.FormsLoginUrl));
-            bool requestIsUnAuthenticated = (!userIsAuthenticated && responseIsOutboundCasRequest);
-            bool requestIsUnAuthorized = (userIsAuthenticated && responseIsRedirection && responseIsOutboundCasRequest);
-
-            if (requestIsInboundCasResponse || requestIsUnAuthenticated || requestIsUnAuthorized)
+            if (!IsBuiltInHandlerRequest() && GetContentTypeIsAppropriateForGateway())
             {
-                string redirectCasUrl = CasAuthentication.ConstructLoginRedirectUrl();
-                string redirectCasReturnUrl = RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, CasAuthentication.TicketValidator.ArtifactParameterName);
-                string redirectNotAuthorizedUrl = CasAuthentication.ResolveUrl(CasAuthentication.NotAuthorizedUrl);
+                string redirectCasUrl;
 
-                string redirectCasRenewUrl;
-
-                if (CasAuthentication.Renew)
+                if (GetRequestRequiresGateway())
                 {
-                    redirectCasRenewUrl = redirectCasUrl;
-                }
-                else if (CasAuthentication.Gateway)
-                {
-                    // Gateway+Renew = bad.  We want to
-                    // renew. 
-                    redirectCasRenewUrl = redirectCasUrl
-                        .Replace("?gateway=", "?renew=")
-                        .Replace("&gateway=", "&renew=");
-                }
-                else
-                {
-                    redirectCasRenewUrl = redirectCasUrl + "&renew=true";
-                }
+                    CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Attempting);
 
-
-                if (requestIsInboundCasResponse)
+                    redirectCasUrl = CasAuthentication.ConstructLoginRedirectUrl(true);
+                    response.Redirect(redirectCasUrl, false);
+                }
+                else if (GetUserDoesNotAllowSessionCookies())
+                {
+                    response.Redirect(CasAuthentication.ResolveUrl(CasAuthentication.CookiesRequiredUrl), false);
+                }
+                else if (GetRequestHasCasTicket())
                 {
                     // Note: redirectAfterValidation is ignored to avoid infinite 
                     //       loops in certain circumstances.
                     // Redirect the request back to itself without the ticket in the URL.
+
+                    if (GetRequestHasGatewayParameter())
+                    {
+                        CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Success);
+                    }
+
+                    string redirectCasReturnSansTicket = RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, CasAuthentication.TicketValidator.ArtifactParameterName);
+                    string redirectCasReturnUrl = RemoveQueryStringVariableFromUrl(redirectCasReturnSansTicket, CasAuthentication.GatewayParameterName);
+
                     response.Redirect(redirectCasReturnUrl, false);
                 }
-                else if (requestIsUnAuthorized)
+                else if (GetRequestHasGatewayParameter()) 
+                {
+                    CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Failed);
+
+                    string redirectCasReturnUrl = RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, CasAuthentication.GatewayParameterName);
+
+                    response.Redirect(redirectCasReturnUrl, false);
+                }
+                else if (GetRequestIsUnAuthorized())
                 {
                     // User is authenticated but not authorized.  If a notAuthorizedUrl 
                     // is defined, the request will be redirected there now.  If a 
                     // notAuthorizedUrl is not defined, the request will be sent to CAS 
                     // again for alternate credentials.  This forces the Renew parameter 
                     // to prevent an endless loop between this server and the CAS server.
+                    redirectCasUrl = CasAuthentication.ConstructLoginRedirectUrl(false);
+                    string redirectNotAuthorizedUrl = CasAuthentication.ResolveUrl(CasAuthentication.NotAuthorizedUrl);
+                    string redirectCasRenewUrl = GetRedirectCasRenewUrl(redirectCasUrl);
+
                     response.Redirect(!String.IsNullOrEmpty(redirectNotAuthorizedUrl) ? redirectNotAuthorizedUrl : redirectCasRenewUrl, false);
                 }
-                else
+                else if (GetRequestIsUnAuthenticated())
                 {
                     // If we got an HTTP 401 Error (Unauthorized) and don't have a CAS ticket
                     // in the URL, redirect to CAS.
+                    redirectCasUrl = CasAuthentication.ConstructLoginRedirectUrl(false);                    
+                    
                     response.Redirect(redirectCasUrl, false);
                 }
             }
+        }
+
+        private static string GetRedirectCasRenewUrl(string redirectCasUrl)
+        {
+            string redirectCasRenewUrl;
+
+            if (CasAuthentication.Renew)
+            {
+                redirectCasRenewUrl = redirectCasUrl;
+            }
+            else if (CasAuthentication.Gateway)
+            {
+                // Gateway+Renew = bad.  We want to
+                // renew. 
+                redirectCasRenewUrl = redirectCasUrl
+                    .Replace("?gateway=", "?renew=")
+                    .Replace("&gateway=", "&renew=");
+            }
+            else
+            {
+                redirectCasRenewUrl = redirectCasUrl + "&renew=true";
+            }
+            return redirectCasRenewUrl;
+        }
+
+        /// <summary>
+        /// Determines whether or not 
+        /// </summary>
+        /// <returns></returns>
+        private static bool GetResponseIsBeingRedirected()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            bool result = (response.StatusCode == 302);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the current request is unauthenticated
+        /// </summary>
+        /// <returns>True if the request is unauthenticated, otherwise False</returns>
+        private static bool GetRequestIsUnAuthenticated()
+        {
+            bool userIsNotAuthenticated = !GetUserIsAuthenticated();
+            bool responseIsCasLoginRedirect = GetResponseIsCasLoginRedirect();
+            
+            bool result = 
+            (
+                userIsNotAuthenticated &&
+                responseIsCasLoginRedirect
+            );
+
+            /*
+            if (result && System.Diagnostics.Debugger.IsAttached)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
+            */
+
+            return result;            
+        }
+
+        /// <summary>
+        /// Determines whether the current request is unauthorized
+        /// </summary>
+        /// <returns>True if the request is unauthorized, otherwise False</returns>
+        private static bool GetRequestIsUnAuthorized()
+        {
+            bool responseIsBeingRedirected = GetResponseIsBeingRedirected();
+            bool userIsAuthenticated = GetUserIsAuthenticated();
+            bool responseIsCasLoginRedirect = GetResponseIsCasLoginRedirect();
+
+            bool result = 
+            (
+               responseIsBeingRedirected &&
+               userIsAuthenticated &&
+               responseIsCasLoginRedirect
+            );
+
+            /*
+            if (result && System.Diagnostics.Debugger.IsAttached)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
+            */
+
+            return result;
+        }        
+
+        /// <summary>
+        /// Determines whether the current request will be redirected to the 
+        /// CAS login page
+        /// </summary>
+        /// <returns>True if the request will be redirected, otherwise False.</returns>
+        private static bool GetResponseIsCasLoginRedirect()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            bool requestDoesNotHaveCasTicket = !GetRequestHasCasTicket();
+            bool responseIsBeingRedirected = GetResponseIsBeingRedirected();
+            bool responseRedirectsToFormsLoginUrl = !String.IsNullOrEmpty(response.RedirectLocation) && response.RedirectLocation.StartsWith(CasAuthentication.FormsLoginUrl);
+
+            bool result =
+            (
+               requestDoesNotHaveCasTicket &&
+               responseIsBeingRedirected &&
+               responseRedirectsToFormsLoginUrl
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the User associated with the request has been 
+        /// defined and is authenticated.
+        /// </summary>
+        /// <returns>True if the request has an authenticated User, otherwise False</returns>
+        private static bool GetUserIsAuthenticated()
+        {
+            HttpContext context = HttpContext.Current;
+
+            bool result = 
+            (
+               context.User != null && 
+               context.User.Identity != null && 
+               context.User.Identity.IsAuthenticated
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the request has a CAS ticket in the URL
+        /// </summary>
+        /// <returns>True if the request URL contains a CAS ticket, otherwise False</returns>
+        private static bool GetRequestHasCasTicket()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            bool result =
+            (
+                request[CasAuthentication.TicketValidator.ArtifactParameterName] != null && 
+                !String.IsNullOrEmpty(request[CasAuthentication.TicketValidator.ArtifactParameterName])
+            );
+
+            /*
+            if (result && System.Diagnostics.Debugger.IsAttached)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
+            */
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the user's browser refuses to accept session cookies
+        /// </summary>
+        /// <returns>True if the browser does not allow session cookies, otherwise False</returns>
+        private static bool GetUserDoesNotAllowSessionCookies()
+        {
+            // If the request has a gateway parameter but the cookie does not
+            // reflect the fact that gateway was attempted, then cookies must
+            // be disabled.
+            CasAuthentication.GatewayStatus status = CasAuthentication.GetGatewayStatus();
+
+            bool gatewayEnabled = CasAuthentication.Gateway;
+            bool gatewayWasNotAttempted = (status == CasAuthentication.GatewayStatus.NotAttempted);
+            bool requestHasGatewayParameter = GetRequestHasGatewayParameter();
+            bool cookiesRequiredUrlIsDefined = !string.IsNullOrEmpty(CasAuthentication.CookiesRequiredUrl);
+            bool requestIsNotCookiesRequiredUrl = cookiesRequiredUrlIsDefined && !GetRequestIsCookiesRequiredUrl();
+
+            bool result =
+            (
+                gatewayEnabled &&
+                gatewayWasNotAttempted &&
+                requestHasGatewayParameter &&
+                requestIsNotCookiesRequiredUrl
+            );
+
+            /*
+            if (result && System.Diagnostics.Debugger.IsAttached)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
+            */
+             
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the current request requires a Gateway authentication redirect
+        /// </summary>
+        /// <returns>True if the request requires Gateway authentication, otherwise False</returns>
+        private static bool GetRequestRequiresGateway()
+        {
+            CasAuthentication.GatewayStatus status = CasAuthentication.GetGatewayStatus();
+
+            bool gatewayEnabled = CasAuthentication.Gateway;
+            bool gatewayWasNotAttempted = (status == CasAuthentication.GatewayStatus.NotAttempted);
+            bool requestDoesNotHaveGatewayParameter = !GetRequestHasGatewayParameter();
+            bool cookiesRequiredUrlIsDefined = !string.IsNullOrEmpty(CasAuthentication.CookiesRequiredUrl);
+            bool requestIsNotCookiesRequiredUrl = !GetRequestIsCookiesRequiredUrl();
+            bool requestIsNotNotAuthorizedUrl = !GetRequestIsNotAuthorizedUrl();
+
+            bool result =
+            (
+                gatewayEnabled &&
+                gatewayWasNotAttempted &&
+                requestDoesNotHaveGatewayParameter &&
+                cookiesRequiredUrlIsDefined &&
+                requestIsNotCookiesRequiredUrl &&
+                requestIsNotNotAuthorizedUrl
+            );
+
+            if (result && System.Diagnostics.Debugger.IsAttached)
+            {
+                // System.Diagnostics.Debugger.Break();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the request is for the NotAuthorizedUrl defined in web.config
+        /// </summary>
+        /// <returns>True if the request is to the NotAuthorizedUrl, otherwise False</returns>
+        private static bool GetRequestIsNotAuthorizedUrl()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            bool notAuthorizedUrlIsDefined = !String.IsNullOrEmpty(CasAuthentication.NotAuthorizedUrl);
+            bool requestIsNotAuthorizedUrl = notAuthorizedUrlIsDefined && request.RawUrl.StartsWith(CasAuthentication.ResolveUrl(CasAuthentication.NotAuthorizedUrl), true, CultureInfo.InvariantCulture);
+
+            bool result =
+            (
+                requestIsNotAuthorizedUrl
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the request is for the CookiesRequiredUrl defined in web.config
+        /// </summary>
+        /// <returns>True if the request is to the CookiesRequiredUrl, otherwise False</returns>
+        private static bool GetRequestIsCookiesRequiredUrl()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            bool cookiesRequiredUrlIsDefined = !String.IsNullOrEmpty(CasAuthentication.CookiesRequiredUrl);
+            bool requestIsCookiesRequiredUrl = cookiesRequiredUrlIsDefined && request.RawUrl.StartsWith(CasAuthentication.ResolveUrl(CasAuthentication.CookiesRequiredUrl), true, CultureInfo.InvariantCulture);
+
+            bool result = 
+            (
+                requestIsCookiesRequiredUrl
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the request contains the GatewayParameterName defined in 
+        /// web.config or the default value 'gatewayResponse'
+        /// </summary>
+        /// <returns>True if the request contains the GatewayParameterName, otherwise False</returns>
+        private static bool GetRequestHasGatewayParameter()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            bool requestContainsGatewayParameter = !String.IsNullOrEmpty(request.QueryString[CasAuthentication.GatewayParameterName]);
+            bool gatewayParameterValueIsTrue = (request.QueryString[CasAuthentication.GatewayParameterName] == "true");
+
+            bool result =
+            (
+               requestContainsGatewayParameter &&
+               gatewayParameterValueIsTrue
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determines whether the outbound content type is appropriate to be gatewayed.
+        /// This is to prevent style sheets, images, and supporting content from redirecting
+        /// to the CAS server for gateway authentication.
+        /// </summary>
+        /// <returns>True if the content type is appropriate, otherwise False</returns>
+        private static bool GetContentTypeIsAppropriateForGateway()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            string contentType = response.ContentType.ToLowerInvariant();
+            string[] appropriateContentTypes = new[]
+            {
+                "text/plain",
+                "text/html"
+            };
+            
+            foreach (string appropriateContentType in appropriateContentTypes)
+            {
+                if (string.Compare(contentType, appropriateContentType, true, CultureInfo.InvariantCulture) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines if the specified request is for one of the built-in HTTP handlers.
+        /// </summary>
+        /// <remarks>Adapted from SecureSwitch project with permission from Matt Sollars</remarks>
+        /// <returns>True if the request is for a built-in HTTP handler; false otherwise.</returns>
+        private static bool IsBuiltInHandlerRequest()
+        {
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            string fileName = request.Url.Segments[request.Url.Segments.Length - 1];
+            string[] builtInHandlers = new[]
+            {
+                "trace.axd",
+                "webresource.axd"        
+            };
+
+            foreach (string builtInHandler in builtInHandlers)
+            {
+                if (string.Compare(fileName, builtInHandler, true, CultureInfo.InvariantCulture) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
