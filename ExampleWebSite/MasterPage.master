@@ -1,0 +1,52 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+<%@ Import Namespace="DotNetCasClient" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head runat="server">
+        <title><%= Page.Title %></title>
+        <asp:ContentPlaceHolder id="head" runat="server">
+        </asp:ContentPlaceHolder>
+        <link rel="Stylesheet" href="~/MasterPage.css" runat="server" />
+    </head>
+    <body>
+        <form id="form1" runat="server">
+            <div class="body">
+                <div class="innerBody">
+                    <div class="title">
+                        <%= Page.Title %>
+                    </div>
+                    <div class="logout">
+                        <asp:LoginStatus ID="LoginStatus1" runat="server" LogoutAction="Redirect" LogoutPageUrl="~/Default.aspx" />
+                        <asp:LoginName ID="LoginName1" runat="server" />
+                    </div>
+                    <div class="left">
+                        <asp:ContentPlaceHolder id="ContentPlaceHolder" runat="server" />
+                    </div>
+                    <div class="right">
+                        <div class="menu">
+                            <asp:TreeView ID="TreeView1" runat="server" DataSourceID="SiteMapDataSource" Font-Size="Smaller" />
+                            <asp:SiteMapDataSource ID="SiteMapDataSource" Runat="server"  />
+                        </div>
+                        &nbsp;
+                        <div class="menu" style="padding: 5px; font-size: smaller; color: #222299;">
+                            Try using these sample accounts...
+                            <br /><br />
+                            <table>
+                              <tr><th style="width: 30%; text-align: left;">NetID</th><th style="width: 30%; text-align: left;">Pass</th><th style="width: 40%; text-align: left;">Roles</th></tr>
+                              <tr><td>admin</td><td>admin</td><td>Administrators</td></tr>
+                              <tr><td>user</td><td>user</td><td>Users</td></tr>
+                              <tr><td>bob</td><td>bob</td><td>Users</td></tr>
+                              <tr><td>noroles</td><td>noroles</td><td>&nbsp;</td></tr>
+                            </table>
+                        </div>
+                        &nbsp;
+                        <div class="menu" style="padding: 5px; font-size: smaller; color: #222299;">
+                            Gateway Status: <%= CasAuthentication.GetGatewayStatus().ToString() %>
+                        </div>                        
+                    </div>
+                    <div class="clear">&nbsp;</div>
+                </div>
+            </div>
+        </form>
+    </body>
+</html>

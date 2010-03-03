@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0">
+    <siteMapNode url="~/Default.aspx" title="Home">
+        <siteMapNode url="~/Restricted/" title="Restricted" description="Content restricted from anonymous users" roles="Users,Administrators">
+            <siteMapNode url="~/Restricted/AuthenticatedUsersOnly/" title="Authenticated Users Only" description="Authenticated users only" roles="*" />
+            <siteMapNode url="~/Restricted/UsersRoleOnly/" title="Users Role Only" description="Authenticated users in the Users role only" roles="Users" />
+            <siteMapNode url="~/Restricted/AdministratorsRoleOnly/" title="Administrators Role Only" description="Authenticated users in the Administrators role only" roles="Administrators" />
+            <siteMapNode url="~/Restricted/UsersOrAdministratorsRoleOnly/" title="Users or Administrators Roles Only" description="Authenticated users in the Users or Administrators role only" roles="Users,Administrators" />
+        </siteMapNode>
+    </siteMapNode>
+</siteMap>

@@ -1,0 +1,113 @@
+﻿body 
+{
+    font-family: Verdana;
+    margin: 1em 0 1em 0;
+    background-color: #f1f4f6;
+}
+
+form 
+{
+    display: inline;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.header 
+{
+    width: 100%;
+}
+
+div.title 
+{
+    vertical-align: top;
+    padding: 10px 15px 10px 15px;
+    font-size: large;
+    font-weight: bold;
+    color: white;
+    background-color: #014f73;
+}
+
+div.logout 
+{
+    color: White;
+    font-size: smaller;
+    padding: 3px 5px 3px 5px;
+    background-color: #76bb78;
+    text-align: right;    
+}
+
+div.logout a 
+{
+	color: White;
+}
+
+div.body 
+{
+    background-color: #f1f4f6;
+}
+
+div.headerBody 
+{
+    margin-left: auto;
+    margin-right: auto;
+    width: 1010px;
+}
+
+div.innerBody 
+{
+    margin-left: auto;
+    margin-right: auto;
+    width: 1010px;
+    position: relative;
+    background-color: White;
+}
+
+div.menu 
+{
+    background-color: #f1f4f6;
+}
+
+div.left
+{
+    float: right;
+    width: 650px;
+    vertical-align: top;
+    background-color: White;
+    font-size: small;
+    padding: 20px 20px 20px 0px;
+}
+
+div.right 
+{
+    float: left;
+    width: 300px;
+    vertical-align: top;
+    padding: 20px 0px 20px 20px;
+}
+
+div.clear 
+{
+    clear: both;
+}
+
+table.block
+{
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #a0a0a0;
+}
+
+table.block th 
+{    
+    border: 1px solid #a0a0a0;
+    background-color: #76aed2;
+    color: White;
+    padding: 3px;
+}
+
+table.block td
+{    
+    background-color: #e0e0e0;
+    padding: 3px;
+    vertical-align: top;
+}
