@@ -16,6 +16,7 @@ EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ExampleWebSite", "ExampleWebSite\", "{F9E9F25D-1008-4098-A4A7-179A0512F745}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFramework = "3.5"
+		ProjectReferences = "{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}|DotNetCasClient.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/ExampleWebSite"
 		Debug.AspNetCompiler.PhysicalPath = "ExampleWebSite\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\ExampleWebSite\"

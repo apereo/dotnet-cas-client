@@ -326,7 +326,7 @@ namespace DotNetCasClient
 
                 if (GetRequestRequiresGateway())
                 {
-                    CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Attempting);
+                    CasAuthentication.SetGatewayStatusCookie(GatewayStatus.Attempting);
 
                     redirectCasUrl = CasAuthentication.ConstructLoginRedirectUrl(true);
                     response.Redirect(redirectCasUrl, false);
@@ -343,7 +343,7 @@ namespace DotNetCasClient
 
                     if (GetRequestHasGatewayParameter())
                     {
-                        CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Success);
+                        CasAuthentication.SetGatewayStatusCookie(GatewayStatus.Success);
                     }
 
                     string redirectCasReturnSansTicket = RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, CasAuthentication.TicketValidator.ArtifactParameterName);
@@ -353,7 +353,7 @@ namespace DotNetCasClient
                 }
                 else if (GetRequestHasGatewayParameter()) 
                 {
-                    CasAuthentication.SetGatewayStatusCookie(CasAuthentication.GatewayStatus.Failed);
+                    CasAuthentication.SetGatewayStatusCookie(GatewayStatus.Failed);
 
                     string redirectCasReturnUrl = RemoveQueryStringVariableFromUrl(request.Url.AbsoluteUri, CasAuthentication.GatewayParameterName);
 
@@ -549,10 +549,10 @@ namespace DotNetCasClient
             // If the request has a gateway parameter but the cookie does not
             // reflect the fact that gateway was attempted, then cookies must
             // be disabled.
-            CasAuthentication.GatewayStatus status = CasAuthentication.GetGatewayStatus();
+            GatewayStatus status = CasAuthentication.GetGatewayStatus();
 
             bool gatewayEnabled = CasAuthentication.Gateway;
-            bool gatewayWasNotAttempted = (status == CasAuthentication.GatewayStatus.NotAttempted);
+            bool gatewayWasNotAttempted = (status == GatewayStatus.NotAttempted);
             bool requestHasGatewayParameter = GetRequestHasGatewayParameter();
             bool cookiesRequiredUrlIsDefined = !string.IsNullOrEmpty(CasAuthentication.CookiesRequiredUrl);
             bool requestIsNotCookiesRequiredUrl = cookiesRequiredUrlIsDefined && !GetRequestIsCookiesRequiredUrl();
@@ -581,10 +581,10 @@ namespace DotNetCasClient
         /// <returns>True if the request requires Gateway authentication, otherwise False</returns>
         private static bool GetRequestRequiresGateway()
         {
-            CasAuthentication.GatewayStatus status = CasAuthentication.GetGatewayStatus();
+            GatewayStatus status = CasAuthentication.GetGatewayStatus();
 
             bool gatewayEnabled = CasAuthentication.Gateway;
-            bool gatewayWasNotAttempted = (status == CasAuthentication.GatewayStatus.NotAttempted);
+            bool gatewayWasNotAttempted = (status == GatewayStatus.NotAttempted);
             bool requestDoesNotHaveGatewayParameter = !GetRequestHasGatewayParameter();
             bool cookiesRequiredUrlIsDefined = !string.IsNullOrEmpty(CasAuthentication.CookiesRequiredUrl);
             bool requestIsNotCookiesRequiredUrl = !GetRequestIsCookiesRequiredUrl();
