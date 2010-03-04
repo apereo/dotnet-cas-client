@@ -4,7 +4,6 @@ using System.Text;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Security;
-using DotNetCasClient.Authentication;
 using DotNetCasClient.Configuration;
 using DotNetCasClient.Proxy;
 using DotNetCasClient.State;
@@ -56,7 +55,6 @@ namespace DotNetCasClient
 
         // Gateway support
         private static bool _gateway;
-        private static IGatewayResolver _gatewayResolver;
         private static string _gatewayStatusCookieName;
 
         // Proxy support
@@ -162,11 +160,11 @@ namespace DotNetCasClient
 
                         if (CasClientConfig.ProxyGrantingTicketReceptor)
                         {
-                            // throw new NotImplementedException("Proxy support is not implemented at this time.");
                             /*
                             _proxyGrantingTicketReceptor = CasClientConfig.ProxyGrantingTicketReceptor;
                             _proxyCallbackUrl = CasClientConfig.ProxyCallbackUrl;
                             _proxyReceptorUrl = CasClientConfig.ProxyReceptorUrl;
+                            _proxyCallbackHandler = new ProxyCallbackHandler();
                             */
                         }
 
@@ -254,18 +252,26 @@ namespace DotNetCasClient
 
         public static void RedirectToLoginPage()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
-
-            response.Redirect(ConstructLoginRedirectUrl(false, Renew), true);
+            HttpApplication application = context.ApplicationInstance;
+            
+            response.Redirect(ConstructLoginRedirectUrl(false, Renew), false);
+            application.CompleteRequest();
         }               
 
         public static void RedirectToLoginPage(bool forceRenew)
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
-            response.Redirect(ConstructLoginRedirectUrl(false, forceRenew), true);
+            response.Redirect(ConstructLoginRedirectUrl(false, forceRenew), false);
+            application.CompleteRequest();
         }
 
         public static void Authenticate(string netId, string password)
@@ -275,8 +281,11 @@ namespace DotNetCasClient
 
         public static void GatewayAuthenticate(bool ignoreGatewayStatusCookie)
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
             if (!ignoreGatewayStatusCookie)
             {
@@ -287,39 +296,55 @@ namespace DotNetCasClient
             }
 
             SetGatewayStatusCookie(GatewayStatus.Attempting);
-            response.Redirect(ConstructLoginRedirectUrl(true, false), true);
+            response.Redirect(ConstructLoginRedirectUrl(true, false), false);
+            application.CompleteRequest();
         }
 
         public static void PerformSingleSignout()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
             ClearAuthCookie();
-            response.Redirect(ConstructSingleSignOutRedirectUrl(), true);
+            response.Redirect(ConstructSingleSignOutRedirectUrl(), false);
+            application.CompleteRequest();
         }
 
         public static void RedirectToCookiesRequiredPage()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
-            response.Redirect(ResolveUrl(CookiesRequiredUrl), true);
+            response.Redirect(ResolveUrl(CookiesRequiredUrl), false);
+            application.CompleteRequest();
         }
 
         public static void RedirectToUnauthorizedPage()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
-            response.Redirect(ResolveUrl(NotAuthorizedUrl), true);            
+            response.Redirect(ResolveUrl(NotAuthorizedUrl), false);
+            application.CompleteRequest();
         }
 
         internal static void RedirectFromLoginCallback()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
             if (GetRequestHasGatewayParameter())
             {
@@ -328,27 +353,36 @@ namespace DotNetCasClient
                 SetGatewayStatusCookie(GatewayStatus.Success);
             }
 
-            response.Redirect(RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri), true);
+            response.Redirect(RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri), false);
+            application.CompleteRequest();
         }
 
         internal static void RedirectFromFailedGatewayCallback()
         {
+            Initialize();
+
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
+            HttpApplication application = context.ApplicationInstance;
 
             SetGatewayStatusCookie(GatewayStatus.Failed);
-            response.Redirect(RemoveGatewayStatusArtifactFromUrl(request.Url.AbsoluteUri), true);
+            response.Redirect(RemoveGatewayStatusArtifactFromUrl(request.Url.AbsoluteUri), false);
+            application.CompleteRequest();
         }
 
         internal static string RemoveCasArtifactsFromUrl(string url)
         {
+            Initialize();
+
             string urlSansTicket = RemoveQueryStringVariableFromUrl(url, TicketValidator.ArtifactParameterName);
             return RemoveQueryStringVariableFromUrl(urlSansTicket, GatewayParameterName);
         }
 
         internal static string RemoveGatewayStatusArtifactFromUrl(string url)
         {
+            Initialize();
+
             return RemoveQueryStringVariableFromUrl(url, GatewayParameterName);
         }
 
@@ -1233,19 +1267,6 @@ namespace DotNetCasClient
             {
                 Initialize();
                 return _gateway;
-            }
-        }
-
-        /// <summary>
-        /// Gateway resolver handles CAS gateway requests & responses. 
-        /// http://www.ja-sig.org/wiki/display/CAS/gateway
-        /// </summary>
-        internal static IGatewayResolver GatewayResolver
-        {
-            get
-            {
-                Initialize();
-                return _gatewayResolver;
             }
         }
 
