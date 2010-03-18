@@ -105,13 +105,68 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\MSBuild.Community.Tasks.targets" />
   <Import Project="..\Common.targets" />
+
   <PropertyGroup>
     <WorkDir>..\work</WorkDir>
     <LibDir>lib</LibDir>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Distribution properties -->
+    <DistName>dotnet-client</DistName>
+    <DistDir>dist</DistDir>
+    <DistWorkDir>dist\$(DistName)</DistWorkDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Distribution resources -->
+    <ExampleWebApp
+      Include="..\ExampleWebApp\**\*.*"
+      Exclude="..\**\.svn\**" />
+    <ExampleWebSite
+      Include="..\ExampleWebSite\**\*.*"
+      Exclude="..\**\.svn\**" />
+    <DotNetClientSource
+      Include="**\*.*"
+      Exclude="dist\**;**\.svn\**" />
+    <DotNetClientBinaries Include="bin/Debug/*.dll;bin/Debug/*.pdb" />
+    <DistFiles Include="$(DistWorkDir)/**" />
+  </ItemGroup>
+
   <Target Name="BeforeBuild" DependsOnTargets="Initialize">
     <CallTarget Targets="FetchLog4Net" Condition="!Exists('$(LibDir)\log4net.dll')" />
   </Target>
   <Target Name="AfterBuild">
+  </Target>
+
+  <!-- Build the binary distribution bundle -->
+  <Target Name="Dist" DependsOnTargets="DistClean">
+    <Message Text="Building Jasig .NET CAS client distribution in $(DistDir)" />
+    <MakeDir Directories="$(DistWorkDir)" />
+    <Copy
+      SourceFiles="@(ExampleWebApp)"
+      DestinationFiles="@(ExampleWebApp->'$(DistWorkDir)\ExampleWebApp\%(Identity)')"
+      OverwriteReadOnlyFiles="True" />
+    <Copy
+      SourceFiles="@(ExampleWebSite)"
+      DestinationFiles="@(ExampleWebSite->'$(DistWorkDir)\ExampleWebSite\%(Identity)')"
+      OverwriteReadOnlyFiles="True" />
+    <Copy
+      SourceFiles="@(DotNetClientBinaries)"
+      DestinationFolder="$(DistWorkDir)"
+      OverwriteReadOnlyFiles="True" />
+    <Copy
+      SourceFiles="@(DotNetClientSource)"
+      DestinationFiles="@(DotNetClientSource->'$(DistWorkDir)\DotNetClient\%(Identity)')"
+      OverwriteReadOnlyFiles="True" />
+    <Zip Files="@(DistFiles)"
+      WorkingDirectory="$(DistDir)"
+      ZipFileName="$(DistDir)\$(DistName).zip" />
+  </Target>
+  
+  <Target Name="DistClean">
+    <Message Text="Cleaning out distribution directory $(DistDir)" />
+    <Delete Files="*.zip" />
+    <RemoveDir Directories="$(DistWorkDir)" />
   </Target>
 </Project>
