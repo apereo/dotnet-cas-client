@@ -7,9 +7,9 @@ namespace Restricted.AuthenticatedUsersOnly
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (CasAuthentication.TicketManager != null)
+            if (CasAuthentication.ServiceTicketManager != null)
             {
-                YourTickets.DataSource = CasAuthentication.TicketManager.GetUserServiceTickets(User.Identity.Name);
+                YourTickets.DataSource = CasAuthentication.ServiceTicketManager.GetUserServiceTickets(User.Identity.Name);
                 YourTickets.DataBind();
             }
         }

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Security;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using DotNetCasClient;
-using DotNetCasClient.State;
 
 public partial class Controls_CookieViewer : System.Web.UI.UserControl
 {
@@ -50,9 +47,9 @@ public partial class Controls_CookieViewer : System.Web.UI.UserControl
                     TicketVersion.Text = ticket.Version.ToString();
                 }
 
-                if (CasAuthentication.TicketManager != null)
+                if (CasAuthentication.ServiceTicketManager != null)
                 {
-                    CasAuthenticationTicket casTicket = CasAuthentication.TicketManager.GetTicket(ticket.UserData);
+                    CasAuthenticationTicket casTicket = CasAuthentication.ServiceTicketManager.GetTicket(ticket.UserData);
                     if (casTicket != null)
                     {
                         CasNetId.Text = casTicket.NetId;
@@ -61,6 +58,15 @@ public partial class Controls_CookieViewer : System.Web.UI.UserControl
                         CasClientHostAddress.Text = casTicket.ClientHostAddress;
                         CasValidFromDate.Text = casTicket.ValidFromDate.ToString();
                         CasValidUntilDate.Text = casTicket.ValidUntilDate.ToString();
+                        ProxyGrantingTicket.Text = casTicket.ProxyGrantingTicket;
+                        ProxyGrantingTicketIou.Text = casTicket.ProxyGrantingTicketIou;
+                        
+                        StringBuilder proxiesBuilder = new StringBuilder();
+                        foreach (string proxy in casTicket.Proxies)
+                        {
+                            proxiesBuilder.AppendLine(proxy + "<br />");
+                        }
+                        Proxies.Text = proxiesBuilder.ToString();
 
                         AssertionPrincipalName.Text = casTicket.Assertion.PrincipalName;
                         AssertionValidFromDate.Text = casTicket.Assertion.ValidFromDate.ToString();

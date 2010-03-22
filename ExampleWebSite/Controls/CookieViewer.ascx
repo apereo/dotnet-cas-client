@@ -184,6 +184,30 @@
     </tr>
     <tr>
         <td>
+            Proxy Granting Ticket IOU
+        </td>
+        <td>
+            <asp:Label ID="ProxyGrantingTicketIou" runat="server" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Proxy Granting Ticket
+        </td>
+        <td>
+            <asp:Label ID="ProxyGrantingTicket" runat="server" />
+        </td>
+    </tr>
+    <tr>
+        <td valign="top"> 
+            Proxies
+        </td>
+        <td>
+            <asp:Label ID="Proxies" runat="server" />
+        </td>
+    </tr>
+    <tr>
+        <td>
             Assertion
         </td>
         <td>

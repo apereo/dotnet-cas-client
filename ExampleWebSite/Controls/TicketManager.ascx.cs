@@ -22,7 +22,7 @@ namespace Controls
             }
 
             bool isMyTicket = false;
-            IEnumerable<string> allMyTickets = CasAuthentication.TicketManager.GetUserServiceTickets(HttpContext.Current.User.Identity.Name);
+            IEnumerable<string> allMyTickets = CasAuthentication.ServiceTicketManager.GetUserServiceTickets(HttpContext.Current.User.Identity.Name);
             foreach (string myTicket in allMyTickets)
             {
                 if (myTicket == ticket)
@@ -34,7 +34,7 @@ namespace Controls
 
             if (e.CommandName == "Revoke")
             {
-                CasAuthentication.TicketManager.RevokeTicket(ticket);
+                CasAuthentication.ServiceTicketManager.RevokeTicket(ticket);
                 if (isMyTicket)
                 {
                     CasAuthentication.ClearAuthCookie();
@@ -87,7 +87,7 @@ namespace Controls
 
         void BindGrid()
         {
-            if (CasAuthentication.TicketManager != null)
+            if (CasAuthentication.ServiceTicketManager != null)
             {
                 DataTable tickets = new DataTable();
                 tickets.Columns.Add("NetId", typeof(string));
@@ -96,7 +96,7 @@ namespace Controls
                 tickets.Columns.Add("ValidUntil", typeof(DateTime));
                 tickets.Columns.Add("Expired", typeof(bool));
 
-                IEnumerable<CasAuthenticationTicket> allTickets = CasAuthentication.TicketManager.GetAllTickets();
+                IEnumerable<CasAuthenticationTicket> allTickets = CasAuthentication.ServiceTicketManager.GetAllTickets();
                 foreach (CasAuthenticationTicket ticket in allTickets)
                 {
                     DataRow dr = tickets.NewRow();
