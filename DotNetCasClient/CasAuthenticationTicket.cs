@@ -9,7 +9,7 @@ namespace DotNetCasClient
     /// Data object representing a Cas Authentication Ticket.  The ServiceTicket,
     /// stored on the client in the UserData field of a FormsAuthenticationTicket,
     /// is used as a key to retrieve the information in this class from a 
-    /// TicketManager instance.  Without a TicketManager configured, the 
+    /// ServiceTicketManager instance.  Without a ServiceTicketManager configured, the 
     /// CasAuthententicationTicket cannot be retrieved.
     /// </summary>
     [Serializable]
@@ -21,13 +21,28 @@ namespace DotNetCasClient
         /// the web application.
         /// </summary>
         public string NetId { get; private set; }
-        
+
         /// <summary>
         /// The CAS Service Ticket returned from the CAS Server (typically as the 
         /// ticket parameter in the URL).
         /// </summary>
         public string ServiceTicket { get; set; }
-        
+
+        /// <summary>
+        /// The Proxy Granting Ticket IOU used to retrieve a Proxy ticket.
+        /// </summary>
+        public string ProxyGrantingTicketIou { get; set; }
+
+        /// <summary>
+        /// The Proxy Granting Ticket used to generate Proxy tickets
+        /// </summary>
+        public string ProxyGrantingTicket { get; set; }
+
+        /// <summary>
+        /// The Proxy path associated with the user
+        /// </summary>
+        public List<string> Proxies { get; internal set; }
+
         /// <summary>
         /// The ServiceName used during the initial authentication and ticket 
         /// validation.  When a Single Sign Out request is received from the CAS s
@@ -39,7 +54,7 @@ namespace DotNetCasClient
         /// <summary>
         /// The IP address of the client that originally requested the CAS Service 
         /// Ticket.  By tracking IP addresses, this enables applications with a 
-        /// TicketManager configured to detect and/or prevent multiple logins by a 
+        /// ServiceTicketManager configured to detect and/or prevent multiple logins by a 
         /// user from different IP addresses.  
         /// </summary>
         public string ClientHostAddress { get; set; }
@@ -73,7 +88,7 @@ namespace DotNetCasClient
         /// <summary>
         /// Readonly property which indicates whether or not the ValidUntilDate is in
         /// the past (i.e., the ticket is expired).  Expired tickets should/will be 
-        /// purged from the TicketManager during the RemoveExpiredTickets() call,
+        /// purged from the ServiceTicketManager during the RemoveExpiredTickets() call,
         /// during the BeginRequest event handler.
         /// </summary>
         public bool Expired
@@ -89,7 +104,8 @@ namespace DotNetCasClient
         /// </summary>
         public CasAuthenticationTicket()
         {
-            CasAuthentication.Initialize();          
+            CasAuthentication.Initialize();
+            Proxies = new List<string>();
         }
 
         /// <summary>
@@ -102,6 +118,7 @@ namespace DotNetCasClient
         public CasAuthenticationTicket(string serviceTicket, string originatingServiceName, string clientHostAddress, IAssertion assertion)
         {
             CasAuthentication.Initialize();
+            Proxies = new List<string>();
 
             NetId = assertion.PrincipalName;
             ServiceTicket = serviceTicket;
@@ -139,6 +156,14 @@ namespace DotNetCasClient
 
             builder.AppendFormat("[{0}]{1}", ServiceTicket, Environment.NewLine);
             builder.AppendFormat("  NetID............. {0}{1}", NetId, Environment.NewLine);
+            builder.AppendLine  ("  Proxy.............");
+            builder.AppendFormat("    PGT IOU......... {0}{1}", ProxyGrantingTicket ?? string.Empty, Environment.NewLine);
+            builder.AppendFormat("    PGT............. {0}{1}", ProxyGrantingTicketIou ?? string.Empty, Environment.NewLine);
+            builder.AppendLine  ("    Proxy Tickets...");
+            foreach (string proxyTicket in Proxies)
+            {
+                builder.AppendFormat("      PT............ {0}{1}", proxyTicket, Environment.NewLine);
+            }
             builder.AppendFormat("  Origin Service.... {0}{1}", OriginatingServiceName, Environment.NewLine);
             builder.AppendFormat("  Client Address.... {0}{1}", ClientHostAddress, Environment.NewLine);
             builder.AppendFormat("  Valid From........ {0}{1}", ValidFromDate, Environment.NewLine);
