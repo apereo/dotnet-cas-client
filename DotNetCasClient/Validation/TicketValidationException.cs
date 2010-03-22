@@ -10,8 +10,18 @@ namespace DotNetCasClient.Validation
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
+    /// <author>Scott Holodak (.Net)</author>
     public class TicketValidationException : Exception
-    {
+    {       
+        /// <summary>
+        /// The error code contained in the CAS service response.
+        /// </summary>
+        public string Code
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Constructs an exception with the supplied message.
         /// </summary>
@@ -24,5 +34,27 @@ namespace DotNetCasClient.Validation
         /// <param name="message">the message</param>
         /// <param name="exception">the original exception</param>
         public TicketValidationException(string message, Exception exception) : base(message, exception) { }
+
+        /// <summary>
+        /// Constructs an exception with the supplied message.
+        /// </summary>
+        /// <param name="message">the message</param>
+        /// <param name="code">the CAS service response error code</param>
+        public TicketValidationException(string message, string code)
+            : base(message)
+        {
+            Code = code;
+        }
+
+        /// <summary>
+        /// Constructs an exception with the supplied message and chained exception
+        /// </summary>
+        /// <param name="message">the message</param>
+        /// <param name="code">the CAS service response error code</param>
+        /// <param name="exception">the original exception</param>
+        public TicketValidationException(string message, string code, Exception exception) : base(message, exception)
+        {
+            Code = code;
+        }
     }
 }
