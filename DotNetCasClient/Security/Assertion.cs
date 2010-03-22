@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.Security
 {
@@ -18,40 +17,46 @@ namespace DotNetCasClient.Security
     [Serializable]
     public class Assertion : IAssertion
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
-        static readonly ILog log = LogManager.GetLogger(
-          System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         #region IAssertion Members
-
         /// <summary>
         /// The date from which this Assertion is valid.
         /// </summary>
-        public DateTime ValidFromDate { get; private set; }
+        public DateTime ValidFromDate
+        {
+            get; 
+            private set;
+        }
 
         /// <summary>
         /// The date this Assertion is valid until.
         /// </summary>
-        public DateTime ValidUntilDate { get; private set; }
+        public DateTime ValidUntilDate
+        {
+            get; 
+            private set;
+        }
 
         /// <summary>
         /// key/value pairs for the attributes associated with this Assertion.
         /// e.g. authentication type.
         /// </summary>
         public Dictionary<string, IList<string>> Attributes
-        { get; private set; }
+        {
+            get; 
+            private set;
+        }
 
         /// <summary>
         /// The PrincipalName for which this Assertion is valid.
         /// </summary>
-        public string PrincipalName { get; private set; }
-
+        public string PrincipalName
+        {
+            get; 
+            private set;
+        }
         #endregion
 
         #region Constructors
-
         /// <summary>
         /// Creates a new Assertion with the supplied Principal name, a
         /// ValidFromDate of now, no ValidUntilDate, and no attributes.
@@ -59,8 +64,7 @@ namespace DotNetCasClient.Security
         /// <param name="principalName">
         /// the Principal name associated with this Assertion.
         /// </param>
-        public Assertion(string principalName) : 
-          this(principalName, new Dictionary<string, IList<string>>()) { }
+        public Assertion(string principalName) : this(principalName, new Dictionary<string, IList<string>>()) { }
 
         /// <summary>
         /// Creates a new Assertion with the supplied principal name and
@@ -73,18 +77,16 @@ namespace DotNetCasClient.Security
         /// the key/value pairs for the attributes to associate with this
         /// Assertion.
         /// </param>
-        public Assertion(string principalName,
-          IDictionary<string, IList<string>> attributes)
+        public Assertion(string principalName, IDictionary<string, IList<string>> attributes)
         {
-            CommonUtils.AssertNotNull(principalName,
-              "principalName cannot be null.");
+            CommonUtils.AssertNotNull(principalName, "principalName cannot be null.");
             CommonUtils.AssertNotNull(attributes, "attributes cannot be null.");
 
-            this.PrincipalName = principalName;
-            this.ValidFromDate = DateTime.Now;
-            this.Attributes = new Dictionary<string, IList<string>>(attributes);
+            PrincipalName = principalName;
+            ValidFromDate = DateTime.Now;
+            Attributes = new Dictionary<string, IList<string>>(attributes);
         }
-            
+
         /// <summary>
         /// Creates a new Assertion with the supplied principal name, Assertion
         /// attributes, ValidFromDate, and ValidUntilDate.
@@ -102,24 +104,17 @@ namespace DotNetCasClient.Security
         /// the key/value pairs for the attributes to associate with this
         /// Assertion.
         /// </param>
-        public Assertion(string principalName,
-                         DateTime validFromDate,
-                         DateTime validUntilDate,
-                         IDictionary<string, IList<string>> attributes)
+        public Assertion(string principalName, DateTime validFromDate, DateTime validUntilDate, IDictionary<string, IList<string>> attributes)
         {
-            CommonUtils.AssertNotNull(principalName,
-              "principalName cannot be null.");
-            CommonUtils.AssertNotNull(validFromDate,
-              "validFromDate cannot be null.");
-            CommonUtils.AssertNotNull(attributes,
-              "attributes cannot be null.");
+            CommonUtils.AssertNotNull(principalName, "principalName cannot be null."); 
+            CommonUtils.AssertNotNull(validFromDate, "validFromDate cannot be null.");
+            CommonUtils.AssertNotNull(attributes, "attributes cannot be null.");
 
-            this.PrincipalName = principalName;
-            this.ValidFromDate = validFromDate;
-            this.ValidUntilDate = validUntilDate;
-            this.Attributes = new Dictionary<string, IList<string>>(attributes);
+            PrincipalName = principalName;
+            ValidFromDate = validFromDate;
+            ValidUntilDate = validUntilDate;
+            Attributes = new Dictionary<string, IList<string>>(attributes);
         }
-
         #endregion
     }
 }
