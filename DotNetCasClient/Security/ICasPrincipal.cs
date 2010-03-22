@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Security.Principal;
 
 namespace DotNetCasClient.Security
@@ -25,20 +25,25 @@ namespace DotNetCasClient.Security
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
+    /// <author>Scott Holodak (.Net)</author>
     public interface ICasPrincipal : IPrincipal
     {
         /// <summary>
-        /// Retrieves a CAS proxy ticket for this Principal.
-        /// </summary>
-        /// <param name="service">
-        /// the service to which this user is to be proxied.
-        /// </param>
-        /// <returns>a string representing the proxy ticket.</returns>
-        string GetProxyTicketFor(Uri service);
-
-        /// <summary>
         /// The Assertion backing this Principal
         /// </summary>
-        IAssertion Assertion { get; }
+        IAssertion Assertion
+        {
+            get;
+        }
+
+        string ProxyGrantingTicket
+        {
+            get;
+        }
+
+        IEnumerable<string> Proxies
+        {
+            get;
+        }
     }
 }
