@@ -13,13 +13,12 @@ namespace DotNetCasClient.Configuration
         /// </summary>
         /// <param name="message">the message</param>
         public CasConfigurationException(string message) : base(message) { }
-        
+
         /// <summary>
         /// Constructs an exception with the supplied message and chained exception
         /// </summary>
         /// <param name="message">the message</param>
         /// <param name="exception">the original exception</param>
-        public CasConfigurationException(string message, Exception exception)
-          : base(message, exception) { }
+        public CasConfigurationException(string message, Exception exception) : base(message, exception) { }
     }
 }

@@ -12,8 +12,7 @@ namespace DotNetCasClient.Configuration
         {
             get
             {
-                return ConfigurationManager.GetSection("casClientConfig")
-                  as CasClientConfiguration;
+                return ConfigurationManager.GetSection("casClientConfig") as CasClientConfiguration;
             }
         }
 
@@ -48,13 +47,12 @@ namespace DotNetCasClient.Configuration
         public const string USE_SESSION = "useSession";
         public const string TICKET_TIME_TOLERANCE = "ticketTimeTolerance";
         public const string SINGLE_SIGN_OUT = "singleSignOut";
-        public const string PROXY_GRANTING_TICKET_RECEPTOR = "proxyGrantingTicketReceptor";
-        public const string PROXY_CALLBACK_URL = "proxyCallbackUrl";
-        public const string PROXY_RECEPTOR_URL = "proxyReceptorUrl";
-        public const string TICKET_MANAGER = "ticketManager";
+        public const string SERVICE_TICKET_MANAGER = "serviceTicketManager";
+        public const string PROXY_TICKET_MANAGER = "proxyTicketManager";
         public const string NOT_AUTHORIZED_URL = "notAuthorizedUrl";
         public const string COOKIES_REQUIRED_URL = "cookiesRequiredUrl";
         public const string GATEWAY_PARAMETER_NAME = "gatewayParameterName";
+        public const string PROXY_CALLBACK_PARAMETER_NAME = "proxyCallbackParameterName";
 
         /// <summary>
         /// Names for the supported ticket validators
@@ -64,9 +62,14 @@ namespace DotNetCasClient.Configuration
         public const string SAML11_TICKET_VALIDATOR_NAME = "Saml11";
 
         /// <summary>
-        /// Names for the supported Cache authentication state provider
+        /// Names for the supported Service Ticket state provider
         /// </summary>
-        public const string CACHE_TICKET_MANAGER = "CacheTicketManager";
+        public const string CACHE_SERVICE_TICKET_MANAGER = "CacheServiceTicketManager";
+
+        /// <summary>
+        /// Names for the supported Cache Ticket state provider
+        /// </summary>
+        public const string CACHE_PROXY_TICKET_MANAGER = "CacheProxyTicketManager";
 
         /// <summary>
         /// Defines the exact CAS server login URL.
@@ -252,63 +255,36 @@ namespace DotNetCasClient.Configuration
         }
 
         /// <summary>
-        /// Specifies whether proxy granting ticket receptor functionality should be enabled.
-        /// </summary>
-        [ConfigurationProperty(PROXY_GRANTING_TICKET_RECEPTOR, DefaultValue = true, IsRequired = false)]
-        public bool ProxyGrantingTicketReceptor
-        {
-            get
-            {
-                return Convert.ToBoolean(this[PROXY_GRANTING_TICKET_RECEPTOR]);
-            }
-        }
-
-        /// <summary>
-        /// The callback URL provided to the CAS server for receiving Proxy Granting Tickets.
-        /// e.g. https://www.example.edu/cas-client-app/proxyCallback
-        /// </summary>
-        [ConfigurationProperty(PROXY_CALLBACK_URL, DefaultValue = null, IsRequired = false)]
-        public string ProxyCallbackUrl
-        {
-            get
-            {
-                return this[PROXY_CALLBACK_URL] as string;
-            }
-        }
-
-        /// <summary>
-        /// The URL to watch for PGTIOU/PGT responses from the CAS server. Should be defined from
-        /// the root of the context. For example, if your application is deployed in /cas-client-app
-        /// and you want the proxy receptor URL to be /cas-client-app/my/receptor you need to configure
-        /// proxyReceptorUrl to be /my/receptor
-        /// e.g. /proxyCallback
-        /// </summary>
-        [ConfigurationProperty(PROXY_RECEPTOR_URL, DefaultValue = null, IsRequired = false)]
-        public string ProxyReceptorUrl
-        {
-            get
-            {
-                return this[PROXY_RECEPTOR_URL] as string;
-            }
-        }
-
-
-        /// <summary>
-        /// The ticket manager to use to store tickets returned by the CAS server
-        /// for validation, revocation, and single sign out support.
+        /// The service ticket manager to use to store tickets returned by the 
+        /// CAS server for validation, revocation, and single sign out support.
         /// <remarks>
-        /// Currently supported values: CacheTicketManager
+        /// Currently supported values: CacheServiceTicketManager
         /// </remarks>
         /// </summary>
-        [ConfigurationProperty(TICKET_MANAGER, IsRequired = false)]
-        public string TicketManager
+        [ConfigurationProperty(SERVICE_TICKET_MANAGER, IsRequired = false)]
+        public string ServiceTicketManager
         {
             get
             {
-                return this[TICKET_MANAGER] as string;
+                return this[SERVICE_TICKET_MANAGER] as string;
             }
         }
 
+        /// <summary>
+        /// The proxy ticket manager to use to store and resolve 
+        /// ProxyGrantingTicket IOUs to ProxyGrantingTickets
+        /// <remarks>
+        /// Currently supported values: CacheProxyTicketManager
+        /// </remarks>
+        /// </summary>
+        [ConfigurationProperty(PROXY_TICKET_MANAGER, IsRequired = false)]
+        public string ProxyTicketManager
+        {
+            get
+            {
+                return this[PROXY_TICKET_MANAGER] as string;
+            }
+        }
 
         /// <summary>
         /// URL to redirect to when the request has a validated and verified 
@@ -363,46 +339,18 @@ namespace DotNetCasClient.Configuration
         }
 
         /// <summary>
-        /// Specifies whether authentication based on the presence of the CAS
-        /// Assertion in the session is in effect, reducing the number of
-        /// round-trips to the CAS server.
+        /// The URL parameter to append to outbound CAS proxy request's pgtUrl
+        /// when initiating an proxy ticket service validation.  This is used
+        /// to determine whether the request is originating from the CAS server
+        /// and contains a pgtIou.
         /// </summary>
-        [ConfigurationProperty(USE_SESSION, DefaultValue = true, IsRequired = false)]
-        public bool UseSession
+        [ConfigurationProperty(PROXY_CALLBACK_PARAMETER_NAME, IsRequired = false, DefaultValue = "proxyResponse")]
+        public string ProxyCallbackParameterName
         {
             get
             {
-                return Convert.ToBoolean(this[USE_SESSION]);
+                return this[PROXY_CALLBACK_PARAMETER_NAME] as string;
             }
         }
-
-        /// <summary>
-        /// Regex for selection of URIs which need to be protected by CAS.  Default value
-        /// is a regular expression that matches everything, so that all URIs are protected
-        /// by CAS.
-        /// </summary>
-        [ConfigurationProperty(SECURE_URI_REGEX_STRING, DefaultValue = ".*", IsRequired = false)]
-        public String SecureUriRegex
-        {
-            get
-            {
-                return this[SECURE_URI_REGEX_STRING] as string;
-            }
-        }
-
-        /// <summary>
-        /// Regex for selection of URIs which match the SecureUriRegex but do
-        /// not need to be protected by CAS.  This is needed for things such
-        /// as the Ajax resource URIs.  Default value is a regular expression
-        /// that matches nothing, so that no exceptions would occur.
-        /// </summary>
-        [ConfigurationProperty(SECURE_URI_EXCEPTION_REGEX_STRING, DefaultValue = "a^", IsRequired = false)]
-        public String SecureUriExceptionRegex
-        {
-            get
-            {
-                return this[SECURE_URI_EXCEPTION_REGEX_STRING] as string;
-            }
-        }
-    }
+   }
 }
