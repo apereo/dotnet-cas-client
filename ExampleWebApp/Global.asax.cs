@@ -53,7 +53,6 @@ namespace ExampleWebApp
           new System.Diagnostics.StackTrace().GetFrame(0).GetMethod().Name,
           sessionID));
       }
-      CommonUtils.RemoveState(sessionID);
     }
   }
 }
