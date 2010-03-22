@@ -21,21 +21,33 @@ namespace DotNetCasClient.Security
         /// <summary>
         /// The date from which this Assertion is valid.
         /// </summary>
-        DateTime ValidFromDate { get; }
+        DateTime ValidFromDate
+        {
+            get;
+        }
 
         /// <summary>
         /// The date this Assertion is valid until.
         /// </summary>
-        DateTime ValidUntilDate { get; }
+        DateTime ValidUntilDate
+        {
+            get;
+        }
 
         /// <summary>
         /// The key/value pairs for attributes associated with this Assertion.
         /// </summary>
-        Dictionary<string, IList<string>> Attributes { get; }
+        Dictionary<string, IList<string>> Attributes
+        {
+            get;
+        }
 
         /// <summary>
         /// The name of the Principal that this Assertion backs.
         /// </summary>
-        string PrincipalName { get; }
+        string PrincipalName
+        {
+            get;
+        }
     }
 }
