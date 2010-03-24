@@ -108,8 +108,9 @@ namespace DotNetCasClient.Utils
 
             return url;
         }
-
-        internal static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
+        
+        // TODO: Change back to Internal
+        public static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
         {
             CasAuthentication.Initialize();
 
@@ -252,6 +253,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(url);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
             ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
+            ub.QueryItems.Remove(CasAuthentication.ProxyCallbackParameterName);
 
             string result = ub.ToString();
             if (Log.IsDebugEnabled)

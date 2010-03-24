@@ -324,6 +324,63 @@ namespace DotNetCasClient
         }
         */
 
+        public static void ProxyRedirect(string url)
+        {
+            ProxyRedirect(url, "ticket", false);
+        }
+
+        public static void ProxyRedirect(string url, bool endResponse)
+        {
+            ProxyRedirect(url, "ticket", endResponse);   
+        }
+
+        public static void ProxyRedirect(string url, string proxyTicketUrlParameter)
+        {
+            ProxyRedirect(url, proxyTicketUrlParameter, false);
+        }
+
+        public static void ProxyRedirect(string url, string proxyTicketUrlParameter, bool endResponse)
+        {
+            if (url == null)
+            {
+                throw new ArgumentNullException("url");
+            }
+            else if (url.Length == 0)
+            {
+                throw new ArgumentException("url parameter cannot be null or empty.", "url");
+            }
+
+            if (proxyTicketUrlParameter == null)
+            {
+                throw new ArgumentNullException("proxyTicketUrlParameter");
+            }
+            else if (proxyTicketUrlParameter.Length == 0)
+            {
+                throw new ArgumentException("proxyTicketUrlParameter parameter cannot be null or empty.", "proxyTicketUrlParameter");
+            }
+
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            response.Redirect(GetProxyRedirectUrl(url, proxyTicketUrlParameter), endResponse);
+        }
+
+        public static string GetProxyRedirectUrl(string targetServiceUrl)
+        {
+            return GetProxyRedirectUrl(targetServiceUrl, "ticket");
+        }
+
+        public static string GetProxyRedirectUrl(string targetServiceUrl, string proxyTicketUrlParameter)
+        {
+            string resolvedUrl = UrlUtil.ResolveUrl(targetServiceUrl);
+            string proxyTicket = GetProxyTicketIdFor(resolvedUrl);
+            
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(resolvedUrl);
+            ub.QueryItems[proxyTicketUrlParameter] = proxyTicket;
+
+            return ub.Uri.AbsoluteUri;
+        }
+
         public static string GetProxyTicketIdFor(string targetServiceUrl)
         {
             if (targetServiceUrl == null)
@@ -567,7 +624,7 @@ namespace DotNetCasClient
                     UrlUtil.RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri),
                     request.UserHostAddress,
                     principal.Assertion
-                    );
+                );
 
                 if (ProxyTicketManager != null)
                 {
@@ -580,9 +637,7 @@ namespace DotNetCasClient
                     }
                 }
 
-                // TODO: Check the last 2 parameters.  We want to take the from/to dates from the 
-                // FormsAuthenticationTicket.  However, we may need to do some NTP-style clock
-                // calibration
+                // TODO: Check the last 2 parameters.  We want to take the from/to dates from the FormsAuthenticationTicket.  However, we may need to do some clock drift correction.
                 FormsAuthenticationTicket formsAuthTicket = CreateFormsAuthenticationTicket(principal.Identity.Name, FormsAuthentication.FormsCookiePath, ticket, null, null);
                 SetAuthCookie(formsAuthTicket);
 
@@ -599,7 +654,7 @@ namespace DotNetCasClient
             }
             catch (TicketValidationException)
             {
-                // Leave principal null
+                // Leave principal null.  This might not have been a CAS service ticket.
             }
         }
 

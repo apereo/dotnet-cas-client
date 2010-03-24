@@ -122,7 +122,6 @@ namespace DotNetCasClient
             {
                 Log.Debug("Processing Proxy Callback request");
                 CasAuthentication.ProcessTicketValidation();
-                return;
             }
 
 

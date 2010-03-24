@@ -263,6 +263,10 @@
     <Compile Include="Validation\Schema\XmlDsig\X509DataType.cs" />
     <Compile Include="Validation\Schema\XmlDsig\X509IssuerSerialType.cs" />
     <Compile Include="Validation\TicketValidationException.cs" />
+    <Compile Include="WebControls\CasLoginStatus.cs" />
+    <Compile Include="WebControls\CasProxyHyperLink.cs" />
+    <Compile Include="WebControls\CasProxyHyperLinkColumn.cs" />
+    <Compile Include="WebControls\CasProxyHyperLinkField.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
