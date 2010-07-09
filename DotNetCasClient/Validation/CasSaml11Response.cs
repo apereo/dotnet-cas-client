@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using log4net;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
+using log4net;
 
 namespace DotNetCasClient.Validation
 {
 #if DOT_NET_3
-    using System.IdentityModel.Selectors;
-    using System.IdentityModel.Tokens;
-
     /// <summary>
     /// Represents a CAS SAML 1.1 response from a CAS server, using
     /// SamlSecurityToken methods for parsing to populate the object.
     /// </summary>
-    class CasSaml11Response : SamlSecurityToken
+    class CasSaml11Response : System.IdentityModel.Tokens.SamlSecurityToken
     {
         /// <summary>
         /// Access to the log file
@@ -38,7 +35,7 @@ namespace DotNetCasClient.Validation
         private readonly string _CasResponse;
 
         // The assertion from the CAS server response used to populate this instance
-        SamlAssertion _CasSamlAssertion;
+        System.IdentityModel.Tokens.SamlAssertion _CasSamlAssertion;
 
         #region Properties
         /// <summary>
@@ -117,32 +114,32 @@ namespace DotNetCasClient.Validation
                 {
                     XmlTextReader xmlReader = new XmlTextReader(new StringReader(assertionNode.OuterXml));
                     XmlDictionaryReader xmlDicReader = XmlDictionaryReader.CreateDictionaryReader(xmlReader);
-                    SamlSerializer samlSerializer = new SamlSerializer();
-                    SecurityTokenSerializer keyInfoSerializer = null;
-                    SecurityTokenResolver outOfBandTokenResolver = null;
-                    SamlAssertion assertion = samlSerializer.LoadAssertion(xmlDicReader, keyInfoSerializer, outOfBandTokenResolver);
+                    System.IdentityModel.Tokens.SamlSerializer samlSerializer = new System.IdentityModel.Tokens.SamlSerializer();
+                    System.IdentityModel.Selectors.SecurityTokenSerializer keyInfoSerializer = null;
+                    System.IdentityModel.Selectors.SecurityTokenResolver outOfBandTokenResolver = null;
+                    System.IdentityModel.Tokens.SamlAssertion assertion = samlSerializer.LoadAssertion(xmlDicReader, keyInfoSerializer, outOfBandTokenResolver);
 
                     if (!SamlUtils.IsValidAssertion(assertion, _ToleranceTicks))
                     {
                         continue;
                     }
 
-                    SamlAuthenticationStatement authenticationStatement = SamlUtils.GetSAMLAuthenticationStatement(assertion);
+                    System.IdentityModel.Tokens.SamlAuthenticationStatement authenticationStatement = SamlUtils.GetSAMLAuthenticationStatement(assertion);
                     if (authenticationStatement == null)
                     {
                         throw new TicketValidationException("No AuthenticationStatement found in the CAS response.");
                     }
 
-                    SamlSubject subject = authenticationStatement.SamlSubject;
+                    System.IdentityModel.Tokens.SamlSubject subject = authenticationStatement.SamlSubject;
                     if (subject == null)
                     {
                         throw new TicketValidationException("No Subject found in the CAS response.");
                     }
 
                     _CasSamlAssertion = assertion;
-                    IList<SamlAttribute> attributes = SamlUtils.GetAttributesFor(this._CasSamlAssertion, subject);
+                    IList<System.IdentityModel.Tokens.SamlAttribute> attributes = SamlUtils.GetAttributesFor(_CasSamlAssertion, subject);
                     IDictionary<string, IList<string>> personAttributes = new Dictionary<string, IList<string>>();
-                    foreach (SamlAttribute samlAttribute in attributes)
+                    foreach (System.IdentityModel.Tokens.SamlAttribute samlAttribute in attributes)
                     {
                         IList<string> values = SamlUtils.GetValuesFor(samlAttribute);
                         personAttributes.Add(samlAttribute.Name, values);
@@ -187,7 +184,7 @@ namespace DotNetCasClient.Validation
         // The raw response received from the CAS server
         private readonly string _CasResponse;
 
-    #region Properties
+        #region Properties
         /// <summary>
         ///  Whether a valid SAML Assertion was found for processing
         /// </summary>
