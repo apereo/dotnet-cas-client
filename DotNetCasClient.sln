@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCasClient", "DotNetCasClient\DotNetCasClient.csproj", "{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleWebApp", "ExampleWebApp\ExampleWebApp.csproj", "{8CDD7266-891D-42A1-BDE7-312EC740982C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{8CE89EF1-2586-4602-AC30-51753D393390}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{AB664070-2775-4311-8D0F-BF76FD20EB3A}"
