@@ -101,7 +101,7 @@ namespace DotNetCasClient.Utils
                 ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
             }
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
 
             if (Log.IsDebugEnabled)
             {
@@ -118,7 +118,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructServiceUri(false));
             ub.QueryItems.Set(CasAuthentication.ProxyCallbackParameterName, "true");
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
 
             if (Log.IsDebugEnabled)
             {
@@ -137,7 +137,7 @@ namespace DotNetCasClient.Utils
             ub.QueryItems.Add("pgt", proxyGrantingTicketId);
             ub.QueryItems.Add("targetService", HttpUtility.UrlEncode(targetService));
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
 
             if (Log.IsDebugEnabled)
             {
@@ -176,7 +176,7 @@ namespace DotNetCasClient.Utils
                 ub.QueryItems.Add("gateway", "true");
             }
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
             
             if (Log.IsDebugEnabled)
             {
@@ -199,7 +199,7 @@ namespace DotNetCasClient.Utils
                 ub.QueryItems.Set("renew", "true");
             }
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
             if (Log.IsDebugEnabled)
             {
                 Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url);
@@ -226,7 +226,7 @@ namespace DotNetCasClient.Utils
                 ub.QueryItems.Set("renew", "true");
             }
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
             if (Log.IsDebugEnabled)
             {
                 Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url);
@@ -250,7 +250,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "logout"));
             ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUri(false)));
 
-            string url = ub.ToString();
+            string url = ub.Uri.AbsoluteUri;
 
             if (Log.IsDebugEnabled)
             {
@@ -274,7 +274,7 @@ namespace DotNetCasClient.Utils
             ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
             ub.QueryItems.Remove(CasAuthentication.ProxyCallbackParameterName);
 
-            string result = ub.ToString();
+            string result = ub.Uri.AbsoluteUri;
             if (Log.IsDebugEnabled)
             {
                 Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, result);

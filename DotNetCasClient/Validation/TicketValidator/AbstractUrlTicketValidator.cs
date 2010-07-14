@@ -154,7 +154,7 @@ namespace DotNetCasClient.Validation.TicketValidator
                 }
             }
 
-            return ub.ToString();
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
