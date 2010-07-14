@@ -7,7 +7,7 @@
         <asp:BoundField DataField="ValidUntil" HeaderText="Until" ItemStyle-Width="20%" />
         <asp:BoundField DataField="Expired" HeaderText="Expired" ItemStyle-Width="5%" />
         <asp:ButtonField ButtonType="Link" Text="Revoke" CommandName="Revoke" />
-        <asp:ButtonField ButtonType="Link" Text="Single Signout" CommandName="SSO" />
+        <asp:ButtonField ButtonType="Link" Text="Single SignOut" CommandName="SSO" />
     </Columns>
 </asp:GridView>
 <asp:Label runat="server" ID="NoTicketManagerLabel" />
