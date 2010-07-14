@@ -286,7 +286,7 @@ namespace DotNetCasClient.Utils
             return result;
         }
 
-        internal static bool GetRequestIsCasSingleSignout()
+        internal static bool GetRequestIsCasSingleSignOut()
         {
             CasAuthentication.Initialize();
 

@@ -88,8 +88,8 @@ namespace DotNetCasClient
                 CasAuthentication.ProxyTicketManager.RemoveExpiredMappings();
             }
 
-            // Detect & process inbound Single Signout Requests from the CAS server
-            if (CasAuthentication.ServiceTicketManager != null && CasAuthentication.SingleSignOut && RequestEvaluator.GetRequestIsCasSingleSignout())
+            // Detect & process inbound Single SignOut Requests from the CAS server
+            if (CasAuthentication.ServiceTicketManager != null && CasAuthentication.ProcessIncomingSingleSignOutRequests && RequestEvaluator.GetRequestIsCasSingleSignOut())
             {
                 Log.Debug("Processing inbound Single Sign Out request.");
                 CasAuthentication.ProcessSingleSignOutRequest();

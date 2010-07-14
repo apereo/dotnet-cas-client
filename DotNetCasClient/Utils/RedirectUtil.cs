@@ -97,7 +97,8 @@ namespace DotNetCasClient.Utils
 
             CasAuthentication.SetGatewayStatusCookie(GatewayStatus.Failed);
 
-            response.Redirect(UrlUtil.RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri), false);
+            string urlWithoutCasArtifact = UrlUtil.RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri);
+            response.Redirect(urlWithoutCasArtifact, false);
             // application.CompleteRequest();
         }
     }

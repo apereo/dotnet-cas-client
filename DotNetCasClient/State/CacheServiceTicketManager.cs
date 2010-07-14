@@ -423,7 +423,7 @@ namespace DotNetCasClient.State
             {
                 if (Log.IsDebugEnabled)
                 {
-                    Log.DebugFormat("{0}:Ticket [{1}] not found in cache.  Never existed, expired, or removed via Single Signout", CommonUtils.MethodName, incomingServiceTicket);
+                    Log.DebugFormat("{0}:Ticket [{1}] not found in cache.  Never existed, expired, or removed via Single Sign Out", CommonUtils.MethodName, incomingServiceTicket);
                 }
                 return false;
             }
