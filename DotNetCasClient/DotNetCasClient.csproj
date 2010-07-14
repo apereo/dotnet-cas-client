@@ -252,10 +252,6 @@
     <Compile Include="Validation\Schema\XmlDsig\X509DataType.cs" />
     <Compile Include="Validation\Schema\XmlDsig\X509IssuerSerialType.cs" />
     <Compile Include="Validation\TicketValidationException.cs" />
-    <Compile Include="WebControls\CasLoginStatus.cs" />
-    <Compile Include="WebControls\CasProxyHyperLink.cs" />
-    <Compile Include="WebControls\CasProxyHyperLinkColumn.cs" />
-    <Compile Include="WebControls\CasProxyHyperLinkField.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -274,7 +270,10 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
+    <Content Include="NOTICE.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\MSBuild.Community.Tasks.targets" />
   <Import Project="..\Common.targets" />
