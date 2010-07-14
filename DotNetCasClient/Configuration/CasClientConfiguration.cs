@@ -57,8 +57,11 @@ namespace DotNetCasClient.Configuration
         public const string GATEWAY_STATUS_COOKIE_NAME = "gatewayStatusCookieName";
         public const string ARTIFACT_PARAMETER_NAME = "artifactParameterName";
         public const string SERVICE_PARAMETER_NAME = "serviceParameterName";
-        public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
-        public const string SERVICE_PARAMETER_NAME_VALIDATION = "serviceParameterNameValidation";
+        
+        // NETC-20 - Not sure whether these attributes are relevant.
+        // public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
+        // public const string SERVICE_PARAMETER_NAME_VALIDATION = "serviceParameterNameValidation";
+        
         public const string REDIRECT_AFTER_VALIDATION = "redirectAfterValidation";
         public const string ENCODE_SERVICE_URL = "encodeServiceUrl";
         public const string SECURE_URI_REGEX_STRING = "secureUriRegex";
@@ -215,24 +218,24 @@ namespace DotNetCasClient.Configuration
         /// <summary>
         /// Specifies the name of the request parameter whose value is the artifact (e.g. "ticket").
         /// </summary>
-        [ConfigurationProperty(ARTIFACT_PARAMETER_NAME, IsRequired = false)]
+        [ConfigurationProperty(ARTIFACT_PARAMETER_NAME, IsRequired = false, DefaultValue = "ticket")]
         public string ArtifactParameterName
         {
             get
             {
-                return this[ARTIFACT_PARAMETER_NAME] as string;
+                return this[ARTIFACT_PARAMETER_NAME] as string ?? "ticket";
             }
         }
 
         /// <summary>
         /// Specifies the name of the request parameter whose value is the service (e.g. "service")
         /// </summary>
-        [ConfigurationProperty(SERVICE_PARAMETER_NAME, IsRequired = false)]
+        [ConfigurationProperty(SERVICE_PARAMETER_NAME, IsRequired = false, DefaultValue = "service")]
         public string ServiceParameterName
         {
             get
             {
-                return this[SERVICE_PARAMETER_NAME] as string;
+                return this[SERVICE_PARAMETER_NAME] as string ?? "service";
             }
         }
 
