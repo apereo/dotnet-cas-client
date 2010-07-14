@@ -517,7 +517,7 @@ namespace DotNetCasClient
             application.CompleteRequest();
         }
 
-        public static void InitiateSingleSignout()
+        public static void SingleSignOut()
         {
             Initialize();
 
@@ -645,7 +645,7 @@ namespace DotNetCasClient
                     principal.Assertion
                 );
 
-                if (ProxyTicketManager != null)
+                if (ProxyTicketManager != null && !string.IsNullOrEmpty(principal.ProxyGrantingTicket))
                 {
                     casTicket.ProxyGrantingTicketIou = principal.ProxyGrantingTicket;
                     casTicket.Proxies.AddRange(principal.Proxies);
@@ -671,7 +671,7 @@ namespace DotNetCasClient
                 app.CompleteRequest();
                 return;
             }
-            catch (TicketValidationException)
+            catch (TicketValidationException tve)
             {
                 // Leave principal null.  This might not have been a CAS service ticket.
             }
@@ -1364,9 +1364,9 @@ namespace DotNetCasClient
         }
 
         /// <summary>
-        /// Specifies whether single sign out functionality should be enabled.
+        /// Specifies whether external single sign out requests should be processed.
         /// </summary>
-        public static bool SingleSignOut
+        public static bool ProcessIncomingSingleSignOutRequests
         {
             get
             {

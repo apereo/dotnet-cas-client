@@ -133,10 +133,10 @@ namespace DotNetCasClient.Validation.TicketValidator
                 }
 
                 string proxyGrantingTicketIou = authSuccessResponse.ProxyGrantingTicket;
-                string proxyGrantingTicket = (CasAuthentication.ProxyTicketManager != null ? CasAuthentication.ProxyTicketManager.GetProxyGrantingTicket(proxyGrantingTicketIou) : null);
-                
-                if (CasAuthentication.ProxyTicketManager != null)
+
+                if (CasAuthentication.ProxyTicketManager != null && !string.IsNullOrEmpty(proxyGrantingTicketIou))
                 {
+                    string proxyGrantingTicket = CasAuthentication.ProxyTicketManager.GetProxyGrantingTicket(proxyGrantingTicketIou);                    
                     CasAuthentication.ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
                 }
 
