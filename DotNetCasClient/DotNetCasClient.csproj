@@ -70,10 +70,6 @@
     <Compile Include="CasAuthenticationTicket.cs" />
     <Compile Include="Configuration\CasClientConfiguration.cs" />
     <Compile Include="Configuration\CasConfigurationException.cs" />
-    <Compile Include="Configuration\ProxyRule.cs" />
-    <Compile Include="Configuration\ProxyRuleAction.cs" />
-    <Compile Include="Configuration\ProxyRuleCollection.cs" />
-    <Compile Include="Configuration\ProxySection.cs" />
     <Compile Include="GatewayStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\Assertion.cs" />
