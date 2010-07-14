@@ -30,7 +30,7 @@ namespace DotNetCasClient.State
         void Initialize();
 
         /// <summary>
-        /// Removes expired PGTIOU-PGT  from the ticket store
+        /// Removes expired PGTIOU-PGT from the ticket store
         /// </summary>
         void RemoveExpiredMappings();
 

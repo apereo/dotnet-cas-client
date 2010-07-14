@@ -27,13 +27,19 @@ namespace DotNetCasClient.State
     {
         private static readonly TimeSpan DefaultExpiration = new TimeSpan(0, 0, 3, 0); // 180 seconds
 
+        /// <summary>
+        /// You retrieve CasAuthentication properties in the constructor or else you will cause 
+        /// a StackOverflow.  CasAuthentication.Initialize() will call Initialize() on all 
+        /// relevant controls when its initialization is complete.  In Initialize(), you can 
+        /// retrieve properties from CasAuthentication.
+        /// </summary>
         public void Initialize()
         {
             // Do nothing
         }
 
         /// <summary>
-        /// Removes expired entries from the ticket store
+        /// Removes expired PGTIOU-PGT from the ticket store
         /// </summary>
         public void RemoveExpiredMappings()
         {

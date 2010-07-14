@@ -55,11 +55,22 @@ namespace DotNetCasClient.Security
             get;
         }
 
+        /// <summary>
+        /// The Proxy Granting ticket associated with this principal
+        /// which is used to generate Proxy tickets to external 
+        /// services.
+        /// </summary>
         string ProxyGrantingTicket
         {
             get;
         }
 
+        /// <summary>
+        /// The chain of URL's involved in the proxy authentication of 
+        /// the user on this system.  If a user starts on site A, proxy 
+        /// authenticates to site B, and then proxy authenticates to this
+        /// site, this will contain the URL of site A and site B.
+        /// </summary>
         IEnumerable<string> Proxies
         {
             get;

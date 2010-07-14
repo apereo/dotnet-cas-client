@@ -29,7 +29,7 @@ namespace DotNetCasClient.Security
     /// </summary>
     /// <remarks>
     /// ICasPrincipal is the .Net port of
-    ///   org.jasig.cas.client .authentication.AttributePrincipalImpl.
+    ///   org.jasig.cas.client.authentication.AttributePrincipalImpl
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
@@ -46,12 +46,23 @@ namespace DotNetCasClient.Security
             private set;
         }
 
+        /// <summary>
+        /// The Proxy Granting ticket associated with this principal
+        /// which is used to generate Proxy tickets to external 
+        /// services.
+        /// </summary>
         public string ProxyGrantingTicket
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// The chain of URL's involved in the proxy authentication of 
+        /// the user on this system.  If a user starts on site A, proxy 
+        /// authenticates to site B, and then proxy authenticates to this
+        /// site, this will contain the URL of site A and site B.
+        /// </summary>
         public IEnumerable<string> Proxies
         {
             get;
@@ -60,14 +71,24 @@ namespace DotNetCasClient.Security
         #endregion
 
         # region IPrincipal Members
-
-        // IIdentity associated with this IPrincipal
+        /// <summary>
+        /// The IIdentity associated with this IPrincipal
+        /// </summary>
         public IIdentity Identity
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Determines whether the user identified by this principal is
+        /// in the role supplied.
+        /// </summary>
+        /// <param name="role">The role to check for membership</param>
+        /// <returns>
+        /// True or False indicating whether the user is in the role 
+        /// specified.
+        /// </returns>
         public bool IsInRole(string role)
         {
             // TODO answer this with query to Attributes???)

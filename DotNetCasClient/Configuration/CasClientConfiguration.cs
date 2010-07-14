@@ -120,7 +120,6 @@ namespace DotNetCasClient.Configuration
             }
         }
 
-
         /// <summary>
         /// The ticket validator to use to validate tickets returned by the CAS server.
         /// <remarks>

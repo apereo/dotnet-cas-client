@@ -20,7 +20,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Web.Security;
 
 namespace DotNetCasClient.Utils
 {
@@ -178,11 +177,6 @@ namespace DotNetCasClient.Utils
             {
                 AssertTrue(!String.IsNullOrEmpty((string)value), string.Format("{0}:dictionary value for key {1} must be non-empty string", baseMessage, key));
             }
-        }
-
-        public static string GenerateCasStateInformationKey(FormsAuthenticationTicket fat)
-        {
-            return string.Format("{0}{1}", fat.Name, Convert.ToString(fat.GetHashCode()));
         }
     }
 }
