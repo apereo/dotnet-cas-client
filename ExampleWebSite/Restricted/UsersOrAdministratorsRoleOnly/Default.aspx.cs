@@ -37,7 +37,7 @@ namespace Restricted.UsersOrAdministratorsRoleOnly
 
                 string validateUrl = EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "proxyValidate");
 
-                Uri url = new UriBuilder(Request.Url.Scheme, Request.Url.DnsSafeHost, Request.Url.Port, ResolveUrl("DotNetCasProxyDemoApp.application")).Uri;
+                Uri url = new UriBuilder(Request.Url.Scheme, Request.Url.DnsSafeHost, ((Request.IsSecureConnection && Request.Url.Port == 443) || (!Request.IsSecureConnection && Request.Url.Port == 80)) ? -1 : Request.Url.Port, ResolveUrl("DotNetCasProxyDemoApp.application")).Uri;
                 string proxyGrantingTicket = casTicket.ProxyGrantingTicket;
                 string proxyUrl = UrlUtil.ConstructProxyTicketRequestUrl(casTicket.ProxyGrantingTicket, url.AbsoluteUri);
 
