@@ -179,9 +179,9 @@ namespace DotNetCasClient
             builder.AppendFormat("    PGT IOU......... {0}{1}", ProxyGrantingTicket ?? string.Empty, Environment.NewLine);
             builder.AppendFormat("    PGT............. {0}{1}", ProxyGrantingTicketIou ?? string.Empty, Environment.NewLine);
             builder.AppendLine  ("    Proxy Tickets...");
-            foreach (string proxyTicket in Proxies)
+            foreach (string proxy in Proxies)
             {
-                builder.AppendFormat("      PT............ {0}{1}", proxyTicket, Environment.NewLine);
+                builder.AppendFormat("      Proxy......... {0}{1}", proxy, Environment.NewLine);
             }
             builder.AppendFormat("  Origin Service.... {0}{1}", OriginatingServiceName, Environment.NewLine);
             builder.AppendFormat("  Client Address.... {0}{1}", ClientHostAddress, Environment.NewLine);

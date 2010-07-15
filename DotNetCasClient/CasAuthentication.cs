@@ -19,8 +19,6 @@
 
 using System;
 using System.IO;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Web;
 using System.Web.Configuration;
@@ -51,34 +49,33 @@ namespace DotNetCasClient
         #endregion
 
         #region Fields
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         private static readonly ILog Log = LogManager.GetLogger("CasAuthentication");
 
+        // Thread-safe initialization
         private static readonly object LockObject;
         private static bool _initialized;
 
-        // system.web/authentication and system.web/authentication/forms static classes
+        // System.Web/Authentication and System.Web/Authentication/Forms static classes
         internal static AuthenticationSection AuthenticationConfig;
         internal static CasClientConfiguration CasClientConfig;
 
-        // Ticket validator support
+        // Ticket validator fields
         private static string _ticketValidatorName;
         private static AbstractUrlTicketValidator _ticketValidator;
 
-        // Ticket manager support
+        // Ticket manager fields
         private static string _serviceTicketManagerProvider;
         private static IServiceTicketManager _serviceTicketManager;
 
-        // Proxy ticket support
+        // Proxy ticket fields
         private static string _proxyTicketManagerProvider;
         private static IProxyTicketManager _proxyTicketManager;
 
-        // Gateway support
+        // Gateway fields
         private static bool _gateway;
         private static string _gatewayStatusCookieName;
 
+        // Configuration fields
         private static string _formsLoginUrl;
         private static TimeSpan _formsTimeout;
         private static string _casServerLoginUrl;
@@ -95,38 +92,15 @@ namespace DotNetCasClient
         private static string _gatewayParameterName;
         private static string _proxyCallbackParameterName;
 
-        /// <summary>
-        /// XML Reader Settings for SAML parsing.
-        /// </summary>
+        // XML Reader Settings for SAML parsing.
         private static XmlReaderSettings _xmlReaderSettings;
 
-        /// <summary>
-        /// XML Name Table for namespace resolution in SSO 
-        /// SAML Parsing routine
-        /// </summary>
+        // XML Name Table for namespace resolution in SSO SAML Parsing routine
         private static NameTable _xmlNameTable;
 
-        /// <summary>
-        /// XML Namespace Manager for namespace resolution in 
-        /// SSO SAML Parsing routine
-        /// </summary>
+        /// XML Namespace Manager for namespace resolution in SSO SAML Parsing routine
         private static XmlNamespaceManager _xmlNamespaceManager;
         #endregion
-
-        /*
-        public string GetProxyTicketFor(Uri service)
-        {
-            if (this.proxyGrantingTicket != null)
-            {
-                return this.proxyRetriever.GetProxyTicketIdFor(
-                  this.proxyGrantingTicket, service);
-            }
-            log.Debug(string.Format("{0}:" +
-              "No ProxyGrantingTicket was supplied --> returning null",
-              CommonUtils.MethodName));
-            return null;
-        }
-        */
 
         #region Methods
         /// <summary>
@@ -139,7 +113,7 @@ namespace DotNetCasClient
 
         /// <summary>
         /// Initializes configuration-related properties and validates configuration.
-        /// </summary>
+        /// </summary>        
         public static void Initialize()
         {
             if (!_initialized)
@@ -214,13 +188,6 @@ namespace DotNetCasClient
                         _gatewayParameterName = CasClientConfig.GatewayParameterName;
                         _proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
 
-                        if (_gateway)
-                        {
-                            // throw new NotImplementedException("Gateway has not been implemented yet.");
-                            // _gatewayResolver = new SessionAttrGatewayResolver();
-                        }
-
-                        // Parse "enumerated" values 
                         if (String.Compare(_ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
                             _ticketValidator = new Cas10TicketValidator();
@@ -278,7 +245,7 @@ namespace DotNetCasClient
 
                         if (_serviceTicketManager == null && _singleSignOut)
                         {
-                            throw new CasConfigurationException("Single Sign Out requires a FormsAuthenticationStateProvider.");
+                            throw new CasConfigurationException("Single Sign Out support requires a ServiceTicketManager.");
                         }
 
                         if (_gateway && _renew)
@@ -301,70 +268,79 @@ namespace DotNetCasClient
             }
         }
 
-        /*
-        public static void Authenticate(string username, string password)
-        {
-            // TODO: Is this too evil for inclusion?
-
-            string postData = ConstructDirectLoginPostData(username, password, false);
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(CasServerLoginUrl);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = postData.Length;
-            
-            using (StreamWriter requestWriter = new StreamWriter(request.GetRequestStream()))
-            {
-                requestWriter.Write(postData);
-            }
-
-            using (HttpWebResponse response = (HttpWebResponse) request.GetResponse())
-            {
-                using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
-                {
-
-                }
-            }
-        }
-
-        private static string ConstructDirectLoginPostData(string username, string password, bool warn)
-        {
-            Guid cGuid = new Guid();
-            Guid kGuid = new Guid();
-            string lt = "_c" + cGuid + "_k" + kGuid;
-
-            string postData = string.Format("username={0}&password={1}&lt={2}{3}",
-                username,
-                password,
-                lt,
-                (warn ? "warn=true" : string.Empty)
-            );
-
-            return postData;
-        }
-        */
-
+        /// <summary>
+        /// Obtain a Proxy ticket and redirect to the foreign service url with 
+        /// that ticket included in the url.  The foreign service must be configured 
+        /// to accept the ticket.
+        /// </summary>
+        /// <param name="url">The foreign service to redirect to</param>
+        /// <exception cref="ArgumentNullException">The url supplied is null</exception>
+        /// <exception cref="ArgumentException">The url supplied is empty</exception>
         public static void ProxyRedirect(string url)
         {
             ProxyRedirect(url, "ticket", false);
         }
 
+        /// <summary>
+        /// Obtain a Proxy ticket and redirect to the foreign service url with 
+        /// that ticket included in the url.  The foreign service must be configured 
+        /// to accept the ticket.
+        /// </summary>
+        /// <param name="url">The foreign service to redirect to</param>
+        /// <param name="endResponse">
+        /// Boolean indicating whether or not to short circuit the remaining request 
+        /// pipelline  events
+        /// </param>
+        /// <exception cref="ArgumentNullException">The url supplied is null</exception>
+        /// <exception cref="ArgumentException">The url supplied is empty</exception>
         public static void ProxyRedirect(string url, bool endResponse)
         {
             ProxyRedirect(url, "ticket", endResponse);   
         }
 
+        /// <summary>
+        /// Obtain a Proxy ticket and redirect to the foreign service url with 
+        /// that ticket included in the url.  The foreign service must be configured 
+        /// to accept the ticket.
+        /// </summary>
+        /// <param name="url">The foreign service to redirect to</param>
+        /// <param name="proxyTicketUrlParameter">
+        /// The ticket parameter to include in the remote service Url.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// The url or proxyTicketUrlParameter supplied is null
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The url or proxyTicketUrlParametersupplied is empty
+        /// </exception>
         public static void ProxyRedirect(string url, string proxyTicketUrlParameter)
         {
             ProxyRedirect(url, proxyTicketUrlParameter, false);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="url">The foreign service to redirect to</param>
+        /// <param name="proxyTicketUrlParameter">
+        /// The ticket parameter to include in the remote service Url.
+        /// </param>
+        /// <param name="endResponse">
+        /// Boolean indicating whether or not to short circuit the remaining request 
+        /// pipelline  events
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// The url or proxyTicketUrlParameter supplied is null
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// The url or proxyTicketUrlParametersupplied is empty
+        /// </exception>
         public static void ProxyRedirect(string url, string proxyTicketUrlParameter, bool endResponse)
         {
             if (url == null)
             {
                 throw new ArgumentNullException("url");
             }
-            else if (url.Length == 0)
+            if (url.Length == 0)
             {
                 throw new ArgumentException("url parameter cannot be null or empty.", "url");
             }
@@ -373,7 +349,7 @@ namespace DotNetCasClient
             {
                 throw new ArgumentNullException("proxyTicketUrlParameter");
             }
-            else if (proxyTicketUrlParameter.Length == 0)
+            if (proxyTicketUrlParameter.Length == 0)
             {
                 throw new ArgumentException("proxyTicketUrlParameter parameter cannot be null or empty.", "proxyTicketUrlParameter");
             }
@@ -381,26 +357,27 @@ namespace DotNetCasClient
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
 
-            response.Redirect(GetProxyRedirectUrl(url, proxyTicketUrlParameter), endResponse);
+            string proxyRedirectUrl = UrlUtil.GetProxyRedirectUrl(url, proxyTicketUrlParameter);
+            response.Redirect(proxyRedirectUrl, endResponse);
         }
 
-        public static string GetProxyRedirectUrl(string targetServiceUrl)
-        {
-            return GetProxyRedirectUrl(targetServiceUrl, "ticket");
-        }
-
-        public static string GetProxyRedirectUrl(string targetServiceUrl, string proxyTicketUrlParameter)
-        {
-            string resolvedUrl = UrlUtil.ResolveUrl(targetServiceUrl);
-            string proxyTicket = GetProxyTicketIdFor(resolvedUrl);
-            
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(resolvedUrl);
-            ub.QueryItems[proxyTicketUrlParameter] = proxyTicket;
-
-            return ub.Uri.AbsoluteUri;
-        }
-
-        public static string GetProxyTicketIdFor(string targetServiceUrl)
+        /// <summary>
+        /// Attempts to connect to the CAS server to retrieve a proxy ticket 
+        /// for the target URL specified.
+        /// </summary>
+        /// <remarks>
+        /// Problems retrieving proxy tickets are generally caused by SSL misconfiguration.
+        /// The CAS server must be configured to trust the SSL certificate on the web application's 
+        /// server.  The CAS server will attempt to establish an SSL connection to this web 
+        /// application server to confirm that the proxy ticket request is legitimate.  If the 
+        /// server does not trust the SSL certificate or the certificate authority/chain of the SSL
+        /// certificate, the request will fail.
+        /// </remarks>
+        /// <param name="targetServiceUrl">The target Url to obtain a proxy ticket for</param>
+        /// <returns>
+        /// A proxy ticket for the target Url or an empty string if the request failed.
+        /// </returns>
+        internal static string GetProxyTicketIdFor(string targetServiceUrl)
         {
             if (targetServiceUrl == null)
             {
@@ -418,6 +395,7 @@ namespace DotNetCasClient
             }
 
             FormsAuthenticationTicket formsAuthTicket = GetFormsAuthenticationTicket();
+
             if (formsAuthTicket == null)
             {
                 throw new InvalidOperationException("The request is not authenticated (does not have a CAS Service or Proxy ticket).");
@@ -439,7 +417,7 @@ namespace DotNetCasClient
             try
             {
                 string proxyUrl = UrlUtil.ConstructProxyTicketRequestUrl(casTicket.ProxyGrantingTicket, targetServiceUrl);
-                proxyTicketResponse = PerformHttpGet(proxyUrl, true);
+                proxyTicketResponse = HttpUtil.PerformHttpGet(proxyUrl, true);
             }
             catch
             {
@@ -493,6 +471,20 @@ namespace DotNetCasClient
             return null;
         }
 
+        /// <summary>
+        /// Attempt to perform a CAS gateway authentication.  This causes a transparent
+        /// redirection out to the CAS server and back to the requesting page with or 
+        /// without a CAS service ticket.  If the user has already authenticated for 
+        /// another service against the CAS server and the CAS server supports Single 
+        /// Sign On, this will result in the user being automatically authenticated.
+        /// Otherwise, the user will remain anonymous.
+        /// </summary>
+        /// <param name="ignoreGatewayStatusCookie">
+        /// The Gateway Status Cookie reflects whether a gateway authentication has 
+        /// already been attempted, in which case the redirection is generally 
+        /// unnecessary.  This property allows you to override the behavior and 
+        /// perform a redirection regardless of whether it has already been attempted.
+        /// </param>
         public static void GatewayAuthenticate(bool ignoreGatewayStatusCookie)
         {
             Initialize();
@@ -517,6 +509,18 @@ namespace DotNetCasClient
             application.CompleteRequest();
         }
 
+        /// <summary>
+        /// Logs the user out of the application and attempts to perform a Single Sign 
+        /// Out against the CAS server.  If the CAS server is configured to support 
+        /// Single Sign Out, this will prevent users from gateway authenticating 
+        /// to other services.  The CAS server will attempt to notify any other 
+        /// applications to revoke the session.  Each of the applications must be 
+        /// configured to maintain session state on the server.  In the case of 
+        /// ASP.NET web applications using DotNetCasClient, this requires defining a 
+        /// serviceTicketManager.  The configuration for other client types (Java, 
+        /// PHP) varies based on the client implementation.  Consult the Jasig wiki
+        /// for more details.
+        /// </summary>
         public static void SingleSignOut()
         {
             Initialize();
@@ -531,7 +535,10 @@ namespace DotNetCasClient
         }
 
         /// <summary>
-        /// Process SingleSignOut requests by removing the ticket from the state store.
+        /// Process SingleSignOut requests originating from another web application by removing the ticket 
+        /// from the ServiceTicketManager (assuming one is configured).  Without a ServiceTicketManager
+        /// configured, this method will not execute and this web application cannot respect external 
+        /// SingleSignOut requests.
         /// </summary>
         /// <returns>
         /// Boolean indicating whether the request was a SingleSignOut request, regardless of
@@ -582,6 +589,20 @@ namespace DotNetCasClient
             }
         }
 
+        /// <summary>
+        /// Process a Proxy Callback request from the CAS server.  Proxy Callback requests occur as a part
+        /// of a proxy ticket request.  When the web application requests a proxy ticket for a third party
+        /// service from the CAS server, the CAS server attempts to connect back to the web application 
+        /// over an HTTPS connection.  The success of this callback is essential for the proxy ticket 
+        /// request to succeed.  Failures are generally caused by SSL configuration errors.  See the 
+        /// description of the SingleSignOut method for more details.  Assuming the SSL configuration is 
+        /// correct, this method is responsible for handling the callback from the CAS server.  For 
+        /// more details, see the CAS protocol specification.
+        /// </summary>
+        /// <returns>
+        /// A Boolean indicating whether or not the proxy callback request is valid and mapped to a valid,
+        /// outstanding Proxy Granting Ticket IOU.
+        /// </returns>
         internal static bool ProcessProxyCallbackRequest()
         {
             HttpContext context = HttpContext.Current;
@@ -611,14 +632,26 @@ namespace DotNetCasClient
 
             ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
 
-            
+            // TODO: Consider creating a DotNetCasClient.Validation.Schema.Cas20.ProxySuccess object and serializing it.
 
             response.Write("<?xml version=\"1.0\"?>");
             response.Write("<casClient:proxySuccess xmlns:casClient=\"http://www.yale.edu/tp/casClient\" />");
             application.CompleteRequest();
+
             return true;
         }
-
+        
+        /// <summary>
+        /// Validates a ticket contained in the URL, presumably generated by
+        /// the CAS server after a successful authentication.  The actual ticket
+        /// validation is performed by the configured TicketValidator 
+        /// (i.e., CAS 1.0, CAS 2.0, SAML 1.0).  If the validation succeeds, the
+        /// request is authenticated and a FormsAuthenticationCookie and 
+        /// corresponding CasAuthenticationTicket are created for the purpose of 
+        /// authenticating subsequent requests (see ProcessTicketValidation 
+        /// method).  If the validation fails, the authentication status remains 
+        /// unchanged (generally the user is and remains anonymous).
+        /// </summary>
         internal static void ProcessTicketValidation()
         {
             HttpContext context = HttpContext.Current;
@@ -671,12 +704,22 @@ namespace DotNetCasClient
                 app.CompleteRequest();
                 return;
             }
-            catch (TicketValidationException tve)
+            catch (TicketValidationException)
             {
                 // Leave principal null.  This might not have been a CAS service ticket.
             }
         }
 
+        /// <summary>
+        /// Attempts to authenticate requests subsequent to the initial authentication
+        /// request (handled by ProcessTicketValidation).  This method looks for a 
+        /// FormsAuthenticationCookie containing a FormsAuthenticationTicket and attempts
+        /// to confirms its validitiy.  It either contains the CAS service ticket or a 
+        /// reference to a CasAuthenticationTicket stored in the ServiceTicketManager 
+        /// (if configured).  If it succeeds, the context.User and Thread.CurrentPrincipal 
+        /// are set with a ICasPrincipal and the current request is considered 
+        /// authenticated.  Otherwise, the current request is effectively anonymous.
+        /// </summary>
         internal static void ProcessRequestAuthentication()
         {
             HttpContext context = HttpContext.Current;
@@ -766,7 +809,6 @@ namespace DotNetCasClient
                 }
             }
         }
-
 
         /// <summary>
         /// Attempts to set the GatewayStatus client cookie.  If the cookie is not
@@ -1034,50 +1076,6 @@ namespace DotNetCasClient
             }
 
             return formsAuthTicket;
-        }
-
-        internal static string PerformHttpGet(string url, bool requireHttp200)
-        {
-            string responseBody = null;
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                if (!requireHttp200 || response.StatusCode == HttpStatusCode.OK)
-                {
-                    using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
-                    {
-                        responseBody = responseReader.ReadToEnd();
-                    }
-                }
-            }
-            
-            return responseBody;
-        }
-
-        internal static string PerformHttpPost(string url, string postData, bool requireHttp200)
-        {
-            string responseBody;
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = Encoding.UTF8.GetByteCount(postData);
-
-            using (StreamWriter requestWriter = new StreamWriter(request.GetRequestStream()))
-            {
-                requestWriter.Write(postData);
-            }
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
-                {
-                    responseBody = responseReader.ReadToEnd();
-                }
-            }
-
-            return responseBody;
         }
 
         /// <summary>

@@ -32,10 +32,7 @@ namespace DotNetCasClient.Utils
 {
     public sealed class DebugUtils
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
-        static readonly ILog Log = LogManager.GetLogger("DebugUtils");
+        private static readonly ILog Log = LogManager.GetLogger("DebugUtils");
 
         public static string IPrincipalToString(IPrincipal principal)
         {

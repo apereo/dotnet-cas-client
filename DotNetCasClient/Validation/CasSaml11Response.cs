@@ -34,9 +34,6 @@ namespace DotNetCasClient.Validation
     /// </summary>
     class CasSaml11Response : System.IdentityModel.Tokens.SamlSecurityToken
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
@@ -184,9 +181,6 @@ namespace DotNetCasClient.Validation
     /// </summary>
     class CasSaml11Response
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>

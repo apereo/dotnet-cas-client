@@ -34,9 +34,6 @@ namespace DotNetCasClient.State
     /// </summary>
     public sealed class CacheServiceTicketManager : IServiceTicketManager
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>

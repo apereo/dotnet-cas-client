@@ -29,9 +29,6 @@ namespace DotNetCasClient
     /// </summary>
     public sealed class CasAuthenticationModule : IHttpModule
     {
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         private static readonly ILog Log = LogManager.GetLogger("CasAuthenticationModule");
 
         /// <summary>

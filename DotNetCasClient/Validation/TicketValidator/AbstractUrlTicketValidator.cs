@@ -39,12 +39,9 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Marvin S. Addison</author>
     abstract class AbstractUrlTicketValidator : ITicketValidator
     {
-        private NameValueCollection _CustomParameters;
-
-        /// <summary>
-        /// Access to the log file
-        /// </summary>
         protected static readonly ILog Log = LogManager.GetLogger("AbstractUrlTicketValidator");
+
+        private NameValueCollection _CustomParameters;
 
         /// <summary>
         /// Custom parameters to pass to the validation URL.
@@ -55,7 +52,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             {
                 if (_CustomParameters == null)
                 {
-                    _CustomParameters = new NameValueCollection();   
+                    _CustomParameters = new NameValueCollection();
                 }
                 return _CustomParameters;
             }
@@ -85,7 +82,7 @@ namespace DotNetCasClient.Validation.TicketValidator
                 if (String.IsNullOrEmpty(CasAuthentication.ArtifactParameterName))
                 {
                     return DefaultArtifactParameterName;
-                } 
+                }
                 else
                 {
                     return CasAuthentication.ArtifactParameterName;
@@ -127,7 +124,7 @@ namespace DotNetCasClient.Validation.TicketValidator
 
         protected virtual string RetrieveResponseFromServer(string validationUrl, string ticket)
         {
-            return CasAuthentication.PerformHttpGet(validationUrl, true);
+            return HttpUtil.PerformHttpGet(validationUrl, true);
         }
 
         /// <summary>
@@ -172,14 +169,14 @@ namespace DotNetCasClient.Validation.TicketValidator
         public ICasPrincipal Validate(string ticket, string service)
         {
             string validationUrl = ConstructValidationUrl(service, ticket, CustomParameters);
-            
+
             if (Log.IsDebugEnabled)
             {
                 Log.Debug(string.Format("{0}:Constructed validation url:{1}", CommonUtils.MethodName, validationUrl));
             }
-            
+
             string serverResponse;
-            
+
             try
             {
                 serverResponse = RetrieveResponseFromServer(validationUrl, ticket);
@@ -188,7 +185,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             {
                 throw new TicketValidationException("CAS server ticket validation threw an Exception", e);
             }
-            
+
             if (serverResponse == null)
             {
                 throw new TicketValidationException("The CAS server returned no response.");
@@ -200,5 +197,3 @@ namespace DotNetCasClient.Validation.TicketValidator
         }
     }
 }
-
-

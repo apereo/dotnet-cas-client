@@ -136,7 +136,7 @@ namespace Controls
             {
                 OutstandingTickets.Visible = false;
                 NoTicketManagerLabel.Visible = true;
-                NoTicketManagerLabel.Text = "You need to have your CAS provider configured with formsAuthenticationStateProvider='CacheAuthenticationStateProvider' in order to use the Ticket Manager";
+                NoTicketManagerLabel.Text = "You need to have your CAS provider configured with a 'serviceTicketManager' option in order to use this feature.";
             }
         }
     }

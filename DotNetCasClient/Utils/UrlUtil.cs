@@ -24,19 +24,25 @@ using log4net;
 
 namespace DotNetCasClient.Utils
 {
-    public sealed class UrlUtil
+    ///<summary>
+    /// An internal class used to generate and modify URLs
+    /// as needed for redirection and external communication.
+    ///</summary>
+    internal sealed class UrlUtil
     {
         private static readonly ILog Log = LogManager.GetLogger("UrlUtil");
 
         /// <summary>
         /// Resolves a relative ~/Url to a Url that is meaningful to the
-        /// client
+        /// client.
         /// <remarks>
-        /// http://weblogs.asp.net/palermo4/archive/2004/06/18/getting-the-absolute-path-in-asp-net-part-2.aspx
-        /// </remarks>
+        /// Derived from: http://weblogs.asp.net/palermo4/archive/2004/06/18/getting-the-absolute-path-in-asp-net-part-2.aspx
+        /// </remarks>        
+        /// <author>J. Michael Palermo IV</author>
+        /// <author>Scott Holodak</author>
         /// </summary>
         /// <param name="url">The Url to resolve</param>
-        /// <returns></returns>
+        /// <returns>The fullly resolved Url</returns>
         internal static string ResolveUrl(string url)
         {
             CasAuthentication.Initialize();
@@ -52,7 +58,7 @@ namespace DotNetCasClient.Utils
             int indexOfUrl = 1;
 
             // determine the middle character 
-            string midPath = (applicationPath.Length > 1) ? "/" : string.Empty;
+            string midPath = ((applicationPath ?? string.Empty).Length > 1) ? "/" : string.Empty;
 
             // if url looks like ~/ or ~\ change the indexOfUrl to 2 
             if (url[1] == '/' || url[1] == '\\') indexOfUrl = 2;
@@ -128,8 +134,7 @@ namespace DotNetCasClient.Utils
             return url;
         }
         
-        // TODO: Change back to Internal
-        public static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
+        internal static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
         {
             CasAuthentication.Initialize();
 
@@ -145,6 +150,24 @@ namespace DotNetCasClient.Utils
             }
 
             return url;
+        }
+
+        internal static string GetProxyRedirectUrl(string targetServiceUrl)
+        {
+            return GetProxyRedirectUrl(targetServiceUrl, "ticket");
+        }
+
+        internal static string GetProxyRedirectUrl(string targetServiceUrl, string proxyTicketUrlParameter)
+        {
+            CasAuthentication.Initialize();
+
+            string resolvedUrl = ResolveUrl(targetServiceUrl);
+            string proxyTicket = CasAuthentication.GetProxyTicketIdFor(resolvedUrl);
+
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(resolvedUrl);
+            ub.QueryItems[proxyTicketUrlParameter] = proxyTicket;
+
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
