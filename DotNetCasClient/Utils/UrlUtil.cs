@@ -66,7 +66,7 @@ namespace DotNetCasClient.Utils
         }
 
         /// <summary>
-        /// Constructs a service uri using configured values in the following order:
+        /// Constructs a service URL using configured values in the following order:
         /// 1.  if not empty, the value configured for Service is used
         /// - otherwise -
         /// 2.  the value configured for ServerName is used together with HttpRequest
@@ -77,8 +77,8 @@ namespace DotNetCasClient.Utils
         /// is why the service and server name configuration parameters exist, per Jasig
         /// website.
         /// </remarks>
-        /// <returns>the service URI to use, not encoded</returns>
-        internal static string ConstructServiceUri(bool gateway)
+        /// <returns>the service URL to use, not encoded</returns>
+        internal static string ConstructServiceUrl(bool gateway)
         {
             CasAuthentication.Initialize();
 
@@ -116,11 +116,31 @@ namespace DotNetCasClient.Utils
             return url;
         }
 
+        /// <summary>
+        /// Constructs a proxy callback URL containing a ProxyCallbackParameter 
+        /// (proxyResponse by default).  This URL is sent to the CAS server during a proxy
+        /// ticket request and is then connected to by the CAS server.  If the CAS server
+        /// cannot successfully connect (generally due to SSL configuration issues), the
+        /// CAS server will refuse to send a proxy ticket. 
+        /// </summary>
+        /// <remarks>
+        /// This is a .NET implementation specific method used to eliminate the need for 
+        /// a special HTTP Handler.  Essentially, if the client detects an incoming request
+        /// with the ProxyCallbackParameter in the URL (i.e., proxyResponse), that request 
+        /// is treated specially and behaves as if it were handled by an HTTP Handler.  In 
+        /// other words, this behavior may or may not short circuit the request event 
+        /// processing and will not allow the underlying page to execute & transmit back to
+        /// the client.  If your application does coincidentally make use of the key 
+        /// 'proxyResponse' as a URL parameter, you will need to configure a custom 
+        /// proxyCallbackParameter value which does not conflict with the URL parameters in
+        /// your application.
+        /// </remarks>
+        /// <returns>the proxy callback URL to use</returns>
         internal static string ConstructProxyCallbackUrl()
         {
             CasAuthentication.Initialize();
 
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructServiceUri(false));
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructServiceUrl(false));
             ub.QueryItems.Set(CasAuthentication.ProxyCallbackParameterName, "true");
 
             string url = ub.Uri.AbsoluteUri;
@@ -133,6 +153,22 @@ namespace DotNetCasClient.Utils
             return url;
         }
         
+        /// <summary>
+        /// Constructs a proxy ticket request URL containing both a proxy granting 
+        /// ticket and a URL Encoded targetServiceUrl.  The URL returned will generally only
+        /// be executed by the CAS client as a part of a proxy redirection in 
+        /// CasAuthentication.ProxyRedirect(...) or CasAuthentication.GetProxyTicketIdFor(...)
+        /// but may also be used by applications which require low-level access to the proxy
+        /// ticket request functionality.
+        /// </summary>
+        /// <param name="proxyGrantingTicketId">
+        /// The proxy granting ticket used to authorize the request for a proxy ticket on the 
+        /// CAS server
+        /// </param>
+        /// <param name="targetService">
+        /// The target service URL to request a proxy ticket request URL for
+        /// </param>
+        /// <returns>The URL to use to request a proxy ticket for the targetService specified</returns>
         public static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
         {
             CasAuthentication.Initialize();
@@ -151,16 +187,34 @@ namespace DotNetCasClient.Utils
             return url;
         }
 
-        internal static string GetProxyRedirectUrl(string targetServiceUrl)
+        /// <summary>
+        /// Attempts to request a proxy ticket for the targetService specified and
+        /// returns a URL appropriate for redirection to the targetService containing
+        /// a ticket.
+        /// </summary>
+        /// <param name="targetService">The target service for proxy authentication</param>
+        /// <returns>The URL of the target service with a proxy ticket included</returns>
+        internal static string GetProxyRedirectUrl(string targetService)
         {
-            return GetProxyRedirectUrl(targetServiceUrl, "ticket");
+            return GetProxyRedirectUrl(targetService, "ticket");
         }
 
-        internal static string GetProxyRedirectUrl(string targetServiceUrl, string proxyTicketUrlParameter)
+        /// <summary>
+        /// Attempts to request a proxy ticket for the targetService specified and
+        /// returns a URL appropriate for redirection to the targetService containing
+        /// a ticket.
+        /// </summary>
+        /// <param name="targetService">The target service for proxy authentication</param>
+        /// <param name="proxyTicketUrlParameter">
+        /// The name of the ticket URL parameter expected by the target service (ticket by
+        /// default)
+        /// </param>
+        /// <returns>The URL of the target service with a proxy ticket included</returns>
+        internal static string GetProxyRedirectUrl(string targetService, string proxyTicketUrlParameter)
         {
             CasAuthentication.Initialize();
 
-            string resolvedUrl = ResolveUrl(targetServiceUrl);
+            string resolvedUrl = ResolveUrl(targetService);
             string proxyTicket = CasAuthentication.GetProxyTicketIdFor(resolvedUrl);
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(resolvedUrl);
@@ -176,7 +230,7 @@ namespace DotNetCasClient.Utils
         /// The server name is not parsed from the request for security reasons, which
         /// is why the service and server name configuration parameters exist.
         /// </remarks>
-        /// <returns>the redirection URL to use</returns>
+        /// <returns>The redirection URL to use</returns>
         internal static string ConstructLoginRedirectUrl(bool gateway, bool renew)
         {
             if (gateway && renew)
@@ -187,7 +241,7 @@ namespace DotNetCasClient.Utils
             CasAuthentication.Initialize();
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(CasAuthentication.FormsLoginUrl);
-            ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUri(gateway)));
+            ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(gateway)));
 
             if (renew)
             {
@@ -208,12 +262,24 @@ namespace DotNetCasClient.Utils
             return url;
         }
 
+        /// <summary>
+        /// Constructs the URL to use for service ticket validation, optionally requiring
+        /// the CAS server to only validate tickets that were generated by user-supplied
+        /// credentials (i.e., not by single sign on).
+        /// </summary>
+        /// <remarks>See CAS protocol specificaiton, section 2.5</remarks>
+        /// <param name="serviceTicket">The service ticket to validate.</param>
+        /// <param name="requireRenewedCredentials">
+        /// Whether or not renewed credentials are required.  If True, ticket validation
+        /// will fail for Single Sign On credentials.
+        /// </param>
+        /// <returns>The ticket validation URL to use</returns>
         internal string ConstructValidateRedirectUrl(string serviceTicket, bool requireRenewedCredentials)
         {
             CasAuthentication.Initialize();
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "validate"));
-            ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUri(false)));
+            ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, serviceTicket);
 
             if (requireRenewedCredentials)
@@ -230,12 +296,31 @@ namespace DotNetCasClient.Utils
             return url;
         }
 
+        /// <summary>
+        /// Constructs a URL used to check the validitiy of a service ticket, with or without a proxy 
+        /// callback URL, and with or without requiring renewed credentials .
+        /// </summary>
+        /// <remarks>See CAS Protocol specification, section 2.5</remarks>
+        /// <param name="serviceTicket">The service ticket to validate.</param>
+        /// <param name="requestProxyCallback">
+        /// Whether or not the CAS server should request a proxy granting ticket.  If this is True, 
+        /// the CAS Server will attempt to connect back to the server on a special URL (see 
+        /// ConstructProxyCallbackUrl method).  If that communication succeeds, the CAS server will
+        /// include a proxy granting ticket which the client can use to generate proxy tickets for 
+        /// third party services.  Without the proxy callback, the client will be unable to allow an 
+        /// authenticated user to proxy to an outside service.
+        /// </param>
+        /// <param name="requireRenewedCredentials">
+        /// Whether or not renewed credentials are required.  If True, ticket validation
+        /// will fail for Single Sign On credentials.
+        /// </param>
+        /// <returns>The service ticket validation URL to use</returns>
         internal static string ConstructServiceValidateRedirectUrl(string serviceTicket, bool requestProxyCallback, bool requireRenewedCredentials)
         {
             CasAuthentication.Initialize();
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "serviceValidate"));
-            ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUri(false)));
+            ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, HttpUtility.UrlEncode(serviceTicket));
 
             if (requestProxyCallback)
@@ -270,7 +355,7 @@ namespace DotNetCasClient.Utils
             CasAuthentication.Initialize();
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "logout"));
-            ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUri(false)));
+            ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
 
             string url = ub.Uri.AbsoluteUri;
 
@@ -282,6 +367,12 @@ namespace DotNetCasClient.Utils
             return url;
         }
 
+        /// <summary>
+        /// Returns a copy of the URL supplied modified to remove CAS protocol-specific
+        /// URL parameters.
+        /// </summary>
+        /// <param name="url">The URL to remove CAS artifacts from</param>
+        /// <returns>The URL supplied without CAS artifacts</returns>
         internal static string RemoveCasArtifactsFromUrl(string url)
         {
             CommonUtils.AssertNotNullOrEmpty(url, "url parameter can not be null or empty.");

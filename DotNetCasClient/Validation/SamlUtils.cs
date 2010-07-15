@@ -29,13 +29,9 @@ namespace DotNetCasClient.Validation
     /// Utility methods for processing SAML entities, such as the Assertion in a
     /// SAML 1.1 response from a CAS server.
     /// </summary>
-    internal sealed class SamlUtils
+    internal static class SamlUtils
     {
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private SamlUtils()
-        {
-        }
 
 #if DOT_NET_3
         /// <summary>

@@ -732,7 +732,7 @@ namespace DotNetCasClient
             try
             {
                 // Attempt to authenticate the ticket and resolve to an ICasPrincipal
-                string serviceUrl = UrlUtil.ConstructServiceUri(RequestEvaluator.GetRequestHasGatewayParameter());
+                string serviceUrl = UrlUtil.ConstructServiceUrl(RequestEvaluator.GetRequestHasGatewayParameter());
                 principal = TicketValidator.Validate(ticket, serviceUrl);
 
                 // Save the ticket in the FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 

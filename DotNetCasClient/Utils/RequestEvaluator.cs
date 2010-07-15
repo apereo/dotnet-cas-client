@@ -23,21 +23,27 @@ using System.Web;
 
 namespace DotNetCasClient.Utils
 {
+    /// <summary>
+    /// A utility class for evaluating the type of request 
+    /// </summary>
     internal static class RequestEvaluator
     {
+        // The requested content types that are appropriate for 
+        // authentication-related redirections
         private static readonly string[] AppropriateContentTypes = new[] 
             {
                 "text/plain",
                 "text/html"
             };
 
+        // The built in ASP.NET handler files that are inappropriate
+        // for authentication-related redirections.
         private static readonly string[] BuiltInHandlers = new[]
             {
                 "trace.axd",
                 "webresource.axd"        
             };
-
-
+        
         /// <summary>
         /// Determines whether the request has a CAS ticket in the URL
         /// </summary>
@@ -58,6 +64,11 @@ namespace DotNetCasClient.Utils
             return result;
         }
 
+        /// <summary>
+        /// Determines whether the request is a return request from the 
+        /// CAS server containing a CAS ticket
+        /// </summary>
+        /// <returns>True if the request URL contains a CAS ticket, otherwise False</returns>
         internal static bool GetRequestIsCasAuthenticationResponse()
         {
             CasAuthentication.Initialize();
@@ -104,6 +115,11 @@ namespace DotNetCasClient.Utils
             return result;
         }
 
+        /// <summary>
+        /// Determines whether the request is an inbound proxy callback verifications 
+        /// from the CAS server
+        /// </summary>
+        /// <returns>True if the request is a proxy callback verificiation, otherwise False</returns>
         internal static bool GetRequestIsProxyResponse()
         {
             CasAuthentication.Initialize();
@@ -258,6 +274,10 @@ namespace DotNetCasClient.Utils
             return result;
         }
 
+        /// <summary>
+        /// Determines whether the request is a CAS Single Sign Out request
+        /// </summary>
+        /// <returns>True if the request is a CAS Single Sign Out request, otherwise False</returns>
         internal static bool GetRequestIsCasSingleSignOut()
         {
             CasAuthentication.Initialize();

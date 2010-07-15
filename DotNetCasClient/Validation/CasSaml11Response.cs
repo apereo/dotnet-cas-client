@@ -181,21 +181,19 @@ namespace DotNetCasClient.Validation
     /// </summary>
     class CasSaml11Response
     {
+        #region Fields
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        /// <summary>
-        /// The SAML 1.1 Assertion namespace
-        /// </summary>
+        // The SAML 1.1 Assertion namespace
         const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
 
-        /// <summary>
-        ///  Tolerance ticks for checking the current time against the SAML
-        ///  Assertion valid times.
-        /// </summary>
+        // Tolerance ticks for checking the current time against the SAML
+        // Assertion valid times.
         private readonly long _ToleranceTicks = 1000L * TimeSpan.TicksPerMillisecond;
 
         // The raw response received from the CAS server
         private readonly string _CasResponse;
+        #endregion
 
         #region Properties
         /// <summary>
@@ -210,6 +208,7 @@ namespace DotNetCasClient.Validation
         public ICasPrincipal CasPrincipal { get; private set; }
         #endregion
 
+        #region Constructor
         /// <summary>
         /// Creates a CasSaml11Response from the response returned by the CAS server.
         /// The SAMLAssertion processed is the first valid SAML Asssertion found in
@@ -231,7 +230,9 @@ namespace DotNetCasClient.Validation
             ProcessValidAssertion();
             HasCasSamlAssertion = true;
         }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Initializes the CAS IAssertion for this instance from the first valid
         /// Assertion node in the CAS server response.
@@ -323,6 +324,7 @@ namespace DotNetCasClient.Validation
             }
             throw new TicketValidationException("No valid assertions found in the CAS response.");
         }
+        #endregion
     }
 #endif
 }
