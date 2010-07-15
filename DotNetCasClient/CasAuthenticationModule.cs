@@ -191,32 +191,32 @@ namespace DotNetCasClient
                 else if (RequestEvaluator.GetUserDoesNotAllowSessionCookies())
                 {
                     Log.DebugFormat("  Cookies not supported.  Redirecting to Cookies Required Page");
-                    RedirectUtil.RedirectToCookiesRequiredPage();
+                    CasAuthentication.RedirectToCookiesRequiredPage();
                 }
                 else if (RequestEvaluator.GetRequestHasCasTicket())
                 {
                     Log.DebugFormat("  Redirecting from login callback");
-                    RedirectUtil.RedirectFromLoginCallback();
+                    CasAuthentication.RedirectFromLoginCallback();
                 }
                 else if (RequestEvaluator.GetRequestHasGatewayParameter()) 
                 {
                     Log.DebugFormat("  Redirecting from failed gateway callback");
-                    RedirectUtil.RedirectFromFailedGatewayCallback();
+                    CasAuthentication.RedirectFromFailedGatewayCallback();
                 }
                 else if (RequestEvaluator.GetRequestIsUnauthorized() && !String.IsNullOrEmpty(CasAuthentication.NotAuthorizedUrl))
                 {
                     Log.DebugFormat("  Redirecting to Unauthorized Page");
-                    RedirectUtil.RedirectToUnauthorizedPage();
+                    CasAuthentication.RedirectToNotAuthorizedPage();
                 }
                 else if (RequestEvaluator.GetRequestIsUnauthorized())
                 {
                     Log.DebugFormat("  Redirecting to CAS Login Page (Unauthorized without NotAuthorizedUrl defined)");
-                    RedirectUtil.RedirectToLoginPage(true);
+                    CasAuthentication.RedirectToLoginPage(true);
                 }
                 else if (RequestEvaluator.GetRequestIsUnAuthenticated())
                 {
                     Log.DebugFormat("  Redirecting to CAS Login Page");
-                    RedirectUtil.RedirectToLoginPage();
+                    CasAuthentication.RedirectToLoginPage();
                 }
 
                 Log.DebugFormat("Ending EndRequest for {0}", request.RawUrl);

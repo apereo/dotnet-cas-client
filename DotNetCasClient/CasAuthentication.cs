@@ -53,53 +53,53 @@ namespace DotNetCasClient
 
         // Thread-safe initialization
         private static readonly object LockObject;
-        private static bool _initialized;
+        private static bool initialized;
 
         // System.Web/Authentication and System.Web/Authentication/Forms static classes
         internal static AuthenticationSection AuthenticationConfig;
         internal static CasClientConfiguration CasClientConfig;
 
         // Ticket validator fields
-        private static string _ticketValidatorName;
-        private static AbstractUrlTicketValidator _ticketValidator;
+        private static string ticketValidatorName;
+        private static AbstractUrlTicketValidator ticketValidator;
 
         // Ticket manager fields
-        private static string _serviceTicketManagerProvider;
-        private static IServiceTicketManager _serviceTicketManager;
+        private static string serviceTicketManagerProvider;
+        private static IServiceTicketManager serviceTicketManager;
 
         // Proxy ticket fields
-        private static string _proxyTicketManagerProvider;
-        private static IProxyTicketManager _proxyTicketManager;
+        private static string proxyTicketManagerProvider;
+        private static IProxyTicketManager proxyTicketManager;
 
         // Gateway fields
-        private static bool _gateway;
-        private static string _gatewayStatusCookieName;
+        private static bool gateway;
+        private static string gatewayStatusCookieName;
 
         // Configuration fields
-        private static string _formsLoginUrl;
-        private static TimeSpan _formsTimeout;
-        private static string _casServerLoginUrl;
-        private static string _casServerUrlPrefix;
-        private static long _ticketTimeTolerance;
-        private static string _serverName;
-        private static bool _renew;
-        private static string _artifactParameterName;
-        private static string _serviceParameterName;
-        private static bool _redirectAfterValidation;
-        private static bool _singleSignOut;
-        private static string _notAuthorizedUrl;
-        private static string _cookiesRequiredUrl;
-        private static string _gatewayParameterName;
-        private static string _proxyCallbackParameterName;
+        private static string formsLoginUrl;
+        private static TimeSpan formsTimeout;
+        private static string casServerLoginUrl;
+        private static string casServerUrlPrefix;
+        private static long ticketTimeTolerance;
+        private static string serverName;
+        private static bool renew;
+        private static string artifactParameterName;
+        private static string serviceParameterName;
+        private static bool redirectAfterValidation;
+        private static bool singleSignOut;
+        private static string notAuthorizedUrl;
+        private static string cookiesRequiredUrl;
+        private static string gatewayParameterName;
+        private static string proxyCallbackParameterName;
 
         // XML Reader Settings for SAML parsing.
-        private static XmlReaderSettings _xmlReaderSettings;
+        private static XmlReaderSettings xmlReaderSettings;
 
         // XML Name Table for namespace resolution in SSO SAML Parsing routine
-        private static NameTable _xmlNameTable;
+        private static NameTable xmlNameTable;
 
         /// XML Namespace Manager for namespace resolution in SSO SAML Parsing routine
-        private static XmlNamespaceManager _xmlNamespaceManager;
+        private static XmlNamespaceManager xmlNamespaceManager;
         #endregion
 
         #region Methods
@@ -116,11 +116,11 @@ namespace DotNetCasClient
         /// </summary>        
         public static void Initialize()
         {
-            if (!_initialized)
+            if (!initialized)
             {
                 lock (LockObject)
                 {
-                    if (!_initialized)
+                    if (!initialized)
                     {
                         FormsAuthentication.Initialize();
                         AuthenticationConfig = (AuthenticationSection)WebConfigurationManager.GetSection("system.web/authentication");
@@ -149,116 +149,116 @@ namespace DotNetCasClient
                             throw new CasConfigurationException("CAS requires Forms Authentication to use cookies (cookieless='UseCookies').");
                         }
 
-                        _xmlReaderSettings = new XmlReaderSettings();
-                        _xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
-                        _xmlReaderSettings.IgnoreWhitespace = true;
+                        xmlReaderSettings = new XmlReaderSettings();
+                        xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
+                        xmlReaderSettings.IgnoreWhitespace = true;
 
-                        _xmlNameTable = new NameTable();
+                        xmlNameTable = new NameTable();
 
-                        _xmlNamespaceManager = new XmlNamespaceManager(_xmlNameTable);
-                        _xmlNamespaceManager.AddNamespace("cas", "http://www.yale.edu/tp/cas");
-                        _xmlNamespaceManager.AddNamespace("saml", "urn: oasis:names:tc:SAML:1.0:assertion");
-                        _xmlNamespaceManager.AddNamespace("saml2", "urn: oasis:names:tc:SAML:1.0:assertion");
-                        _xmlNamespaceManager.AddNamespace("samlp", "urn: oasis:names:tc:SAML:1.0:protocol");
+                        xmlNamespaceManager = new XmlNamespaceManager(xmlNameTable);
+                        xmlNamespaceManager.AddNamespace("cas", "http://www.yale.edu/tp/cas");
+                        xmlNamespaceManager.AddNamespace("saml", "urn: oasis:names:tc:SAML:1.0:assertion");
+                        xmlNamespaceManager.AddNamespace("saml2", "urn: oasis:names:tc:SAML:1.0:assertion");
+                        xmlNamespaceManager.AddNamespace("samlp", "urn: oasis:names:tc:SAML:1.0:protocol");
 
-                        _formsLoginUrl = AuthenticationConfig.Forms.LoginUrl;
-                        _formsTimeout = AuthenticationConfig.Forms.Timeout;
+                        formsLoginUrl = AuthenticationConfig.Forms.LoginUrl;
+                        formsTimeout = AuthenticationConfig.Forms.Timeout;
 
                         if (string.IsNullOrEmpty(CasClientConfig.CasServerUrlPrefix))
                         {
                             throw new CasConfigurationException("The CasServerUrlPrefix is required");
                         }
 
-                        _casServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
-                        _casServerLoginUrl = CasClientConfig.CasServerLoginUrl;
-                        _ticketValidatorName = CasClientConfig.TicketValidatorName;
-                        _ticketTimeTolerance = CasClientConfig.TicketTimeTolerance;
-                        _serverName = CasClientConfig.ServerName;
-                        _renew = CasClientConfig.Renew;
-                        _gateway = CasClientConfig.Gateway;
-                        _gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
-                        _artifactParameterName = CasClientConfig.ArtifactParameterName;
-                        _serviceParameterName = CasClientConfig.ServiceParameterName;
-                        _redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
-                        _singleSignOut = CasClientConfig.SingleSignOut;
-                        _serviceTicketManagerProvider = CasClientConfig.ServiceTicketManager;
-                        _proxyTicketManagerProvider = CasClientConfig.ProxyTicketManager;
-                        _notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
-                        _cookiesRequiredUrl = CasClientConfig.CookiesRequiredUrl;
-                        _gatewayParameterName = CasClientConfig.GatewayParameterName;
-                        _proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
+                        casServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
+                        casServerLoginUrl = CasClientConfig.CasServerLoginUrl;
+                        ticketValidatorName = CasClientConfig.TicketValidatorName;
+                        ticketTimeTolerance = CasClientConfig.TicketTimeTolerance;
+                        serverName = CasClientConfig.ServerName;
+                        renew = CasClientConfig.Renew;
+                        gateway = CasClientConfig.Gateway;
+                        gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
+                        artifactParameterName = CasClientConfig.ArtifactParameterName;
+                        serviceParameterName = CasClientConfig.ServiceParameterName;
+                        redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
+                        singleSignOut = CasClientConfig.SingleSignOut;
+                        serviceTicketManagerProvider = CasClientConfig.ServiceTicketManager;
+                        proxyTicketManagerProvider = CasClientConfig.ProxyTicketManager;
+                        notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
+                        cookiesRequiredUrl = CasClientConfig.CookiesRequiredUrl;
+                        gatewayParameterName = CasClientConfig.GatewayParameterName;
+                        proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
 
-                        if (String.Compare(_ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
+                        if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _ticketValidator = new Cas10TicketValidator();
+                            ticketValidator = new Cas10TicketValidator();
                         }
-                        else if (String.Compare(_ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
+                        else if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _ticketValidator = new Cas20ServiceTicketValidator();
+                            ticketValidator = new Cas20ServiceTicketValidator();
                         }
-                        else if (String.Compare(_ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
+                        else if (String.Compare(ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
                         {
-                            _ticketValidator = new Saml11TicketValidator();
+                            ticketValidator = new Saml11TicketValidator();
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown ticket validator " + _ticketValidatorName);
+                            throw new CasConfigurationException("Unknown ticket validator " + ticketValidatorName);
                         }
 
-                        if (String.IsNullOrEmpty(_serviceTicketManagerProvider))
+                        if (String.IsNullOrEmpty(serviceTicketManagerProvider))
                         {
                             // Web server cannot maintain ticket state, verify tickets, perform SSO, etc.
                         }
-                        else if (String.Compare(_serviceTicketManagerProvider, CasClientConfiguration.CACHE_SERVICE_TICKET_MANAGER) == 0)
+                        else if (String.Compare(serviceTicketManagerProvider, CasClientConfiguration.CACHE_SERVICE_TICKET_MANAGER) == 0)
                         {
-                            _serviceTicketManager = new CacheServiceTicketManager();
+                            serviceTicketManager = new CacheServiceTicketManager();
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown service ticket manager provider: " + _serviceTicketManagerProvider);
+                            throw new CasConfigurationException("Unknown service ticket manager provider: " + serviceTicketManagerProvider);
                         }
 
-                        if (String.IsNullOrEmpty(_proxyTicketManagerProvider))
+                        if (String.IsNullOrEmpty(proxyTicketManagerProvider))
                         {
                             // Web server cannot generate proxy tickets
                         }
-                        else if (String.Compare(_proxyTicketManagerProvider, CasClientConfiguration.CACHE_PROXY_TICKET_MANAGER) == 0)
+                        else if (String.Compare(proxyTicketManagerProvider, CasClientConfiguration.CACHE_PROXY_TICKET_MANAGER) == 0)
                         {
-                            _proxyTicketManager = new CacheProxyTicketManager();
+                            proxyTicketManager = new CacheProxyTicketManager();
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown proxy ticket manager provider: " + _proxyTicketManagerProvider);
+                            throw new CasConfigurationException("Unknown proxy ticket manager provider: " + proxyTicketManagerProvider);
                         }
 
                         // Validate configuration
-                        bool haveServerName = !String.IsNullOrEmpty(_serverName);
+                        bool haveServerName = !String.IsNullOrEmpty(serverName);
                         if (!haveServerName)
                         {
                             throw new CasConfigurationException(CasClientConfiguration.SERVER_NAME + " cannot be null or empty.");
                         }
 
-                        if (String.IsNullOrEmpty(_casServerLoginUrl))
+                        if (String.IsNullOrEmpty(casServerLoginUrl))
                         {
                             throw new CasConfigurationException(CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
                         }
 
-                        if (_serviceTicketManager == null && _singleSignOut)
+                        if (serviceTicketManager == null && singleSignOut)
                         {
                             throw new CasConfigurationException("Single Sign Out support requires a ServiceTicketManager.");
                         }
 
-                        if (_gateway && _renew)
+                        if (gateway && renew)
                         {
                             throw new CasConfigurationException("Gateway and Renew functionalities are mutually exclusive");
                         }
 
-                        if (!_redirectAfterValidation)
+                        if (!redirectAfterValidation)
                         {
                             throw new CasConfigurationException("Forms Authentication based modules require RedirectAfterValidation to be set to true.");
                         }
 
-                        _initialized = true;
+                        initialized = true;
                     }
                 }
 
@@ -336,23 +336,8 @@ namespace DotNetCasClient
         /// </exception>
         public static void ProxyRedirect(string url, string proxyTicketUrlParameter, bool endResponse)
         {
-            if (url == null)
-            {
-                throw new ArgumentNullException("url");
-            }
-            if (url.Length == 0)
-            {
-                throw new ArgumentException("url parameter cannot be null or empty.", "url");
-            }
-
-            if (proxyTicketUrlParameter == null)
-            {
-                throw new ArgumentNullException("proxyTicketUrlParameter");
-            }
-            if (proxyTicketUrlParameter.Length == 0)
-            {
-                throw new ArgumentException("proxyTicketUrlParameter parameter cannot be null or empty.", "proxyTicketUrlParameter");
-            }
+            CommonUtils.AssertNotNullOrEmpty(url, "url parameter cannot be null or empty.");
+            CommonUtils.AssertNotNull(proxyTicketUrlParameter, "proxyTicketUrlParameter parameter cannot be null or empty.");
 
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
@@ -377,17 +362,9 @@ namespace DotNetCasClient
         /// <returns>
         /// A proxy ticket for the target Url or an empty string if the request failed.
         /// </returns>
-        internal static string GetProxyTicketIdFor(string targetServiceUrl)
+        public static string GetProxyTicketIdFor(string targetServiceUrl)
         {
-            if (targetServiceUrl == null)
-            {
-                throw new ArgumentNullException("targetServiceUrl");
-            }
-
-            if (targetServiceUrl.Length == 0)
-            {
-                throw new ArgumentException("targetServiceUrl is empty.");
-            }
+            CommonUtils.AssertNotNullOrEmpty(targetServiceUrl, "targetServiceUrl parameter cannot be null or empty.");
 
             if (ServiceTicketManager == null)
             {
@@ -469,6 +446,95 @@ namespace DotNetCasClient
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Redirects the current request to the CAS Login page
+        /// </summary>
+        public static void RedirectToLoginPage()
+        {
+            RedirectToLoginPage(Renew);
+        }
+
+        /// <summary>
+        /// Redirects the current request to the Login page and requires renewed
+        /// CAS credentials
+        /// </summary>
+        public static void RedirectToLoginPage(bool forceRenew)
+        {
+            Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            string redirectUrl = UrlUtil.ConstructLoginRedirectUrl(false, forceRenew);
+            response.Redirect(redirectUrl, false);
+        }
+
+        /// <summary>
+        /// Redirects the current request to the Cookies Required page
+        /// </summary>
+        public static void RedirectToCookiesRequiredPage()
+        {
+            Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            response.Redirect(UrlUtil.ResolveUrl(CookiesRequiredUrl), false);
+        }
+
+        /// <summary>
+        /// Redirects the current request to the Not Authorized page
+        /// </summary>
+        public static void RedirectToNotAuthorizedPage()
+        {
+            Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpResponse response = context.Response;
+
+            response.Redirect(UrlUtil.ResolveUrl(NotAuthorizedUrl), false);
+        }
+
+        /// <summary>
+        /// Redirects the current request back to the requested page without
+        /// the CAS ticket artifact in the URL.
+        /// </summary>
+        internal static void RedirectFromLoginCallback()
+        {
+            Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+            HttpResponse response = context.Response;
+
+            if (RequestEvaluator.GetRequestHasGatewayParameter())
+            {
+                // TODO: Only set Success if request is authenticated?  Otherwise Failure.  
+                // Doesn't make a difference from a security perspective, but may be clearer for users
+                SetGatewayStatusCookie(GatewayStatus.Success);
+            }
+
+            response.Redirect(UrlUtil.RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri), false);
+        }
+
+        /// <summary>
+        /// Redirects the current request back to the requested page without
+        /// the gateway callback artifact in the URL.
+        /// </summary>
+        internal static void RedirectFromFailedGatewayCallback()
+        {
+            Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+            HttpResponse response = context.Response;
+            
+            SetGatewayStatusCookie(GatewayStatus.Failed);
+
+            string urlWithoutCasArtifact = UrlUtil.RemoveCasArtifactsFromUrl(request.Url.AbsoluteUri);
+            response.Redirect(urlWithoutCasArtifact, false);
         }
 
         /// <summary>
@@ -666,8 +732,7 @@ namespace DotNetCasClient
             try
             {
                 // Attempt to authenticate the ticket and resolve to an ICasPrincipal
-                bool gateway = RequestEvaluator.GetRequestHasGatewayParameter();
-                string serviceUrl = UrlUtil.ConstructServiceUri(gateway);
+                string serviceUrl = UrlUtil.ConstructServiceUri(RequestEvaluator.GetRequestHasGatewayParameter());
                 principal = TicketValidator.Validate(ticket, serviceUrl);
 
                 // Save the ticket in the FormsAuthTicket.  Encrypt the ticket and send it as a cookie. 
@@ -980,15 +1045,8 @@ namespace DotNetCasClient
         /// <returns>Instance of a FormsAuthenticationTicket</returns>
         public static FormsAuthenticationTicket CreateFormsAuthenticationTicket(string netId, string cookiePath, string serviceTicket, DateTime? validFromDate, DateTime? validUntilDate)
         {
-            if (String.IsNullOrEmpty(netId))
-            {
-                throw new ArgumentNullException("netId");
-            }
-
-            if (String.IsNullOrEmpty(serviceTicket))
-            {
-                throw new ArgumentNullException("serviceTicket");
-            }
+            CommonUtils.AssertNotNullOrEmpty(netId, "netId parameter cannot be null or empty.");
+            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
 
             Initialize();
 
@@ -1087,14 +1145,14 @@ namespace DotNetCasClient
         {
             // XmlUtils.GetTextForElement wasn't handling namespaces correctly. 
             // Existing SingleSignOut implementation wasn't working correctly.
-            XmlParserContext xmlParserContext = new XmlParserContext(null, _xmlNamespaceManager, null, XmlSpace.None);
+            XmlParserContext xmlParserContext = new XmlParserContext(null, xmlNamespaceManager, null, XmlSpace.None);
 
             string elementText = null;
             if (!String.IsNullOrEmpty(xmlAsString) && !String.IsNullOrEmpty(XML_SESSION_INDEX_ELEMENT_NAME))
             {
                 using (TextReader textReader = new StringReader(xmlAsString))
                 {
-                    XmlReader reader = XmlReader.Create(textReader, _xmlReaderSettings, xmlParserContext);
+                    XmlReader reader = XmlReader.Create(textReader, xmlReaderSettings, xmlParserContext);
                     bool foundElement = reader.ReadToFollowing(XML_SESSION_INDEX_ELEMENT_NAME);
                     if (foundElement)
                     {
@@ -1118,7 +1176,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _ticketValidatorName;
+                return ticketValidatorName;
             }
         }
 
@@ -1133,7 +1191,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _ticketValidator;
+                return ticketValidator;
             }
         }
 
@@ -1149,7 +1207,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _serviceTicketManagerProvider;
+                return serviceTicketManagerProvider;
             }
         }
 
@@ -1166,7 +1224,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _serviceTicketManager;
+                return serviceTicketManager;
             }
         }
 
@@ -1182,7 +1240,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _proxyTicketManagerProvider;
+                return proxyTicketManagerProvider;
             }
         }
 
@@ -1197,7 +1255,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _proxyTicketManager;
+                return proxyTicketManager;
             }
         }
 
@@ -1210,7 +1268,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _gateway;
+                return gateway;
             }
         }
 
@@ -1224,7 +1282,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _gatewayStatusCookieName;
+                return gatewayStatusCookieName;
             }
         }
 
@@ -1236,7 +1294,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _formsLoginUrl;
+                return formsLoginUrl;
             }
         }
 
@@ -1248,7 +1306,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _formsTimeout;
+                return formsTimeout;
             }
         }
 
@@ -1260,7 +1318,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _casServerLoginUrl;
+                return casServerLoginUrl;
             }
         }
 
@@ -1274,7 +1332,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _casServerUrlPrefix;
+                return casServerUrlPrefix;
             }
         }
 
@@ -1290,7 +1348,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _ticketTimeTolerance;
+                return ticketTimeTolerance;
             }
         }
 
@@ -1304,7 +1362,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _serverName;
+                return serverName;
             }
         }
 
@@ -1318,7 +1376,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _renew;
+                return renew;
             }
         }
 
@@ -1331,7 +1389,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _artifactParameterName;
+                return artifactParameterName;
             }
         }
 
@@ -1344,7 +1402,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _serviceParameterName;
+                return serviceParameterName;
             }
         }
 
@@ -1357,7 +1415,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _redirectAfterValidation;
+                return redirectAfterValidation;
             }
         }
 
@@ -1369,7 +1427,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _singleSignOut;
+                return singleSignOut;
             }
         }
 
@@ -1385,7 +1443,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _notAuthorizedUrl;
+                return notAuthorizedUrl;
             }
         }
 
@@ -1401,7 +1459,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _cookiesRequiredUrl;
+                return cookiesRequiredUrl;
             }
         }
 
@@ -1418,7 +1476,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _gatewayParameterName;
+                return gatewayParameterName;
             }
         }
 
@@ -1433,7 +1491,7 @@ namespace DotNetCasClient
             get
             {
                 Initialize();
-                return _proxyCallbackParameterName;
+                return proxyCallbackParameterName;
             }
         }
         #endregion

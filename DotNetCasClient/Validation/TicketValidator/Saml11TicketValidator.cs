@@ -17,7 +17,6 @@
  * under the License.
  */
 
-using System;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -113,7 +112,26 @@ namespace DotNetCasClient.Validation.TicketValidator
                 if (Log.IsDebugEnabled)
                 {
                     Log.Debug(string.Format("{0}:Valid Assertion found", CommonUtils.MethodName));
-                    Log.Debug(string.Format("{0}:CasAssertion:{1}", CommonUtils.MethodName, DebugUtils.PrincipalToString(casSaml11Response.CasPrincipal, Environment.NewLine, "  ", 2, ">", true)));
+
+                    Log.Debug(string.Format(
+                        "{0}:CasAssertion Type={1}, " +
+                        "Identity.Name={2}, " +
+                        "Identity.AuthenticationType={3}, " +
+                        "Identity.IsAuthenticated={4}, " +
+                        "Assertion.ValidFromDate={5}, " +
+                        "Assertion.ValidUntilDate={6}, " +
+                        "Assertion.PrincipalName={7}, " +
+                        "Assertion.AttributeCount={8}",
+                        CommonUtils.MethodName,
+                        casSaml11Response.CasPrincipal.GetType().Name,
+                        casSaml11Response.CasPrincipal.Identity.Name,
+                        casSaml11Response.CasPrincipal.Identity.AuthenticationType,
+                        casSaml11Response.CasPrincipal.Identity.IsAuthenticated,
+                        casSaml11Response.CasPrincipal.Assertion.ValidFromDate,
+                        casSaml11Response.CasPrincipal.Assertion.ValidUntilDate,
+                        casSaml11Response.CasPrincipal.Assertion.PrincipalName,
+                        casSaml11Response.CasPrincipal.Assertion.Attributes.Count
+                    ));
                 }
                 return casSaml11Response.CasPrincipal;
             }

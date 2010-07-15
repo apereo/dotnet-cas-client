@@ -71,14 +71,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">serviceTicket is empty</exception>
         public CasAuthenticationTicket GetTicket(string serviceTicket)
         {
-            if (serviceTicket == null)
-            {
-                throw new ArgumentNullException("serviceTicket");
-            }
-            if (serviceTicket.Length == 0)
-            {
-                throw new ArgumentException("serviceTicket is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
 
             string key = GetTicketKey(serviceTicket);
             if (HttpContext.Current.Cache[key] != null)
@@ -98,10 +91,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentNullException">casAuthenticationTicket is null</exception>
         public void InsertTicket(CasAuthenticationTicket casAuthenticationTicket, DateTime expiration)
         {
-            if (casAuthenticationTicket == null)
-            {
-                throw new ArgumentNullException("casAuthenticationTicket");
-            }
+            CommonUtils.AssertNotNull(casAuthenticationTicket, "casAuthenticationTicket parameter cannot be null.");
 
             // Don't enforce sliding expiration on the cache entry.  Sliding expiration 
             // is handled by the HttpModule
@@ -117,10 +107,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentNullException">casAuthenticationTicket is null</exception>
         public void UpdateTicketExpiration(CasAuthenticationTicket casAuthenticationTicket, DateTime newExpiration)
         {
-            if (casAuthenticationTicket == null)
-            {
-                throw new ArgumentNullException("casAuthenticationTicket");
-            }
+            CommonUtils.AssertNotNull(casAuthenticationTicket, "casAuthenticationTicket parameter cannot be null.");
 
             RevokeTicket(casAuthenticationTicket.ServiceTicket);
             InsertTicket(casAuthenticationTicket, newExpiration);
@@ -135,14 +122,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">serviceTicket is empty</exception>
         public void RevokeTicket(string serviceTicket)
         {
-            if (serviceTicket == null)
-            {
-                throw new ArgumentNullException("serviceTicket");
-            }
-            if (serviceTicket.Length == 0)
-            {
-                throw new ArgumentException("serviceTicket is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
 
             string key = GetTicketKey(serviceTicket);
             if (HttpContext.Current.Cache[key] != null)
@@ -167,14 +147,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">serviceTicket is empty</exception>
         public bool ContainsTicket(string serviceTicket)
         {
-            if (serviceTicket == null)
-            {
-                throw new ArgumentNullException("serviceTicket");
-            }
-            if (serviceTicket.Length == 0)
-            {
-                throw new ArgumentException("serviceTicket is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
 
             IDictionaryEnumerator enumerator = HttpContext.Current.Cache.GetEnumerator();
             while (enumerator.MoveNext())
@@ -203,14 +176,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">The netId supplied is empty</exception>
         public void RevokeUserTickets(string netId)
         {
-            if (netId == null)
-            {
-                throw new ArgumentNullException("netId");
-            }
-            if (netId.Length == 0)
-            {
-                throw new ArgumentException("netId is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(netId, "netId parameter cannot be null or empty.");
 
             IEnumerable<CasAuthenticationTicket> allTickets = GetAllTickets();
             foreach (CasAuthenticationTicket ticket in allTickets)
@@ -253,14 +219,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">netId is empty</exception>
         public IEnumerable<CasAuthenticationTicket> GetUserTickets(string netId)
         {
-            if (netId == null)
-            {
-                throw new ArgumentNullException("netId");
-            }
-            if (netId.Length == 0)
-            {
-                throw new ArgumentException("netId is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(netId, "netId parameter cannot be null or empty.");
 
             IDictionaryEnumerator enumerator = HttpContext.Current.Cache.GetEnumerator();
             while (enumerator.MoveNext())
@@ -309,14 +268,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">netId is empty</exception>
         public IEnumerable<string> GetUserServiceTickets(string netId)
         {
-            if (netId == null)
-            {
-                throw new ArgumentNullException("netId");
-            }
-            if (netId.Length == 0)
-            {
-                throw new ArgumentException("netId is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(netId, "netId parameter cannot be null or empty.");
 
             IDictionaryEnumerator enumerator = HttpContext.Current.Cache.GetEnumerator();
             while (enumerator.MoveNext())
@@ -362,10 +314,7 @@ namespace DotNetCasClient.State
         /// </returns>
         public bool VerifyClientTicket(CasAuthenticationTicket casAuthenticationTicket)
         {
-            if (casAuthenticationTicket == null)
-            {
-                throw new ArgumentNullException("casAuthenticationTicket");
-            }
+            CommonUtils.AssertNotNull(casAuthenticationTicket, "casAuthenticationTicket parameter cannot be null.");
 
             string incomingServiceTicket = casAuthenticationTicket.ServiceTicket;
             CasAuthenticationTicket cacheAuthTicket = GetTicket(incomingServiceTicket);
@@ -443,14 +392,7 @@ namespace DotNetCasClient.State
         /// <exception cref="ArgumentException">serviceTicket is empty</exception>
         private static string GetTicketKey(string serviceTicket)
         {
-            if (serviceTicket == null)
-            {
-                throw new ArgumentNullException("serviceTicket");
-            }
-            if (serviceTicket.Length == 0)
-            {
-                throw new ArgumentException("serviceTicket is empty");
-            }
+            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
 
             return CACHE_TICKET_KEY_PREFIX + serviceTicket;
         }

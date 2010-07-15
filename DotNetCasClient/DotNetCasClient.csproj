@@ -82,10 +82,8 @@
     <Compile Include="State\IProxyTicketManager.cs" />
     <Compile Include="State\IServiceTicketManager.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
-    <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Utils\EnhancedUriBuilder.cs" />
     <Compile Include="Utils\HttpUtil.cs" />
-    <Compile Include="Utils\RedirectUtil.cs" />
     <Compile Include="Utils\RequestEvaluator.cs" />
     <Compile Include="Utils\UrlUtil.cs" />
     <Compile Include="Utils\XmlUtils.cs" />

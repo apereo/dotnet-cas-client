@@ -28,7 +28,7 @@ namespace DotNetCasClient.Utils
     /// An internal class used to generate and modify URLs
     /// as needed for redirection and external communication.
     ///</summary>
-    internal sealed class UrlUtil
+    public sealed class UrlUtil
     {
         private static readonly ILog Log = LogManager.GetLogger("UrlUtil");
 
@@ -45,11 +45,10 @@ namespace DotNetCasClient.Utils
         /// <returns>The fullly resolved Url</returns>
         internal static string ResolveUrl(string url)
         {
-            CasAuthentication.Initialize();
-
-            if (url == null) throw new ArgumentNullException("url", "url can not be null");
-            if (url.Length == 0) throw new ArgumentException("The url can not be an empty string", "url");
+            CommonUtils.AssertNotNullOrEmpty(url, "url parameter can not be null or empty.");
             if (url[0] != '~') return url;
+
+            CasAuthentication.Initialize();
 
             string applicationPath = HttpContext.Current.Request.ApplicationPath;
             if (url.Length == 1) return applicationPath;
@@ -134,7 +133,7 @@ namespace DotNetCasClient.Utils
             return url;
         }
         
-        internal static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
+        public static string ConstructProxyTicketRequestUrl(string proxyGrantingTicketId, string targetService)
         {
             CasAuthentication.Initialize();
 
@@ -285,10 +284,7 @@ namespace DotNetCasClient.Utils
 
         internal static string RemoveCasArtifactsFromUrl(string url)
         {
-            if (url == null)
-            {
-                throw new ArgumentNullException("url");
-            }
+            CommonUtils.AssertNotNullOrEmpty(url, "url parameter can not be null or empty.");
 
             CasAuthentication.Initialize();
 

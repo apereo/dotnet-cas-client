@@ -154,13 +154,6 @@ namespace DotNetCasClient.Utils
                 !requestIsNotAuthorizedUrl
             );
 
-            /*
-            if (result && System.Diagnostics.Debugger.IsAttached)
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-            */
-
             return result;
         }
 
@@ -191,13 +184,6 @@ namespace DotNetCasClient.Utils
                 requestIsNotCookiesRequiredUrl
             );
 
-            /*
-            if (result && System.Diagnostics.Debugger.IsAttached)
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-            */
-
             return result;
         }
 
@@ -223,13 +209,6 @@ namespace DotNetCasClient.Utils
                responseIsCasLoginRedirect
             );
 
-            /*
-            if (result && System.Diagnostics.Debugger.IsAttached)
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-            */
-
             return result;
         }
 
@@ -249,13 +228,6 @@ namespace DotNetCasClient.Utils
                 userIsNotAuthenticated &&
                 responseIsCasLoginRedirect
             );
-
-            /*
-            if (result && System.Diagnostics.Debugger.IsAttached)
-            {
-                System.Diagnostics.Debugger.Break();
-            }
-            */
 
             return result;
         }
@@ -319,7 +291,6 @@ namespace DotNetCasClient.Utils
             bool result =
             (
                context.User != null &&
-               context.User.Identity != null &&
                context.User.Identity.IsAuthenticated
             );
 
