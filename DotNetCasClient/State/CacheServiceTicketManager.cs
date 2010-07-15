@@ -28,9 +28,10 @@ using log4net;
 namespace DotNetCasClient.State
 {
     /// <summary>
-    /// An ASP.NET Cache provider implementation of the IServiceTicketManager interface.
-    /// This class allows for server-side ticket management using the cache 
-    /// capabilities built into ASP.NET.
+    /// An IServiceTicketManager implementation that relies on the ASP.NET Caching model for ticket 
+    /// storage.  Generally this implies that the ticket storage is maintained locally on the web
+    /// server (either in memory or on disk).  A limitation of this model is that it will not 
+    /// support clustered, load balanced, or round-robin style configurations.
     /// </summary>
     public sealed class CacheServiceTicketManager : IServiceTicketManager
     {

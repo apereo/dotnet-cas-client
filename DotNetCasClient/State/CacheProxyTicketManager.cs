@@ -23,6 +23,12 @@ using System.Web.Caching;
 
 namespace DotNetCasClient.State
 {
+    ///<summary>
+    /// An IProxyTicketManager implementation that relies on the ASP.NET Caching model for ticket 
+    /// storage.  Generally this implies that the ticket storage is maintained locally on the web
+    /// server (either in memory or on disk).  A limitation of this model is that it will not 
+    /// support clustered, load balanced, or round-robin style configurations.
+    ///</summary>
     public class CacheProxyTicketManager : IProxyTicketManager
     {
         private static readonly TimeSpan DefaultExpiration = new TimeSpan(0, 0, 3, 0); // 180 seconds

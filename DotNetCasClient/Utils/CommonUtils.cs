@@ -75,6 +75,7 @@ namespace DotNetCasClient.Utils
         {
             get
             {
+                // TODO: Check if this relies on reflection (i.e., will not work in Low/Medium trust configurations)
                 return new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name;
             }
         }
@@ -87,6 +88,7 @@ namespace DotNetCasClient.Utils
         {
             get
             {
+                // TODO: Check if this relies on reflection (i.e., will not work in Low/Medium trust configurations)
                 return new System.Diagnostics.StackTrace().GetFrame(2).GetMethod().Name;
             }
         }

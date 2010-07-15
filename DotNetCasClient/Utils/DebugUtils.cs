@@ -30,11 +30,19 @@ using log4net;
 
 namespace DotNetCasClient.Utils
 {
+    /// <summary>
+    /// A set of utility methods for debugging and diagnostic purposes
+    /// </summary>
     public sealed class DebugUtils
     {
         private static readonly ILog Log = LogManager.GetLogger("DebugUtils");
 
-        public static string IPrincipalToString(IPrincipal principal)
+        /// <summary>
+        /// Returns a string representation of the IPrincipal supplied.
+        /// </summary>
+        /// <param name="principal">IPrincipal to represent as a string</param>
+        /// <returns>The string representation of the IPrincipal</returns>
+        public static string PrincipalToString(IPrincipal principal)
         {
             if (principal == null)
             {
@@ -47,18 +55,23 @@ namespace DotNetCasClient.Utils
 
                 return string.Format("Type>{0}< Identity[{1}] Assertion[{2}]",
                     principal.GetType().Name,
-                    IIdentityToString(casPrincipal.Identity),
+                    IdentityToString(casPrincipal.Identity),
                     AssertionToString(casPrincipal.Assertion)
                 );
             }
 
             return string.Format("Type>{0}< Identity[{1}]",
                 principal.GetType().Name,
-                IIdentityToString(principal.Identity)
+                IdentityToString(principal.Identity)
             );
         }
 
-        public static string IIdentityToString(IIdentity identity)
+        /// <summary>
+        /// Returns a string representation of the IIdentity supplied.
+        /// </summary>
+        /// <param name="identity">IIdentity to represent as a string</param>
+        /// <returns>The string representation of the IIdentity</returns>
+        public static string IdentityToString(IIdentity identity)
         {
             string identityDisplay = "NULL";
             if (identity != null)
@@ -71,6 +84,11 @@ namespace DotNetCasClient.Utils
             return identityDisplay;
         }
 
+        /// <summary>
+        /// Returns a string representation of the IAssertion supplied.
+        /// </summary>
+        /// <param name="assertion">IAssertion to represent as a string</param>
+        /// <returns>The string representation of the IAssertion</returns>
         public static string AssertionToString(IAssertion assertion)
         {
             string assertionDisplay = "NULL";
@@ -88,31 +106,46 @@ namespace DotNetCasClient.Utils
             return assertionDisplay;
         }
 
+        /// <summary>
+        /// Returns a string representation of the HttpContext supplied.
+        /// </summary>
+        /// <param name="context">HttpContext to represent as a string</param>
+        /// <returns>The string representation of the HttpContext</returns>
         public static string ContextToString(HttpContext context)
         {
             string contextDisplay = "NULL";
             if (context != null)
             {
-                contextDisplay = IPrincipalToString(context.User);
+                contextDisplay = PrincipalToString(context.User);
             }
 
             return string.Format("Context.User[{0}]{1}             Thread.CurrentPrincipal[{2}]",
                   contextDisplay,
                   Environment.NewLine,
-                  IPrincipalToString(System.Threading.Thread.CurrentPrincipal)
+                  PrincipalToString(System.Threading.Thread.CurrentPrincipal)
             );
         }
 
+        /// <summary>
+        /// Returns a string representation of the FormsAuthenticationEventArgs supplied.
+        /// </summary>
+        /// <param name="faa">FormsAuthenticationEventArgs to represent as a string</param>
+        /// <returns>The string representation of the FormsAuthenticationEventArgs</returns>
         public static string FormsAuthEventArgsToString(FormsAuthenticationEventArgs faa)
         {
             string principalDisplay = "UNDEFINED";
             if (faa != null && faa.User != null)
             {
-                principalDisplay = IPrincipalToString(faa.User);
+                principalDisplay = PrincipalToString(faa.User);
             }
             return string.Format("User[{0}]", principalDisplay);
         }
 
+        /// <summary>
+        /// Returns a string representation of the supplied HttpContext's response.
+        /// </summary>
+        /// <param name="context">HttpContext to represent as a string</param>
+        /// <returns>The string representation of the HttpContext</returns>
         public static string HttpResponseToString(HttpContext context)
         {
             string responseDisplay = "NULL";
@@ -124,6 +157,11 @@ namespace DotNetCasClient.Utils
             return responseDisplay;
         }
 
+        /// <summary>
+        /// Returns a string representation of the supplied HttpContext's request.
+        /// </summary>
+        /// <param name="context">HttpContext to represent as a string</param>
+        /// <returns>The string representation of the HttpContext</returns>
         public static string HttpRequestToString(HttpContext context)
         {
             string requestDisplay = "NULL";
@@ -135,6 +173,11 @@ namespace DotNetCasClient.Utils
             return requestDisplay;
         }
 
+        /// <summary>
+        /// Returns a string representation of the supplied HttpApplication's session.
+        /// </summary>
+        /// <param name="application">HttpApplication to represent as a string</param>
+        /// <returns>The string representation of the HttpApplication</returns>
         public static string HttpSessionToString(HttpApplication application)
         {
             string contextSessionDisplay = "NULL";
@@ -194,10 +237,7 @@ namespace DotNetCasClient.Utils
                 }
             }
 
-            return string.Format("authcookie [{0}] authticket [{1}]",
-                cookieDisplay,
-                fatDisplay
-            );
+            return string.Format("authcookie [{0}] authticket [{1}]", cookieDisplay, fatDisplay);
         }
 
         public static string CookieToString(HttpCookie cookie)
@@ -330,7 +370,7 @@ namespace DotNetCasClient.Utils
             return sb.ToString();
         }
 
-        public static string IPrincipalToString(IPrincipal principal, string newLineDelim, string initialLineIndent, int initialLineIndentCount, string dataDelim, bool useDelimAlways)
+        public static string PrincipalToString(IPrincipal principal, string newLineDelim, string initialLineIndent, int initialLineIndentCount, string dataDelim, bool useDelimAlways)
         {
             StringBuilder sb = new StringBuilder();
             string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
@@ -353,7 +393,7 @@ namespace DotNetCasClient.Utils
             else
             {
                 sb.AppendFormat("{0}Type: {1}{2}", memberLineIndent, DataNullEmptyDisplay(principal.GetType().Name, dataDelim, useDelimAlways), newLineDelim);
-                sb.Append(IIdentityToString(principal.Identity, newLineDelim, initialLineIndent, memberLineIndentCount, dataDelim, useDelimAlways));
+                sb.Append(IdentityToString(principal.Identity, newLineDelim, initialLineIndent, memberLineIndentCount, dataDelim, useDelimAlways));
                 if (typeof(CasPrincipal) == principal.GetType())
                 {
                     memberLineIndentCount += 2;
@@ -365,7 +405,7 @@ namespace DotNetCasClient.Utils
         }
 
 
-        public static string IIdentityToString(IIdentity identity, string newLineDelim, string initialLineIndent, int initialLineIndentCount, string dataDelim, bool useDelimAlways)
+        public static string IdentityToString(IIdentity identity, string newLineDelim, string initialLineIndent, int initialLineIndentCount, string dataDelim, bool useDelimAlways)
         {
             StringBuilder sb = new StringBuilder();
             string lineIndent = GenerateLineIndent(initialLineIndent, initialLineIndentCount);
@@ -461,11 +501,11 @@ namespace DotNetCasClient.Utils
             {
                 Log.DebugFormat("{0}:context.user principal: {1}",
                     CommonUtils.ParentMethodName,
-                    IPrincipalToString(application.Context.User, Environment.NewLine, "", 0, ">", true));
+                    PrincipalToString(application.Context.User, Environment.NewLine, "", 0, ">", true));
                 
                 Log.DebugFormat("{0}:thread principal: {1}",
                     CommonUtils.ParentMethodName,
-                    IPrincipalToString(System.Threading.Thread.CurrentPrincipal, Environment.NewLine, "", 0, ">", true));
+                    PrincipalToString(System.Threading.Thread.CurrentPrincipal, Environment.NewLine, "", 0, ">", true));
             }
         }
 

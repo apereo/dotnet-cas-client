@@ -27,31 +27,18 @@ namespace DotNetCasClient.Configuration
     /// </summary>
     class CasClientConfiguration : ConfigurationSection
     {
-        public static CasClientConfiguration Config
-        {
-            get
-            {
-                return ConfigurationManager.GetSection("casClientConfig") as CasClientConfiguration;
-            }
-        }
-
-        /// <summary>
-        /// Required Properties
-        /// </summary>
+        #region Fields
+        // Required Properties
         public const string CAS_SERVER_LOGIN_URL = "casServerLoginUrl";
         public const string CAS_SERVER_URL_PREFIX = "casServerUrlPrefix";
         public const string TICKET_VALIDATOR_NAME = "ticketValidatorName";
 
-        /// <summary>
-        /// One of these Properties must be set. If both are set, service takes
-        /// precedence.
-        /// </summary>
+        // One of these Properties must be set. If both are set, service takes
+        // precedence.
         public const string SERVER_NAME = "serverName";
         public const string SERVICE = "service";
 
-        /// <summary>
-        /// Optional Properties
-        /// </summary>
+        // Optional Properties
         public const string RENEW = "renew";
         public const string GATEWAY = "gateway";
         public const string GATEWAY_STATUS_COOKIE_NAME = "gatewayStatusCookieName";
@@ -76,22 +63,30 @@ namespace DotNetCasClient.Configuration
         public const string GATEWAY_PARAMETER_NAME = "gatewayParameterName";
         public const string PROXY_CALLBACK_PARAMETER_NAME = "proxyCallbackParameterName";
 
-        /// <summary>
-        /// Names for the supported ticket validators
-        /// </summary>
+        // Names for the supported ticket validators
         public const string CAS10_TICKET_VALIDATOR_NAME = "Cas10";
         public const string CAS20_TICKET_VALIDATOR_NAME = "Cas20";
         public const string SAML11_TICKET_VALIDATOR_NAME = "Saml11";
 
-        /// <summary>
-        /// Names for the supported Service Ticket state provider
-        /// </summary>
+        // Names for the supported Service Ticket state provider
         public const string CACHE_SERVICE_TICKET_MANAGER = "CacheServiceTicketManager";
 
-        /// <summary>
-        /// Names for the supported Cache Ticket state provider
-        /// </summary>
+        // Names for the supported Cache Ticket state provider
         public const string CACHE_PROXY_TICKET_MANAGER = "CacheProxyTicketManager";
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// The CasClientConfiguration configuration element defined 
+        /// in web.config
+        /// </summary>
+        public static CasClientConfiguration Config
+        {
+            get
+            {
+                return ConfigurationManager.GetSection("casClientConfig") as CasClientConfiguration;
+            }
+        }
 
         /// <summary>
         /// Defines the exact CAS server login URL.
@@ -373,5 +368,6 @@ namespace DotNetCasClient.Configuration
                 return this[PROXY_CALLBACK_PARAMETER_NAME] as string;
             }
         }
-   }
+        #endregion
+    }
 }

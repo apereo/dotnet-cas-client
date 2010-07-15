@@ -113,7 +113,7 @@ namespace DotNetCasClient.Validation.TicketValidator
                 if (Log.IsDebugEnabled)
                 {
                     Log.Debug(string.Format("{0}:Valid Assertion found", CommonUtils.MethodName));
-                    Log.Debug(string.Format("{0}:CasAssertion:{1}", CommonUtils.MethodName, DebugUtils.IPrincipalToString(casSaml11Response.CasPrincipal, Environment.NewLine, "  ", 2, ">", true)));
+                    Log.Debug(string.Format("{0}:CasAssertion:{1}", CommonUtils.MethodName, DebugUtils.PrincipalToString(casSaml11Response.CasPrincipal, Environment.NewLine, "  ", 2, ">", true)));
                 }
                 return casSaml11Response.CasPrincipal;
             }
