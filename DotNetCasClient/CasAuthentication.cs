@@ -289,7 +289,7 @@ namespace DotNetCasClient
         /// <param name="url">The foreign service to redirect to</param>
         /// <param name="endResponse">
         /// Boolean indicating whether or not to short circuit the remaining request 
-        /// pipelline  events
+        /// pipeline events
         /// </param>
         /// <exception cref="ArgumentNullException">The url supplied is null</exception>
         /// <exception cref="ArgumentException">The url supplied is empty</exception>
@@ -326,7 +326,7 @@ namespace DotNetCasClient
         /// </param>
         /// <param name="endResponse">
         /// Boolean indicating whether or not to short circuit the remaining request 
-        /// pipelline  events
+        /// pipeline events
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// The url or proxyTicketUrlParameter supplied is null
