@@ -38,6 +38,7 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Holodak (.Net)</author>
     class Cas20ServiceTicketValidator : AbstractUrlTicketValidator
     {
+        #region Properties
         /// <summary>
         /// The default name of the request parameter whose value is the artifact
         /// for the CAS 1.0 protocol.
@@ -80,7 +81,12 @@ namespace DotNetCasClient.Validation.TicketValidator
                 }
             }
         }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Performs Cas20ServiceTicketValidator initialization.
+        /// </summary>
         public override void Initialize()
         {
             if (CasAuthentication.ProxyTicketManager != null)
@@ -175,5 +181,6 @@ namespace DotNetCasClient.Validation.TicketValidator
 
             throw new TicketValidationException("Failed to validate CAS ticket.");
         }
+        #endregion
     }
 }

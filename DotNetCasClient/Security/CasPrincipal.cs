@@ -33,6 +33,7 @@ namespace DotNetCasClient.Security
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
+    /// <author>Scott Holodak (.Net)</author>
     [Serializable]
     public class CasPrincipal : ICasPrincipal
     {

@@ -1143,8 +1143,6 @@ namespace DotNetCasClient
         /// <returns>The CAS ticket contained in SAML message</returns>
         private static string ExtractSingleSignOutTicketFromSamlResponse(string xmlAsString)
         {
-            // XmlUtils.GetTextForElement wasn't handling namespaces correctly. 
-            // Existing SingleSignOut implementation wasn't working correctly.
             XmlParserContext xmlParserContext = new XmlParserContext(null, xmlNamespaceManager, null, XmlSpace.None);
 
             string elementText = null;

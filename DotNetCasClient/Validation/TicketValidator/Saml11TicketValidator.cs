@@ -36,6 +36,7 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Battaglia</author>
     /// <author>Catherine D. Winfrey (.Net)</author>
     /// <author>Marvin S. Addison</author>
+    /// <author>Scott Holodak (.Net)</author>
     class Saml11TicketValidator : AbstractUrlTicketValidator
     {
         #region Properties
@@ -77,6 +78,10 @@ namespace DotNetCasClient.Validation.TicketValidator
         }
         #endregion
 
+        #region Methods
+        /// <summary>
+        /// Performs Saml11TicketValidator initialization.
+        /// </summary>
         public override void Initialize()
         {
             // Do nothing
@@ -249,5 +254,6 @@ namespace DotNetCasClient.Validation.TicketValidator
             
             return validateUriData;
         }
+        #endregion
     }
 }

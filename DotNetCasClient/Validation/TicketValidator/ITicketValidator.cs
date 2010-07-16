@@ -35,8 +35,46 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
+    /// <author>Scott Holodak (.Net)</author>
     interface ITicketValidator
     {
+        #region Properties
+        /// <summary>
+        /// The name of the request parameter whose value is the artifact for the
+        /// cas protocol.  The default values are defined in DefaultArtifactParameterName,
+        /// but these can be overridden in web.config.
+        /// </summary>
+        string ArtifactParameterName
+        {
+            get;
+        }
+
+        /// <summary>
+        /// The default name of the request parameter whose value is the service
+        /// for the protocol.  The default values are defined in 
+        /// DefaultServiceParameterName, but these can be overridden in web.config.
+        /// </summary>
+        string ServiceParameterName
+        {
+            get;
+        }
+
+        /// <summary>
+        /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
+        /// i.e. validate or serviceValidate.
+        /// <list>
+        ///   <item>CAS 1.0:  validate</item>
+        ///   <item>CAS 2.0:  serviceValidate or proxyValidate</item>
+        ///   <item>SAML 1.1: samlValidate</item>
+        /// </list>
+        /// </summary>
+        string UrlSuffix
+        {
+            get;
+        }
+        #endregion
+
+        #region Methods
         /// <summary>
         /// You retrieve CasAuthentication properties in the constructor or else you will cause 
         /// a StackOverflow.  CasAuthentication.Initialize() will call Initialize() on all 
@@ -58,22 +96,6 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// Thrown if ticket validation fails.
         /// </exception>
         ICasPrincipal Validate(string ticket, string service);
-
-        string UrlSuffix
-        {
-            get;
-        }
-
-        string ArtifactParameterName
-        {
-            get;
-        }
-
-        string ServiceParameterName
-        {
-            get;
-        }
+        #endregion
     }
 }
-
-

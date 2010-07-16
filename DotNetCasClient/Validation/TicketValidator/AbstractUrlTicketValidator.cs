@@ -37,12 +37,16 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
     /// <author>Marvin S. Addison</author>
+    /// <author>Scott Holodak (.Net)</author>
     abstract class AbstractUrlTicketValidator : ITicketValidator
     {
+        #region Fields
         protected static readonly ILog Log = LogManager.GetLogger("AbstractUrlTicketValidator");
 
         private NameValueCollection _CustomParameters;
+        #endregion
 
+        #region Properties
         /// <summary>
         /// Custom parameters to pass to the validation URL.
         /// </summary>        
@@ -58,24 +62,41 @@ namespace DotNetCasClient.Validation.TicketValidator
             }
         }
 
-        public abstract void Initialize();
-
+        /// <summary>
+        /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
+        /// i.e. validate or serviceValidate.
+        /// <list>
+        ///   <item>CAS 1.0:  validate</item>
+        ///   <item>CAS 2.0:  serviceValidate or proxyValidate</item>
+        ///   <item>SAML 1.1: samlValidate</item>
+        /// </list>
+        /// </summary>
         public abstract string UrlSuffix
         {
             get;
         }
 
+        /// <summary>
+        /// The default name of the request parameter whose value is the artifact
+        /// for the protocol.
+        /// <list>
+        ///   <item>CAS 1.0:  ticket</item>
+        ///   <item>CAS 2.0:  ticket</item>
+        ///   <item>SAML 1.1: SAMLart</item>
+        /// </list>
+        /// </summary>
         protected abstract string DefaultArtifactParameterName
         {
             get;
+
         }
 
-        protected abstract string DefaultServiceParameterName
-        {
-            get;
-        }
-
-        public string ArtifactParameterName
+        /// <summary>
+        /// The name of the request parameter whose value is the artifact for the
+        /// cas protocol.  The default values are defined in DefaultArtifactParameterName,
+        /// but these can be overridden in web.config.
+        /// </summary>
+        public virtual string ArtifactParameterName
         {
             get
             {
@@ -90,7 +111,26 @@ namespace DotNetCasClient.Validation.TicketValidator
             }
         }
 
-        public string ServiceParameterName
+        /// <summary>
+        /// The default name of the request parameter whose value is the service
+        /// for the protocol.
+        /// <list>
+        ///   <item>CAS 1.0:  service</item>
+        ///   <item>CAS 2.0:  service</item>
+        ///   <item>SAML 1.1: TARGET</item>
+        /// </list>
+        /// </summary>
+        protected abstract string DefaultServiceParameterName
+        {
+            get;
+        }
+
+        /// <summary>
+        /// The default name of the request parameter whose value is the service
+        /// for the protocol.  The default values are defined in 
+        /// DefaultServiceParameterName, but these can be overridden in web.config.
+        /// </summary>
+        public virtual string ServiceParameterName
         {
             get
             {
@@ -104,6 +144,13 @@ namespace DotNetCasClient.Validation.TicketValidator
                 }
             }
         }
+        #endregion
+
+        #region Abstract Methods
+        /// <summary>
+        /// Perform any initialization required for the UrlTicketValidator implementation.
+        /// </summary>
+        public abstract void Initialize();
 
         /// <summary>
         /// Parses the response from the server into a CAS Assertion and includes
@@ -121,7 +168,16 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// Thrown if creation of the Assertion fails.
         /// </exception>
         protected abstract ICasPrincipal ParseResponseFromServer(string response, string ticket);
+        #endregion
 
+        #region Concrete Methods
+        /// <summary>
+        /// Default implementation that performs an HTTP GET request to the validation URL
+        /// supplied with the supplied ticket and returns the response body as a string.
+        /// </summary>
+        /// <param name="validationUrl">The validation URL to request</param>
+        /// <param name="ticket">The ticket parameter to pass to the URL</param>
+        /// <returns></returns>
         protected virtual string RetrieveResponseFromServer(string validationUrl, string ticket)
         {
             return HttpUtil.PerformHttpGet(validationUrl, true);
@@ -195,5 +251,6 @@ namespace DotNetCasClient.Validation.TicketValidator
 
             return ParseResponseFromServer(serverResponse, ticket);
         }
+        #endregion
     }
 }

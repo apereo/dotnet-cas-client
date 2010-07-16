@@ -31,8 +31,10 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
     /// <author>Marvin S. Addison</author>
+    /// <author>Scott Holodak (.Net)</author>
     class Cas10TicketValidator : AbstractUrlTicketValidator
     {
+        #region Properties
         /// <summary>
         /// The default name of the request parameter whose value is the artifact
         /// for the CAS 1.0 protocol.
@@ -68,11 +70,13 @@ namespace DotNetCasClient.Validation.TicketValidator
                 return "validate";
             }
         }
+        #endregion
 
-        public override void Initialize()
-        {
-            // Do nothing
-        }
+        #region Methods
+        /// <summary>
+        /// Performs Cas10TicketValidator initialization.
+        /// </summary>
+        public override void Initialize() { /* Do nothing */ }
 
         /// <summary>
         /// Parses the response from the server into a CAS Assertion and includes this in
@@ -105,8 +109,6 @@ namespace DotNetCasClient.Validation.TicketValidator
                 throw new TicketValidationException("CAS Server response could not be parsed.", e);
             }
         }
-
+        #endregion
     }
 }
-
-

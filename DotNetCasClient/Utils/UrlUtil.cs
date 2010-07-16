@@ -173,6 +173,7 @@ namespace DotNetCasClient.Utils
         {
             CasAuthentication.Initialize();
 
+            // TODO: Make "proxy" configurable.
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "proxy"));
             ub.QueryItems.Add("pgt", proxyGrantingTicketId);
             ub.QueryItems.Add("targetService", HttpUtility.UrlEncode(targetService));
@@ -196,7 +197,7 @@ namespace DotNetCasClient.Utils
         /// <returns>The URL of the target service with a proxy ticket included</returns>
         internal static string GetProxyRedirectUrl(string targetService)
         {
-            return GetProxyRedirectUrl(targetService, "ticket");
+            return GetProxyRedirectUrl(targetService, CasAuthentication.TicketValidator.ArtifactParameterName);
         }
 
         /// <summary>
@@ -277,8 +278,8 @@ namespace DotNetCasClient.Utils
         internal string ConstructValidateRedirectUrl(string serviceTicket, bool requireRenewedCredentials)
         {
             CasAuthentication.Initialize();
-
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "validate"));
+            
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, CasAuthentication.TicketValidator.UrlSuffix));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, serviceTicket);
 
@@ -319,7 +320,7 @@ namespace DotNetCasClient.Utils
         {
             CasAuthentication.Initialize();
 
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "serviceValidate"));
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, CasAuthentication.TicketValidator.UrlSuffix));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, HttpUtility.UrlEncode(serviceTicket));
 
@@ -354,6 +355,7 @@ namespace DotNetCasClient.Utils
         {
             CasAuthentication.Initialize();
 
+            // TODO: Make "logout" configurable
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "logout"));
             ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
 

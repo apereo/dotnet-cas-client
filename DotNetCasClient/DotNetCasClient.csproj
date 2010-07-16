@@ -86,7 +86,6 @@
     <Compile Include="Utils\HttpUtil.cs" />
     <Compile Include="Utils\RequestEvaluator.cs" />
     <Compile Include="Utils\UrlUtil.cs" />
-    <Compile Include="Utils\XmlUtils.cs" />
     <Compile Include="Validation\TicketValidator\AbstractUrlTicketValidator.cs" />
     <Compile Include="Validation\TicketValidator\Cas10TicketValidator.cs" />
     <Compile Include="Validation\TicketValidator\Cas20ServiceTicketValidator.cs" />
