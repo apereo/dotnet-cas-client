@@ -266,6 +266,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="lib\log4net.dll" />
     <Content Include="LICENSE.txt" />
     <Content Include="NOTICE.txt" />
   </ItemGroup>
@@ -488,7 +489,6 @@
     <DotNetClientSource Include="Validation\Schema\XmlDsig\X509IssuerSerialType.cs" />
     <DotNetClientSource Include="Validation\TicketValidationException.cs" />
     -->
-    <DotNetClientBinaries Include="bin/Debug/*.dll;bin/Debug/*.pdb" />
     <DistFiles Include="$(DistWorkDir)/**" />
   </ItemGroup>
   <Target Name="BeforeBuild" DependsOnTargets="Initialize">
