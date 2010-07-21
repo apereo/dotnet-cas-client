@@ -146,7 +146,6 @@ namespace DotNetCasClient
             Log.DebugFormat("Ending AuthenticateRequest for {0}", request.RawUrl);
         }
 
-
         /// <summary>
         /// EndRequest is used to trigger the appropriate redirection.  There are
         /// currently three scenarios that require special redirections.  

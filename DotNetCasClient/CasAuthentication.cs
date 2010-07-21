@@ -593,11 +593,17 @@ namespace DotNetCasClient
 
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
-            HttpApplication application = context.ApplicationInstance;
 
-            ClearAuthCookie();
-            response.Redirect(UrlUtil.ConstructSingleSignOutRedirectUrl(), false);
-            application.CompleteRequest();
+            // Necessary for ASP.NET MVC Support.
+            if (context.User.Identity.IsAuthenticated)
+            {
+                ClearAuthCookie();
+                string singleSignOutRedirectUrl = UrlUtil.ConstructSingleSignOutRedirectUrl();
+                
+                // Leave endResponse as true.  This will throw a handled ThreadAbortException
+                // but it is necessary to support SingleSignOut in ASP.NET MVC applications.
+                response.Redirect(singleSignOutRedirectUrl, true);
+            }
         }
 
         /// <summary>
