@@ -39,28 +39,23 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Holodak (.Net)</author>
     class Saml11TicketValidator : AbstractUrlTicketValidator
     {
+        private const string SAML_ARTIFACT_PARAM = "SAMLart";
+        private const string SAML_SERVICE_PARAM = "TARGET";
+
         #region Properties
-        /// <summary>
-        /// The default name of the request parameter whose value is the artifact
-        /// for the SAML 1.1 protocol.
-        /// </summary>
-        protected override string DefaultArtifactParameterName
+        public override string ArtifactParameterName
         {
             get
             {
-                return "SAMLart";
+                return SAML_ARTIFACT_PARAM;
             }
         }
 
-        /// <summary>
-        /// The default name of the request parameter whose value is the service
-        /// for the SAML 1.1 protocol.
-        /// </summary>
-        protected override string DefaultServiceParameterName
+        public override string ServiceParameterName
         {
             get
             {
-                return "TARGET";
+                return SAML_SERVICE_PARAM;
             }
         }
 
@@ -116,27 +111,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             {
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(string.Format("{0}:Valid Assertion found", CommonUtils.MethodName));
-
-                    Log.Debug(string.Format(
-                        "{0}:CasAssertion Type={1}, " +
-                        "Identity.Name={2}, " +
-                        "Identity.AuthenticationType={3}, " +
-                        "Identity.IsAuthenticated={4}, " +
-                        "Assertion.ValidFromDate={5}, " +
-                        "Assertion.ValidUntilDate={6}, " +
-                        "Assertion.PrincipalName={7}, " +
-                        "Assertion.AttributeCount={8}",
-                        CommonUtils.MethodName,
-                        casSaml11Response.CasPrincipal.GetType().Name,
-                        casSaml11Response.CasPrincipal.Identity.Name,
-                        casSaml11Response.CasPrincipal.Identity.AuthenticationType,
-                        casSaml11Response.CasPrincipal.Identity.IsAuthenticated,
-                        casSaml11Response.CasPrincipal.Assertion.ValidFromDate,
-                        casSaml11Response.CasPrincipal.Assertion.ValidUntilDate,
-                        casSaml11Response.CasPrincipal.Assertion.PrincipalName,
-                        casSaml11Response.CasPrincipal.Assertion.Attributes.Count
-                    ));
+                    Log.DebugFormat("{0}: Valid Assertion found: {1}", CommonUtils.MethodName, casSaml11Response.CasPrincipal.Assertion);
                 }
                 return casSaml11Response.CasPrincipal;
             }
@@ -219,7 +194,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             messageBuilder.AppendLine(@"</samlp:AssertionArtifact></samlp:Request></SOAP-ENV:Body></SOAP-ENV:Envelope>");
             string message = messageBuilder.ToString();
 
-            Log.Debug(string.Format("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName, message, Encoding.UTF8.GetByteCount(message)));
+            Log.DebugFormat("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName, message, Encoding.UTF8.GetByteCount(message));
             
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(validationUrl);
             req.Method = "POST";
@@ -229,30 +204,26 @@ namespace DotNetCasClient.Validation.TicketValidator
             req.Headers.Add("SOAPAction", "http://www.oasis-open.org/committees/security");                
             req.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
             
-            Log.Debug(string.Format("{0}:" + "CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri=>{6}<", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri));
+            Log.DebugFormat("{0}: CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri={6}", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri);
 
-            using (Stream reqPostStream = req.GetRequestStream())
+            byte[] payload = Encoding.UTF8.GetBytes(message);
+            using (Stream requestStream = req.GetRequestStream())
             {
-                using (StreamWriter requestWriter = new StreamWriter(reqPostStream, Encoding.UTF8))
-                {
-                    requestWriter.Write(message);
-                }
+                requestStream.Write(payload, 0, payload.Length);
             }
+            //using (StreamWriter requestWriter = new StreamWriter(req.GetRequestStream(), Encoding.UTF8))
+            //{
+            //    requestWriter.Write(message);
+            //    requestWriter.Flush();
+            //}
 
-            HttpWebResponse res = (HttpWebResponse)req.GetResponse();
+            HttpWebResponse response = (HttpWebResponse)req.GetResponse();
+            Log.DebugFormat("{0}: Received {1} response from {2}", CommonUtils.MethodName, response.StatusCode, response.Server);
 
-            Log.Debug(string.Format("{0} HttpWebResponse StatusCode={1} and Server=>{2}<", CommonUtils.MethodName, res.StatusCode, res.Server));
-
-            string validateUriData;
-
-            using (Stream resStream = res.GetResponseStream()) {
-                using (StreamReader reader = new StreamReader(resStream))
-                {
-                    validateUriData = reader.ReadToEnd();
-                }
+            using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
+            {
+                return responseReader.ReadToEnd();
             }
-            
-            return validateUriData;
         }
         #endregion
     }

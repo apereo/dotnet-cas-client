@@ -83,8 +83,6 @@ namespace DotNetCasClient
         private static long ticketTimeTolerance;
         private static string serverName;
         private static bool renew;
-        private static string artifactParameterName;
-        private static string serviceParameterName;
         private static bool redirectAfterValidation;
         private static bool singleSignOut;
         private static string notAuthorizedUrl;
@@ -177,8 +175,6 @@ namespace DotNetCasClient
                         renew = CasClientConfig.Renew;
                         gateway = CasClientConfig.Gateway;
                         gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
-                        artifactParameterName = CasClientConfig.ArtifactParameterName;
-                        serviceParameterName = CasClientConfig.ServiceParameterName;
                         redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
                         singleSignOut = CasClientConfig.SingleSignOut;
                         serviceTicketManagerProvider = CasClientConfig.ServiceTicketManager;
@@ -682,24 +678,22 @@ namespace DotNetCasClient
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
 
-            if (string.IsNullOrEmpty(request.QueryString[ProxyCallbackParameterName]) || request.QueryString[ProxyCallbackParameterName] != "true")
-            {
-                return false;
-            }
-
             string proxyGrantingTicketIou = request.Params[PARAM_PROXY_GRANTING_TICKET_IOU];
             string proxyGrantingTicket = request.Params[PARAM_PROXY_GRANTING_TICKET];
-
-            if (String.IsNullOrEmpty(proxyGrantingTicket) || String.IsNullOrEmpty(proxyGrantingTicketIou))
+            if (String.IsNullOrEmpty(proxyGrantingTicket))
             {
-                // todo log.info that we handled the callback but didn't get the pgt
-                application.CompleteRequest();
-                return true;
+                Log.WarnFormat("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET);
+                return false;
+            }
+            else if (String.IsNullOrEmpty(proxyGrantingTicketIou))
+            {
+                Log.WarnFormat("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET_IOU);
+                return false;
             }
 
             if (Log.IsDebugEnabled)
             {
-                Log.Debug(string.Format("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou));
+                Log.DebugFormat("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou);
             }
 
             ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
@@ -1381,32 +1375,6 @@ namespace DotNetCasClient
             {
                 Initialize();
                 return renew;
-            }
-        }
-
-        /// <summary>
-        /// The name of the request parameter whose value is the artifact
-        /// (e.g. "ticket").
-        /// </summary>
-        public static string ArtifactParameterName
-        {
-            get
-            {
-                Initialize();
-                return artifactParameterName;
-            }
-        }
-
-        /// <summary>
-        /// The name of the request parameter whose value is the service
-        /// (e.g. "service")
-        /// </summary>
-        public static string ServiceParameterName
-        {
-            get
-            {
-                Initialize();
-                return serviceParameterName;
             }
         }
 

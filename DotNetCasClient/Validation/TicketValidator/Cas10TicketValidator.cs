@@ -32,33 +32,9 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>William G. Thompson, Jr. (.Net)</author>
     /// <author>Marvin S. Addison</author>
     /// <author>Scott Holodak (.Net)</author>
-    class Cas10TicketValidator : AbstractUrlTicketValidator
+    class Cas10TicketValidator : AbstractCasProtocolTicketValidator
     {
         #region Properties
-        /// <summary>
-        /// The default name of the request parameter whose value is the artifact
-        /// for the CAS 1.0 protocol.
-        /// </summary>
-        protected override string DefaultArtifactParameterName
-        {
-            get
-            {
-                return "ticket";
-            }
-        }
-
-        /// <summary>
-        /// The default name of the request parameter whose value is the service
-        /// for the CAS 1.0 protocol.
-        /// </summary>
-        protected override string DefaultServiceParameterName
-        {
-            get
-            {
-                return "service";
-            }
-        }
-
         /// <summary>
         /// The endpoint of the validation URL.  Should be relative (i.e. not start with a "/").
         /// i.e. validate or serviceValidate.

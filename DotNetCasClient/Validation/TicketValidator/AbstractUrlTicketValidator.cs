@@ -77,72 +77,19 @@ namespace DotNetCasClient.Validation.TicketValidator
         }
 
         /// <summary>
-        /// The default name of the request parameter whose value is the artifact
-        /// for the protocol.
-        /// <list>
-        ///   <item>CAS 1.0:  ticket</item>
-        ///   <item>CAS 2.0:  ticket</item>
-        ///   <item>SAML 1.1: SAMLart</item>
-        /// </list>
+        /// The protocol-specific name of the request parameter containing the artifact/ticket.
         /// </summary>
-        protected abstract string DefaultArtifactParameterName
-        {
-            get;
-
-        }
-
-        /// <summary>
-        /// The name of the request parameter whose value is the artifact for the
-        /// cas protocol.  The default values are defined in DefaultArtifactParameterName,
-        /// but these can be overridden in web.config.
-        /// </summary>
-        public virtual string ArtifactParameterName
-        {
-            get
-            {
-                if (String.IsNullOrEmpty(CasAuthentication.ArtifactParameterName))
-                {
-                    return DefaultArtifactParameterName;
-                }
-                else
-                {
-                    return CasAuthentication.ArtifactParameterName;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The default name of the request parameter whose value is the service
-        /// for the protocol.
-        /// <list>
-        ///   <item>CAS 1.0:  service</item>
-        ///   <item>CAS 2.0:  service</item>
-        ///   <item>SAML 1.1: TARGET</item>
-        /// </list>
-        /// </summary>
-        protected abstract string DefaultServiceParameterName
+        public abstract string ArtifactParameterName
         {
             get;
         }
 
         /// <summary>
-        /// The default name of the request parameter whose value is the service
-        /// for the protocol.  The default values are defined in 
-        /// DefaultServiceParameterName, but these can be overridden in web.config.
+        /// The protocol-specific name of the request parameter containing the service identifier.
         /// </summary>
-        public virtual string ServiceParameterName
+        public abstract string ServiceParameterName
         {
-            get
-            {
-                if (String.IsNullOrEmpty(CasAuthentication.ServiceParameterName))
-                {
-                    return DefaultServiceParameterName;
-                }
-                else
-                {
-                    return CasAuthentication.ServiceParameterName;
-                }
-            }
+            get;
         }
         #endregion
 
@@ -239,11 +186,13 @@ namespace DotNetCasClient.Validation.TicketValidator
             }
             catch (Exception e)
             {
+                Log.Debug("Ticket validation failed", e);
                 throw new TicketValidationException("CAS server ticket validation threw an Exception", e);
             }
 
             if (serverResponse == null)
             {
+                Log.Debug("CAS server returned no response");
                 throw new TicketValidationException("The CAS server returned no response.");
             }
 
