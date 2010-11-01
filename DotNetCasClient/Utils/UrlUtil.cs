@@ -383,13 +383,19 @@ namespace DotNetCasClient.Utils
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(url);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
+            ub.QueryItems.Remove(CasAuthentication.TicketValidator.ServiceParameterName);
             ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
             ub.QueryItems.Remove(CasAuthentication.ProxyCallbackParameterName);
+            EnhancedUriBuilder ubServerName = new EnhancedUriBuilder(CasAuthentication.ServerName);
+            if (ubServerName.Port != 80 || ubServerName.Port != 443)
+            {
+                ub.Port = ubServerName.Port;
+            }
 
             string result = ub.Uri.AbsoluteUri;
             if (Log.IsDebugEnabled)
             {
-                Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, result);
+                Log.DebugFormat("Redirecting to {0}", result);
             }
             return result;
         }
