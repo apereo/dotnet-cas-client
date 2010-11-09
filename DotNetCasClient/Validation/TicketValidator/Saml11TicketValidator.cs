@@ -17,6 +17,7 @@
  * under the License.
  */
 
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -206,11 +207,14 @@ namespace DotNetCasClient.Validation.TicketValidator
             
             Log.DebugFormat("{0}: CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri={6}", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri);
 
+            // ++ NETC-29
             byte[] payload = Encoding.UTF8.GetBytes(message);
             using (Stream requestStream = req.GetRequestStream())
             {
                 requestStream.Write(payload, 0, payload.Length);
             }
+            
+            // -- NETC-29
             //using (StreamWriter requestWriter = new StreamWriter(req.GetRequestStream(), Encoding.UTF8))
             //{
             //    requestWriter.Write(message);
@@ -220,9 +224,17 @@ namespace DotNetCasClient.Validation.TicketValidator
             HttpWebResponse response = (HttpWebResponse)req.GetResponse();
             Log.DebugFormat("{0}: Received {1} response from {2}", CommonUtils.MethodName, response.StatusCode, response.Server);
 
-            using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
+            Stream responseStream = response.GetResponseStream();
+            if (responseStream != null)
             {
-                return responseReader.ReadToEnd();
+                using (StreamReader responseReader = new StreamReader(responseStream))
+                {
+                    return responseReader.ReadToEnd();
+                }
+            }
+            else
+            {
+                throw new ApplicationException("Unable to retrieve response stream.");
             }
         }
         #endregion
