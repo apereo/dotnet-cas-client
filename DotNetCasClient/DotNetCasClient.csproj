@@ -86,6 +86,9 @@
     <Compile Include="Utils\HttpUtil.cs" />
     <Compile Include="Utils\RequestEvaluator.cs" />
     <Compile Include="Utils\UrlUtil.cs" />
+    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassFailure.cs" />
+    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassResponse.cs" />
+    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassSuccess.cs" />
     <Compile Include="Validation\TicketValidator\AbstractCasProtocolTicketValidator.cs" />
     <Compile Include="Validation\TicketValidator\AbstractUrlTicketValidator.cs" />
     <Compile Include="Validation\TicketValidator\Cas10TicketValidator.cs" />
