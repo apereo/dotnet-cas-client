@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Web;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
 using log4net;
@@ -131,33 +130,6 @@ namespace DotNetCasClient.Validation.TicketValidator
         }
 
         /// <summary>
-        /// Constructs the URL queried to submit the validation request.
-        /// </summary>
-        /// <param name="ticket">the ticket to be validate.</param>
-        /// <param name="service">the service identifier</param>
-        /// <param name="customParameters">custom parameters to add to the validation URL</param>
-        /// <returns>the fully constructed URL.</returns>
-        protected string ConstructValidationUrl(string service, string ticket, NameValueCollection customParameters)
-        {
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, UrlSuffix));
-            ub.QueryItems.Add(ArtifactParameterName, ticket);
-            ub.QueryItems.Add(ServiceParameterName, HttpUtility.UrlEncode(service));
-
-            if (CustomParameters != null)
-            {
-                for (int i = 0; i < CustomParameters.Count; i++)
-                {
-                    string key = CustomParameters.AllKeys[i];
-                    string value = CustomParameters[i];
-
-                    ub.QueryItems.Add(key, value);
-                }
-            }
-
-            return ub.Uri.AbsoluteUri;
-        }
-
-        /// <summary>
         /// Attempts to validate a ticket for the provided service.
         /// </summary>
         /// <param name="ticket">the ticket to validate</param>
@@ -169,10 +141,10 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// <exception cref="TicketValidationException">
         /// Thrown if ticket validation fails.
         /// </exception>
-        public ICasPrincipal Validate(string ticket, string service)
+        public ICasPrincipal Validate(string ticket)
         {
-            string validationUrl = ConstructValidationUrl(service, ticket, CustomParameters);
-
+            string validationUrl = UrlUtil.ConstructValidateUrl(ticket, CasAuthentication.Gateway, CasAuthentication.Renew, CustomParameters);
+                
             if (Log.IsDebugEnabled)
             {
                 Log.Debug(string.Format("{0}:Constructed validation url:{1}", CommonUtils.MethodName, validationUrl));
