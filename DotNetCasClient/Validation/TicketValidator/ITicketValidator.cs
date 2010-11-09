@@ -95,7 +95,7 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// <exception cref="TicketValidationException">
         /// Thrown if ticket validation fails.
         /// </exception>
-        ICasPrincipal Validate(string ticket, string service);
+        ICasPrincipal Validate(string ticket);
         #endregion
     }
 }
