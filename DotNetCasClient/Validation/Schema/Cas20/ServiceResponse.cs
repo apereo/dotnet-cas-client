@@ -37,8 +37,10 @@ namespace DotNetCasClient.Validation.Schema.Cas20
         public static ServiceResponse ParseResponse(string responseXml)
         {
             XmlSerializer xs = new XmlSerializer(typeof(ServiceResponse));
-            StringReader sr = new StringReader(responseXml);
-            return (ServiceResponse)xs.Deserialize(sr);
+            using (StringReader sr = new StringReader(responseXml))
+            {
+                return (ServiceResponse) xs.Deserialize(sr);
+            }
         }
 
         [XmlElement("authenticationFailure", typeof(AuthenticationFailure))]
