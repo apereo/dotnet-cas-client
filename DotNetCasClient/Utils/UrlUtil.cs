@@ -19,9 +19,9 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Text;
 using System.Web;
-using log4net;
 
 namespace DotNetCasClient.Utils
 {
@@ -35,8 +35,6 @@ namespace DotNetCasClient.Utils
     ///</remarks>
     public sealed class UrlUtil
     {
-        private static readonly ILog Log = LogManager.GetLogger("UrlUtil");
-
         /// <summary>
         /// Constructs the URL to use for redirection to the CAS server for login
         /// </summary>
@@ -68,10 +66,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url));
 
             return url;
         }
@@ -119,10 +114,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url));
             
             return url;
         }
@@ -173,10 +165,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}: url=>{1}<", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}: url=>{1}<", CommonUtils.MethodName, url));
 
             return url;
         }
@@ -210,10 +199,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url));
 
             return url;
         }
@@ -245,10 +231,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}:return generated proxy ticket request Uri: {1}", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}:return generated proxy ticket request Uri: {1}", CommonUtils.MethodName, url));
 
             return url;
         }
@@ -308,10 +291,7 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url);
-            }
+            Trace.WriteLine(String.Format("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url));
 
             return url;
         }
@@ -342,10 +322,9 @@ namespace DotNetCasClient.Utils
             }
 
             string result = ub.Uri.AbsoluteUri;
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("Redirecting to {0}", result);
-            }
+            
+            Trace.WriteLine(String.Format("Redirecting to {0}", result));
+            
             return result;
         }
 

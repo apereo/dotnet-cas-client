@@ -19,11 +19,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.Validation
 {
@@ -182,8 +182,6 @@ namespace DotNetCasClient.Validation
     class CasSaml11Response
     {
         #region Fields
-        private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         // The SAML 1.1 Assertion namespace
         const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
 
@@ -245,7 +243,7 @@ namespace DotNetCasClient.Validation
         /// </exception>
         private void ProcessValidAssertion()
         {
-            Log.Debug(string.Format("{0}:starting .Net2 version", CommonUtils.MethodName));
+            Trace.WriteLine(String.Format("{0}:starting .Net2 version", CommonUtils.MethodName));
             
             XmlDocument document = new XmlDocument();
             document.Load(new StringReader(_CasResponse));

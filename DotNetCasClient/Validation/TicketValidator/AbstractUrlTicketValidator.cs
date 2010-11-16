@@ -19,9 +19,9 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.Validation.TicketValidator
 {
@@ -40,8 +40,6 @@ namespace DotNetCasClient.Validation.TicketValidator
     abstract class AbstractUrlTicketValidator : ITicketValidator
     {
         #region Fields
-        protected static readonly ILog Log = LogManager.GetLogger("AbstractUrlTicketValidator");
-
         private NameValueCollection _CustomParameters;
         #endregion
 
@@ -144,10 +142,7 @@ namespace DotNetCasClient.Validation.TicketValidator
         {
             string validationUrl = UrlUtil.ConstructValidateUrl(ticket, CasAuthentication.Gateway, CasAuthentication.Renew, CustomParameters);
                 
-            if (Log.IsDebugEnabled)
-            {
-                Log.Debug(string.Format("{0}:Constructed validation url:{1}", CommonUtils.MethodName, validationUrl));
-            }
+            Trace.WriteLine(String.Format(string.Format("{0}:Constructed validation url:{1}", CommonUtils.MethodName, validationUrl)));
 
             string serverResponse;
 
@@ -157,17 +152,17 @@ namespace DotNetCasClient.Validation.TicketValidator
             }
             catch (Exception e)
             {
-                Log.Debug("Ticket validation failed", e);
+                Trace.WriteLine("Ticket validation failed: " + e);
                 throw new TicketValidationException("CAS server ticket validation threw an Exception", e);
             }
 
             if (serverResponse == null)
             {
-                Log.Debug("CAS server returned no response");
+                Trace.WriteLine("CAS server returned no response");
                 throw new TicketValidationException("The CAS server returned no response.");
             }
 
-            Log.Debug(string.Format("{0}:Ticket validation server response:>{1}<", CommonUtils.MethodName, serverResponse));
+            Trace.WriteLine(String.Format("{0}:Ticket validation server response:>{1}<", CommonUtils.MethodName, serverResponse));
 
             return ParseResponseFromServer(serverResponse, ticket);
         }

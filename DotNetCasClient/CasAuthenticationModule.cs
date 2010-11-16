@@ -18,9 +18,9 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Web;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient
 {
@@ -29,8 +29,6 @@ namespace DotNetCasClient
     /// </summary>
     public sealed class CasAuthenticationModule : IHttpModule
     {
-        private static readonly ILog Log = LogManager.GetLogger("CasAuthenticationModule");
-
         /// <summary>
         /// Performs initializations / startup functionality when an instance of this HttpModule
         /// is being created.
@@ -71,7 +69,7 @@ namespace DotNetCasClient
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
 
-            Log.DebugFormat("Starting BeginRequest for {0}", request.RawUrl);
+            Trace.WriteLine("Starting BeginRequest for " + request.RawUrl);
             
             // Cleanup expired ServiceTickets in the ServiceTicketManager
             if (CasAuthentication.ServiceTicketManager != null)
@@ -88,7 +86,7 @@ namespace DotNetCasClient
             // Detect & process inbound Single SignOut Requests from the CAS server
             if (CasAuthentication.ServiceTicketManager != null && CasAuthentication.ProcessIncomingSingleSignOutRequests && RequestEvaluator.GetRequestIsCasSingleSignOut())
             {
-                Log.Debug("Processing inbound Single Sign Out request.");
+                Trace.WriteLine("Processing inbound Single Sign Out request.");
                 CasAuthentication.ProcessSingleSignOutRequest();
                 return;
             }
@@ -96,12 +94,12 @@ namespace DotNetCasClient
             // Detect & process inbound proxy callback verifications from the CAS server
             if (CasAuthentication.ProxyTicketManager != null && RequestEvaluator.GetRequestIsProxyResponse())
             {
-                Log.Debug("Processing Proxy Callback request");
+                Trace.WriteLine("Processing Proxy Callback request");
                 CasAuthentication.ProcessProxyCallbackRequest();
                 return;
             }
 
-            Log.DebugFormat("Ending BeginRequest for {0}", request.RawUrl);
+            Trace.WriteLine("Ending BeginRequest for " + request.RawUrl);
         }
 
         /// <summary>
@@ -129,21 +127,20 @@ namespace DotNetCasClient
             // Validate the ticket coming back from the CAS server
             if (!RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
             {
-                Log.DebugFormat("AuthenticateRequest bypassed for {0}", request.RawUrl);
+                Trace.WriteLine("AuthenticateRequest bypassed for " + request.RawUrl);
                 return;
             }
 
             // Validate the ticket coming back from the CAS server
             if (RequestEvaluator.GetRequestHasCasTicket())
             {
-                Log.Debug("Processing Proxy Callback request");
+                Trace.WriteLine("Processing Proxy Callback request");
                 CasAuthentication.ProcessTicketValidation();
             }
 
-
-            Log.DebugFormat("Starting AuthenticateRequest for {0}", request.RawUrl);                
+            Trace.WriteLine("Starting AuthenticateRequest for " + request.RawUrl);
             CasAuthentication.ProcessRequestAuthentication();              
-            Log.DebugFormat("Ending AuthenticateRequest for {0}", request.RawUrl);
+            Trace.WriteLine("Ending AuthenticateRequest for " + request.RawUrl);
         }
 
         /// <summary>
@@ -180,49 +177,49 @@ namespace DotNetCasClient
 
             if (RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
             {
-                Log.DebugFormat("Starting EndRequest for {0}", request.RawUrl);
+                Trace.WriteLine("Starting EndRequest for " + request.RawUrl);
 
                 if (RequestEvaluator.GetRequestRequiresGateway())
                 {
-                    Log.DebugFormat("  Performing Gateway Authentication");
+                    Trace.WriteLine("  Performing Gateway Authentication");
                     CasAuthentication.GatewayAuthenticate(true);
                 }
                 else if (RequestEvaluator.GetUserDoesNotAllowSessionCookies())
                 {
-                    Log.DebugFormat("  Cookies not supported.  Redirecting to Cookies Required Page");
+                    Trace.WriteLine("  Cookies not supported.  Redirecting to Cookies Required Page");
                     CasAuthentication.RedirectToCookiesRequiredPage();
                 }
                 else if (RequestEvaluator.GetRequestHasCasTicket())
                 {
-                    Log.DebugFormat("  Redirecting from login callback");
+                    Trace.WriteLine("  Redirecting from login callback");
                     CasAuthentication.RedirectFromLoginCallback();
                 }
                 else if (RequestEvaluator.GetRequestHasGatewayParameter()) 
                 {
-                    Log.DebugFormat("  Redirecting from failed gateway callback");
+                    Trace.WriteLine("  Redirecting from failed gateway callback");
                     CasAuthentication.RedirectFromFailedGatewayCallback();
                 }
                 else if (RequestEvaluator.GetRequestIsUnauthorized() && !String.IsNullOrEmpty(CasAuthentication.NotAuthorizedUrl))
                 {
-                    Log.DebugFormat("  Redirecting to Unauthorized Page");
+                    Trace.WriteLine("  Redirecting to Unauthorized Page");
                     CasAuthentication.RedirectToNotAuthorizedPage();
                 }
                 else if (RequestEvaluator.GetRequestIsUnauthorized())
                 {
-                    Log.DebugFormat("  Redirecting to CAS Login Page (Unauthorized without NotAuthorizedUrl defined)");
+                    Trace.WriteLine("  Redirecting to CAS Login Page (Unauthorized without NotAuthorizedUrl defined)");
                     CasAuthentication.RedirectToLoginPage(true);
                 }
                 else if (RequestEvaluator.GetRequestIsUnAuthenticated())
                 {
-                    Log.DebugFormat("  Redirecting to CAS Login Page");
+                    Trace.WriteLine("  Redirecting to CAS Login Page");
                     CasAuthentication.RedirectToLoginPage();
                 }
 
-                Log.DebugFormat("Ending EndRequest for {0}", request.RawUrl);
+                Trace.WriteLine("Ending EndRequest for " + request.RawUrl);
             }
             else
             {
-                Log.DebugFormat("No EndRequest processing for {0}", request.RawUrl);
+                Trace.WriteLine("No EndRequest processing for " + request.RawUrl);
             }
         }
    }

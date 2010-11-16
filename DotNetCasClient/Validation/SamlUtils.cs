@@ -19,9 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Xml;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.Validation
 {
@@ -31,8 +31,6 @@ namespace DotNetCasClient.Validation
     /// </summary>
     internal static class SamlUtils
     {
-        private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 #if DOT_NET_3
         /// <summary>
         /// Determines whether the SAML Assertion is valid in terms of the
@@ -164,23 +162,23 @@ namespace DotNetCasClient.Validation
         {
             if (notBefore == DateTime.MinValue || notOnOrAfter == DateTime.MinValue)
             {
-                Log.Debug(string.Format("{0}:Assertion has no bounding dates.  Will not process.", CommonUtils.MethodName));
+                Trace.WriteLine(String.Format("{0}:Assertion has no bounding dates.  Will not process.", CommonUtils.MethodName));
                 return false;
             }
             
             long utcNowTicks = DateTime.UtcNow.Ticks;
-            
-            Log.Debug(string.Format("{0}:compare {1} < {2}", CommonUtils.MethodName, utcNowTicks + toleranceTicks, notBefore.Ticks));
+
+            Trace.WriteLine(String.Format("{0}:compare {1} < {2}", CommonUtils.MethodName, utcNowTicks + toleranceTicks, notBefore.Ticks));
 
             if (utcNowTicks + toleranceTicks < notBefore.Ticks)
             {
-                Log.Debug(string.Format("{0}:skipping assertion that's not yet valid...", CommonUtils.MethodName));
+                Trace.WriteLine(String.Format("{0}:skipping assertion that's not yet valid...", CommonUtils.MethodName));
                 return false;
             }
             
             if (notOnOrAfter.Ticks <= utcNowTicks - toleranceTicks)
             {
-                Log.Debug(string.Format("{0}:skipping expired assertion...", CommonUtils.MethodName));
+                Trace.WriteLine(String.Format("{0}:skipping expired assertion...", CommonUtils.MethodName));
                 return false;
             }
 

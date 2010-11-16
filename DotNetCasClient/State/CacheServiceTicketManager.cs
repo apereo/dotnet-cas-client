@@ -20,10 +20,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Web;
 using System.Web.Caching;
 using DotNetCasClient.Utils;
-using log4net;
 
 namespace DotNetCasClient.State
 {
@@ -35,8 +35,6 @@ namespace DotNetCasClient.State
     /// </summary>
     public sealed class CacheServiceTicketManager : IServiceTicketManager
     {
-        private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         /// <summary>
         /// This prefix is prepended to CAS Service Ticket as the key to the cache.
         /// </summary>
@@ -350,19 +348,13 @@ namespace DotNetCasClient.State
 
                     if (String.Compare(cacheAuthTicket.NetId, casAuthenticationTicket.NetId, true) != 0)
                     {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("{0}:Ticket [{1}] failed username verification [{2}]", CommonUtils.MethodName, incomingServiceTicket, casAuthenticationTicket.NetId);
-                        }
+                        Trace.WriteLine(String.Format("{0}:Ticket [{1}] failed username verification [{2}]", CommonUtils.MethodName, incomingServiceTicket, casAuthenticationTicket.NetId));
                         return false;
                     }
 
                     if (String.Compare(cacheAuthTicket.Assertion.PrincipalName, casAuthenticationTicket.Assertion.PrincipalName, true) != 0)
                     {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("{0}:Ticket assertion failed username verification [{1}]", CommonUtils.MethodName, casAuthenticationTicket.Assertion.PrincipalName);
-                        }
+                        Trace.WriteLine(String.Format("{0}:Ticket assertion failed username verification [{1}]", CommonUtils.MethodName, casAuthenticationTicket.Assertion.PrincipalName));
                         return false;
                     }
 
@@ -371,10 +363,7 @@ namespace DotNetCasClient.State
             }
             else
             {
-                if (Log.IsDebugEnabled)
-                {
-                    Log.DebugFormat("{0}:Ticket [{1}] not found in cache.  Never existed, expired, or removed via Single Sign Out", CommonUtils.MethodName, incomingServiceTicket);
-                }
+                Trace.WriteLine(String.Format("{0}:Ticket [{1}] not found in cache.  Never existed, expired, or removed via Single Sign Out", CommonUtils.MethodName, incomingServiceTicket));
                 return false;
             }
             return false;

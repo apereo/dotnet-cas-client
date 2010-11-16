@@ -15,11 +15,6 @@ KIND, either express or implied. See the License for the
 specific language governing permissions and limitations
 under the License.
 
-Logging support is provided by the log4net library package,
-which is open source software, a project of The Apache 
-Software Foundation.  The project is available here:
-http://logging.apache.org/log4net/index.html
-
 The EnhancedUriBuilder class is a derivative work based on 
 the following code: http://forums.asp.net/t/693414.aspx
 (user TlighT on ASP.NET forums).

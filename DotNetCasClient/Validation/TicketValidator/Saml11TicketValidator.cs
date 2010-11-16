@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -110,10 +111,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             
             if (casSaml11Response.HasCasSamlAssertion)
             {
-                if (Log.IsDebugEnabled)
-                {
-                    Log.DebugFormat("{0}: Valid Assertion found: {1}", CommonUtils.MethodName, casSaml11Response.CasPrincipal.Assertion);
-                }
+                Trace.WriteLine(String.Format("{0}: Valid Assertion found: {1}", CommonUtils.MethodName, casSaml11Response.CasPrincipal.Assertion));
                 return casSaml11Response.CasPrincipal;
             }
             else
@@ -195,7 +193,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             messageBuilder.AppendLine(@"</samlp:AssertionArtifact></samlp:Request></SOAP-ENV:Body></SOAP-ENV:Envelope>");
             string message = messageBuilder.ToString();
 
-            Log.DebugFormat("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName, message, Encoding.UTF8.GetByteCount(message));
+            Trace.WriteLine(String.Format("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName, message, Encoding.UTF8.GetByteCount(message)));
             
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(validationUrl);
             req.Method = "POST";
@@ -205,7 +203,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             req.Headers.Add("SOAPAction", "http://www.oasis-open.org/committees/security");                
             req.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
             
-            Log.DebugFormat("{0}: CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri={6}", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri);
+            Trace.WriteLine(String.Format("{0}: CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri={6}", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri));
 
             // ++ NETC-29
             byte[] payload = Encoding.UTF8.GetBytes(message);
@@ -222,7 +220,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             //}
 
             HttpWebResponse response = (HttpWebResponse)req.GetResponse();
-            Log.DebugFormat("{0}: Received {1} response from {2}", CommonUtils.MethodName, response.StatusCode, response.Server);
+            Trace.WriteLine(String.Format("{0}: Received {1} response from {2}", CommonUtils.MethodName, response.StatusCode, response.Server));
 
             Stream responseStream = response.GetResponseStream();
             if (responseStream != null)

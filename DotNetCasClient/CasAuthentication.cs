@@ -18,6 +18,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Web;
@@ -31,7 +32,6 @@ using DotNetCasClient.Utils;
 using DotNetCasClient.Validation;
 using DotNetCasClient.Validation.Schema.Cas20;
 using DotNetCasClient.Validation.TicketValidator;
-using log4net;
 
 namespace DotNetCasClient
 {
@@ -49,8 +49,6 @@ namespace DotNetCasClient
         #endregion
 
         #region Fields
-        private static readonly ILog Log = LogManager.GetLogger("CasAuthentication");
-
         // Thread-safe initialization
         private static readonly object LockObject;
         private static bool initialized;
@@ -126,19 +124,13 @@ namespace DotNetCasClient
 
                         if (AuthenticationConfig == null)
                         {
-                            if (Log.IsDebugEnabled)
-                            {
-                                Log.Debug("Application is not configured for Authentication");
-                            }
+                            Trace.WriteLine("Application is not configured for Authentication");
                             throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
 
                         if (AuthenticationConfig.Mode != AuthenticationMode.Forms)
                         {
-                            if (Log.IsDebugEnabled)
-                            {
-                                Log.Debug("Application is not configured for Forms Authentication");
-                            }
+                            Trace.WriteLine("Application is not configured for Forms Authentication");
                             throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
 
@@ -417,15 +409,15 @@ namespace DotNetCasClient
                 ProxyFailure failure = (ProxyFailure)serviceResponse.Item;
                 if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
                 {
-                    Log.DebugFormat("Proxy failure: {0} ({1})", failure.Message, failure.Code);
+                    Trace.WriteLine(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
                 }
                 else if (!String.IsNullOrEmpty(failure.Message))
                 {
-                    Log.DebugFormat("Proxy failure: {0}", failure.Message);
+                    Trace.WriteLine(String.Format("Proxy failure: {0}", failure.Message));
                 }
                 else if (!String.IsNullOrEmpty(failure.Code))
                 {
-                    Log.DebugFormat("Proxy failure: Code {0}", failure.Code);
+                    Trace.WriteLine(String.Format("Proxy failure: Code {0}", failure.Code));
                 }
                 return null;
             }
@@ -435,7 +427,7 @@ namespace DotNetCasClient
                 ProxySuccess success = (ProxySuccess) serviceResponse.Item;
                 if (!String.IsNullOrEmpty(success.ProxyTicket))
                 {
-                    Log.DebugFormat("Proxy success: {0}", success.ProxyTicket);
+                    Trace.WriteLine(String.Format("Proxy success: {0}", success.ProxyTicket));
                 }
 
                 return success.ProxyTicket;
@@ -618,10 +610,7 @@ namespace DotNetCasClient
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}:Processing SingleSignOut request", CommonUtils.MethodName);
-            }
+            Trace.WriteLine(String.Format("{0}:Processing SingleSignOut request", CommonUtils.MethodName));
 
             if (request.HttpMethod == "POST" && request.Form["logoutRequest"] != null)
             {
@@ -629,18 +618,14 @@ namespace DotNetCasClient
                 //       It would be tricky to do this by IP address because there might be a white list or something.
                 
                 string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Params["logoutRequest"]);
-                if (Log.IsDebugEnabled)
-                {
-                    Log.DebugFormat("{0}:casTicket=[{1}]", CommonUtils.MethodName, casTicket);
-                }
+                
+                Trace.WriteLine(String.Format("{0}:casTicket=[{1}]", CommonUtils.MethodName, casTicket));
+                
                 if (!String.IsNullOrEmpty(casTicket))
                 {
                     ServiceTicketManager.RevokeTicket(casTicket);
 
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("{0}:SingleSignOut returned true --> processed CAS logoutRequest", CommonUtils.MethodName);
-                    }
+                    Trace.WriteLine(String.Format("{0}:SingleSignOut returned true --> processed CAS logoutRequest", CommonUtils.MethodName));
 
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
@@ -649,10 +634,7 @@ namespace DotNetCasClient
 
                     context.ApplicationInstance.CompleteRequest();
 
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("{0}:Revoked casTicket [{1}]]", CommonUtils.MethodName, casTicket);
-                    }
+                    Trace.WriteLine(String.Format("{0}:Revoked casTicket [{1}]]", CommonUtils.MethodName, casTicket));
                 }
             }
         }
@@ -682,19 +664,16 @@ namespace DotNetCasClient
             string proxyGrantingTicket = request.Params[PARAM_PROXY_GRANTING_TICKET];
             if (String.IsNullOrEmpty(proxyGrantingTicket))
             {
-                Log.WarnFormat("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET);
+                Trace.WriteLine(String.Format("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET));
                 return false;
             }
             else if (String.IsNullOrEmpty(proxyGrantingTicketIou))
             {
-                Log.WarnFormat("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET_IOU);
+                Trace.WriteLine(String.Format("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET_IOU));
                 return false;
             }
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou);
-            }
+            Trace.WriteLine(String.Format("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou));
 
             ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
 
@@ -804,10 +783,7 @@ namespace DotNetCasClient
 
                         if (!ServiceTicketManager.VerifyClientTicket(casTicket))
                         {
-                            if (Log.IsDebugEnabled)
-                            {
-                                Log.DebugFormat("{0}:Ticket failed verification." + Environment.NewLine, CommonUtils.MethodName);
-                            }
+                            Trace.WriteLine(String.Format("{0}:Ticket failed verification." + Environment.NewLine, CommonUtils.MethodName));
 
                             // Deletes the invalid FormsAuthentication cookie from the client.
                             ClearAuthCookie();
@@ -1049,10 +1025,7 @@ namespace DotNetCasClient
 
             Initialize();
 
-            if (Log.IsDebugEnabled)
-            {
-                Log.DebugFormat("{0}:Incoming CAS Assertion: {1}", CommonUtils.MethodName, serviceTicket);
-            }
+            Trace.WriteLine(String.Format("{0}:Incoming CAS Assertion: {1}", CommonUtils.MethodName, serviceTicket));
 
             DateTime fromDate = validFromDate.HasValue ? validFromDate.Value : DateTime.Now;
             DateTime toDate = validUntilDate.HasValue ? validUntilDate.Value : fromDate.Add(FormsTimeout);
