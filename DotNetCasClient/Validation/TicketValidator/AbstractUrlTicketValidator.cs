@@ -133,7 +133,6 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// Attempts to validate a ticket for the provided service.
         /// </summary>
         /// <param name="ticket">the ticket to validate</param>
-        /// <param name="service">the service associated with this ticket</param>
         /// <returns>
         /// The ICasPrincipal backed by the CAS Assertion included in the response
         /// from the CAS server for a successful ticket validation.

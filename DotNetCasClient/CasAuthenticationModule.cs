@@ -59,7 +59,7 @@ namespace DotNetCasClient
         /// consequences.  We want to prevent this request from authenticating and from 
         /// executing the HttpHandler typically associated with that URL.  So we are handling 
         /// this by sending back an HTTP 200 (OK) message with a blank body and short 
-        /// circuiting all event processing & firing EndRequest directly 
+        /// circuiting all event processing and firing EndRequest directly 
         /// (via CompleteRequest()).
         /// </summary>
         /// <param name="sender">The HttpApplication that sent the request</param>

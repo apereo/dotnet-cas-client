@@ -48,6 +48,9 @@ namespace DotNetCasClient.State
         /// </summary>
         internal CacheServiceTicketManager() { }
 
+        /// <summary>
+        /// Performs initialization of the CacheServiceTicketManager
+        /// </summary>
         public void Initialize()
         {
             // Do nothing
@@ -99,7 +102,7 @@ namespace DotNetCasClient.State
         }
 
         /// <summary>
-        /// Updates the expiration date & time for an existing ticket.  If the ticket does
+        /// Updates the expiration date and time for an existing ticket.  If the ticket does
         /// not exist in the ticket store, just return (do not throw an exception).
         /// </summary>
         /// <param name="casAuthenticationTicket">The CasAuthenticationTicket to insert</param>

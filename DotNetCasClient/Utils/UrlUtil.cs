@@ -194,7 +194,7 @@ namespace DotNetCasClient.Utils
         /// with the ProxyCallbackParameter in the URL (i.e., proxyResponse), that request 
         /// is treated specially and behaves as if it were handled by an HTTP Handler.  In 
         /// other words, this behavior may or may not short circuit the request event 
-        /// processing and will not allow the underlying page to execute & transmit back to
+        /// processing and will not allow the underlying page to execute and transmit back to
         /// the client.  If your application does coincidentally make use of the key 
         /// 'proxyResponse' as a URL parameter, you will need to configure a custom 
         /// proxyCallbackParameter value which does not conflict with the URL parameters in

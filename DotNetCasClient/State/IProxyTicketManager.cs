@@ -19,6 +19,13 @@
 
 namespace DotNetCasClient.State
 {
+    ///<summary>
+    /// Defines the interface for a ProxyTicketManager implementation.  ProxyTicketManagers
+    /// are responsible for temporary storage of state information relating to Proxy Tickets.
+    /// For active-active clustered/web-farm configurations, the state must be stored in a 
+    /// persistent storage mechanism that is accessible from any node or server that handles
+    /// web requests.
+    ///</summary>
     public interface IProxyTicketManager
     {
         /// <summary>
