@@ -1,15 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{AB664070-2775-4311-8D0F-BF76FD20EB3A}"
-	ProjectSection(SolutionItems) = preProject
-		Common.targets = Common.targets
-		MSBuild.Community.Tasks.targets = MSBuild.Community.Tasks.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCasClient", "DotNetCasClient\DotNetCasClient.csproj", "{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{8CE89EF1-2586-4602-AC30-51753D393390}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ExampleWebSite", "ExampleWebSite\", "{80736A8B-08F2-4E9B-811D-315810C021A0}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -58,16 +50,6 @@ Global
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|x86.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|x86.ActiveCfg = Release|Any CPU
 		{80736A8B-08F2-4E9B-811D-315810C021A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{80736A8B-08F2-4E9B-811D-315810C021A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80736A8B-08F2-4E9B-811D-315810C021A0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
