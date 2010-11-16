@@ -17,6 +17,8 @@
  * under the License.
  */
 
+#pragma warning disable 1591
+
 using System;
 using System.Xml.Serialization;
 
@@ -38,3 +40,5 @@ namespace DotNetCasClient.Validation.Schema.Saml20
         Better,
     }
 }
+
+#pragma warning restore 1591

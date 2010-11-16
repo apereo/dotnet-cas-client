@@ -17,6 +17,8 @@
  * under the License.
  */
 
+#pragma warning disable 1591
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -62,4 +64,4 @@ namespace DotNetCasClient.Validation.Schema.SoapEnvelope
     }
 }
 
-
+#pragma warning restore 1591
