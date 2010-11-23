@@ -1,0 +1,275 @@
+﻿<?xml version="1.0"?>
+<!--
+############################################################
+# NOTE:
+# Use this file as a template to create a Web.config file
+# suitable for your environment.
+# Sections marked REQUIRED MUST be configured.
+# Sections marked OPTIONAL MAY be configured as needed.
+############################################################
+-->
+<configuration>
+	<configSections>
+		<section name="casClientConfig" type="DotNetCasClient.Configuration.CasClientConfiguration, DotNetCasClient"/>
+	</configSections>
+	<appSettings/>
+	<connectionStrings/>
+	<!--
+		*======================
+		* Core configuration
+    * REQUIRED
+		*======================
+		Required Attributes:
+    
+		- casServerLoginUrl
+        URL of CAS login form.
+		- serverName
+        Host name of the server hosting this application.  This is used to generate URLs 
+			  that will be sent to the CAS server for redirection.  The CAS server must be able
+			  to resolve this host name.  If your web application is behind a load balancer, SSL
+			  offloader, or any other type of device that accepts incoming requests on behalf of
+				the web application, you will generally need to supply the public facing host name
+				unless your CAS server is in the same private network as the application server.  
+				The protocol prefix is optional (http:// or https://).  If you are using a non-
+				standard port number, be sure to include it (i.e., server.school.edu:8443 or 
+				https://cas.example.com:8443).  Do not include the trailing backslash.
+		- casServerUrlPrefix
+        URL to root of CAS server application.
+		- ticketValidatorName
+				Supported values: Cas10, Cas20, and Saml11.
+        Name of ticket validator that validates CAS tickets using a particular protocol.
+
+		Optional Attributes:
+    
+		- gateway (default false)
+        Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
+		- renew (default true)
+        Force user to reauthenticate to CAS before accessing this application.
+				This provides additional security at the cost of usability since it effectively
+				disables SSO for this application.
+		- singleSignOut (default true)
+        Enables this application to receive CAS single sign-out messages sent when the
+				user's SSO session ends.  This will cause the user's session in this application
+				to be destroyed.
+		- ticketTimeTolerance
+        SAML ticket validator property to allow at most the given time difference in ms
+				between artifact (ticket) timestamp and CAS server system time.  Increasing this
+				may have negative security consequences; we recommend fixing sources of clock drift
+				rather than increasing this value.
+		- notAuthorizedUrl
+        The URL to redirect to when the request has a valid CAS ticket but the user is 
+				not authorized to access the URL or resource.  If this option is set, users will
+				be redirected to this URL.  If it is not set, the user will be redirected to the 
+				CAS login screen with a Renew option in the URL (to force for alternate credential
+			  collection).
+		- serviceTicketManager
+        Supported values: CacheTicketManager.
+        The service ticket manager to use to store tickets returned by the CAS server for 
+				validation, revocation, and single sign out support.
+        Omit this attribute to disable state management based on stored CAS assertion.
+		- proxyTicketManager
+        Supported values: CacheProxyTicketManager.
+        The proxy ticket manager to use to maintain state during proxy ticket requests.
+        Omit this attribute to disable proxy support.
+		- gatewayStatusCookieName (default "cas_gateway_status")
+        The name of the cookie used to store the Gateway status (NotAttempted, Success, Failed).
+        This cookie is used to prevent the client from attempting to gateway authenticate every request.
+		- cookiesRequiredUrl
+        The URL to redirect to when the client is not accepting session cookies.  This 
+				condition is detected only when gateway is enabled.  This will lock the users onto
+				a specific page.  Otherwise, every request will cause a silent round-trip to the 
+				CAS server, adding a parameter to the URL.
+		- gatewayParameterName (default "gatewayResponse")
+        The URL parameter to append to outbound CAS request's ServiceName when initiating
+				an automatic CAS Gateway request.  This parameter plays a role in detecting whether
+				or not the client has cookies enabled.
+        Define this attribute only if the default parameter name has a meaning elsewhere
+				in your application.
+	-->
+	<casClientConfig 
+		casServerLoginUrl="https://cas.example.com/cas/login" 
+		casServerUrlPrefix="https://cas.example.com/cas/" 
+		serverName="YOUR_CAS_SERVER" 
+		notAuthorizedUrl="~/NotAuthorized.aspx" 
+		cookiesRequiredUrl="~/CookiesRequired.aspx" 
+		redirectAfterValidation="true" 
+		gateway="false" 
+		renew="false" 
+		singleSignOut="true" 
+		ticketTimeTolerance="5000" 
+		ticketValidatorName="Cas20" 
+		proxyTicketManager="CacheProxyTicketManager" 
+		serviceTicketManager="CacheServiceTicketManager" 
+		gatewayStatusCookieName="CasGatewayStatus" />
+	<system.web>
+		<!--
+			*======================
+			* Forms Authentication
+      * REQUIRED
+			======================
+			IMPORTANT: Set the 'path' attribute to an appropriate path on your server
+			below which the resulting ticket should be applicable.  Other 
+			.NET applications configured for Forms or CAS authentication below
+			this path should be authenticated automatically using the ticket.
+		-->
+		<authentication mode="Forms">
+			<forms 
+				loginUrl="https://cas.example.com/cas/login" 
+				timeout="30" 
+				defaultUrl="~/Default.aspx" 
+				cookieless="UseCookies" 
+				slidingExpiration="true" 
+				path="/example/" />
+		</authentication>
+		<!-- 
+			*======================
+			* Authorization
+      * OPTIONAL
+			*======================
+			Define the authorization for resources in your application.  You
+			will generally use configuration/system.web/authorization to specify
+			the default state for your entire application.  In this section, you
+			will want to define the default state for your application.  You can 
+			make exceptions in configuration/location/system.web/authorization 
+			or in separate, minimal web.config files in the subdirectories to be 
+			excluded.
+			
+			The most common scenarios are:
+			 - Allow all users (authenticated and unauthenticated) to access your 
+			   entire application by default and explicitly restrict anonymous 
+			   access to specific pages or subdirectories.
+
+				<authorization>
+					<allow users="*" />
+				</authorization>
+
+			 - Deny anonymous access to your entire application by default and
+			   optionally exclude pages or subdirectories from the rule.
+
+				<authorization>
+					<deny users="?" />
+				</authorization>
+		-->
+		<authorization>
+			<allow users="*"/>
+		</authorization>
+		<roleManager enabled="true" defaultProvider="AspNetReadOnlyXmlRoleProvider">
+			<providers>
+				<add name="AspNetReadOnlyXmlRoleProvider" type="Example.ReadOnlyXmlRoleProvider" xmlFileName="~/App_Data/UserRoles.xml"/>
+			</providers>
+		</roleManager>
+		<siteMap enabled="true">
+			<providers>
+				<clear/>
+				<add siteMapFile="Web.sitemap" name="AspNetXmlSiteMapProvider" type="System.Web.XmlSiteMapProvider"/>
+			</providers>
+		</siteMap>
+		<compilation debug="true">
+		</compilation>
+		<pages>
+			<controls>
+				<add tagPrefix="cas" tagName="CookieViewer" src="~/Controls/CookieViewer.ascx"/>
+				<add tagPrefix="cas" tagName="TicketManager" src="~/Controls/TicketManager.ascx"/>
+			</controls>
+		</pages>
+		<httpModules>
+			<add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient"/>
+		</httpModules>
+	</system.web>
+	<system.webServer>
+		<validation validateIntegratedModeConfiguration="false"/>
+		<modules>
+			<remove name="DotNetCasClient"/>
+			<add name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient"/>
+		</modules>
+	</system.webServer>
+
+  <!--
+  	*======================
+		* Trace configuration
+    * OPTIONAL
+		*======================
+    
+    The following section describes how to configure CasAuthenticationModule to produce trace output
+    for troubleshooting purposes.  The most important aspect of the following configuration is
+    the set of four well-defined trace switches.
+  -->
+  <system.diagnostics>
+    <trace autoflush="true" useGlobalLock="false" />
+    <sharedListeners>
+      <!--
+        Writing trace output to a log file is recommended.
+        IMPORTANT:
+        The user account under which the containing application pool runs
+        must have privileges to create and modify the trace log file.
+      -->
+      <add name="TraceFile"
+           type="System.Diagnostics.TextWriterTraceListener"
+           initializeData="C:\inetpub\logs\LogFiles\DotNetCasClient.Log"
+           traceOutputOptions="DateTime" />
+    </sharedListeners>
+    <sources>
+      <!-- Provides diagnostic information on module configuration parameters. -->
+      <source name="DotNetCasClient.Config" switchName="Config" switchType="System.Diagnostics.SourceSwitch" >
+        <listeners>
+          <add name="TraceFile" />
+        </listeners>
+      </source>
+
+      <!-- Traces IHttpModule lifecycle events and meaningful operations performed therein. -->
+      <source name="DotNetCasClient.HttpModule" switchName="HttpModule" switchType="System.Diagnostics.SourceSwitch" >
+        <listeners>
+          <add name="TraceFile" />
+        </listeners>
+      </source>
+
+      <!-- Provides protocol message and routing information. -->
+      <source name="DotNetCasClient.Protocol" switchName="Protocol" switchType="System.Diagnostics.SourceSwitch" >
+        <listeners>
+          <add name="TraceFile" />
+        </listeners>
+      </source>
+
+      <!-- Provides details on security operations and notable security conditions. -->
+      <source name="DotNetCasClient.Security" switchName="Security" switchType="System.Diagnostics.SourceSwitch" >
+        <listeners>
+          <add name="TraceFile" />
+        </listeners>
+      </source>
+    </sources>
+    <switches>
+      <!--
+        Set trace switches to appropriate logging level.  Recommended values in order of increasing verbosity:
+         - Off
+         - Error
+         - Warning
+         - Information
+         - Verbose
+      -->
+      <!--
+        Config category displays detailed information about CasAuthenticationModule configuration.
+        The output of this category is only displayed when the module is initialized, which happens
+        for the first request following application/server startup.
+      -->
+      <add name="Config" value="Information"/>
+
+      <!--
+        Set this category to Verbose to trace HttpModule lifecycle events in CasAuthenticationModule.
+        This category produces voluminous output in Verbose mode and should be avoided except for
+        limited periods of time troubleshooting vexing integration problems.
+      -->
+      <add name="HttpModule" value="Verbose"/>
+
+      <!--
+        Set to Verbose to display protocol messages between the client and server.
+        This category is very helpful for troubleshooting integration problems.
+      -->
+      <add name="Protocol" value="Information"/>
+
+      <!--
+        Displays important security-related information.
+      -->
+      <add name="Security" value="Information"/>
+    </switches>
+  </system.diagnostics>
+</configuration>
