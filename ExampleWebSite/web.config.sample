@@ -89,7 +89,7 @@
 	<casClientConfig 
 		casServerLoginUrl="https://cas.example.com/cas/login" 
 		casServerUrlPrefix="https://cas.example.com/cas/" 
-		serverName="YOUR_CAS_SERVER" 
+		serverName="cas.example.com" 
 		notAuthorizedUrl="~/NotAuthorized.aspx" 
 		cookiesRequiredUrl="~/CookiesRequired.aspx" 
 		redirectAfterValidation="true" 
