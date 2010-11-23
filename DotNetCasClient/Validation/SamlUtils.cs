@@ -167,7 +167,7 @@ namespace DotNetCasClient.Validation
                 protoLogger.Debug("Assertion has no bounding dates.  Will not process.");
                 return false;
             }
-            protoLogger.Debug("Assertion validity window: {0} - {1} +/- {1}ms", notBefore, notOnOrAfter, toleranceTicks * 10000);
+            protoLogger.Debug("Assertion validity window: {0} - {1} +/- {2}ms", notBefore, notOnOrAfter, toleranceTicks / 10000);
             
             long utcNowTicks = DateTime.UtcNow.Ticks;
             if (utcNowTicks + toleranceTicks < notBefore.Ticks)
