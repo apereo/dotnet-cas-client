@@ -66,6 +66,7 @@
     <Compile Include="Configuration\CasClientConfiguration.cs" />
     <Compile Include="Configuration\CasConfigurationException.cs" />
     <Compile Include="GatewayStatus.cs" />
+    <Compile Include="Logging\Category.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\Assertion.cs" />
     <Compile Include="Security\CasPrincipal.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Utils\EnhancedUriBuilder.cs" />
     <Compile Include="Utils\HttpUtil.cs" />
     <Compile Include="Utils\RequestEvaluator.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Utils\UrlUtil.cs" />
     <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassFailure.cs" />
     <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassResponse.cs" />

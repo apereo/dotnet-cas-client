@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using DotNetCasClient.Logging;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
 
@@ -34,12 +35,12 @@ namespace DotNetCasClient.Validation
     /// </summary>
     class CasSaml11Response : System.IdentityModel.Tokens.SamlSecurityToken
     {
-        private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         /// <summary>
         /// The SAML 1.1 Assertion namespace
         /// </summary>
         const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
+
+        private static readonly Logger protoLogger = new Logger(Category.Protocol);
 
         /// <summary>
         /// Tolerance ticks for checking the current time against the SAML
@@ -53,7 +54,7 @@ namespace DotNetCasClient.Validation
         // The assertion from the CAS server response used to populate this instance
         System.IdentityModel.Tokens.SamlAssertion _CasSamlAssertion;
 
-        #region Properties
+    #region Properties
         /// <summary>
         ///  Whether a valid SAML Assertion was found for processing
         /// </summary>
@@ -106,7 +107,7 @@ namespace DotNetCasClient.Validation
         /// </exception>
         private void ProcessValidAssertion()
         {
-            Log.Debug(string.Format("{0}:starting .Net3 version", CommonUtils.MethodName));
+            protoLogger.Debug("Unmarshalling SAML response");
 
             XmlDocument document = new XmlDocument();
             document.Load(new StringReader(_CasResponse));
@@ -185,6 +186,8 @@ namespace DotNetCasClient.Validation
         // The SAML 1.1 Assertion namespace
         const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
 
+        private static readonly Logger protoLogger = new Logger(Category.Protocol); 
+
         // Tolerance ticks for checking the current time against the SAML
         // Assertion valid times.
         private readonly long _ToleranceTicks = 1000L * TimeSpan.TicksPerMillisecond;
@@ -243,8 +246,7 @@ namespace DotNetCasClient.Validation
         /// </exception>
         private void ProcessValidAssertion()
         {
-            Trace.WriteLine(String.Format("{0}:starting .Net2 version", CommonUtils.MethodName));
-            
+            protoLogger.Debug("Unmarshalling SAML response");
             XmlDocument document = new XmlDocument();
             document.Load(new StringReader(_CasResponse));
             
@@ -256,6 +258,7 @@ namespace DotNetCasClient.Validation
 
                 if (assertions == null || assertions.Count < 1)
                 {
+                    protoLogger.Debug("No assertions found in SAML response.");
                     throw new TicketValidationException("No assertions found.");
                 }
 
@@ -292,6 +295,7 @@ namespace DotNetCasClient.Validation
                     XmlNode authenticationStmtNode = assertionNode.SelectSingleNode("descendant::assertion:AuthenticationStatement", nsmgr);
                     if (authenticationStmtNode == null)
                     {
+                        protoLogger.Debug("No AuthenticationStatement found in SAML response.");
                         throw new TicketValidationException("No AuthenticationStatement found in the CAS response.");
                     }
                     
@@ -300,6 +304,7 @@ namespace DotNetCasClient.Validation
                     XmlNode nameIdentifierNode = assertionNode.SelectSingleNode("child::assertion:AuthenticationStatement/child::assertion:Subject/child::assertion:NameIdentifier", nsmgr);
                     if (nameIdentifierNode == null)
                     {
+                        protoLogger.Debug("No NameIdentifier found in SAML response.");
                         throw new TicketValidationException("No NameIdentifier found in AuthenticationStatement of the CAS response.");
                     }
                     
@@ -320,6 +325,7 @@ namespace DotNetCasClient.Validation
                     return;
                 }
             }
+            protoLogger.Debug("No assertions found in SAML response.");
             throw new TicketValidationException("No valid assertions found in the CAS response.");
         }
         #endregion

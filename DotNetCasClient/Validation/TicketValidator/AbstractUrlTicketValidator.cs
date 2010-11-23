@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using DotNetCasClient.Logging;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
 
@@ -40,6 +41,7 @@ namespace DotNetCasClient.Validation.TicketValidator
     abstract class AbstractUrlTicketValidator : ITicketValidator
     {
         #region Fields
+        protected static readonly Logger protoLogger = new Logger(Category.Protocol);
         private NameValueCollection _CustomParameters;
         #endregion
 
@@ -141,28 +143,26 @@ namespace DotNetCasClient.Validation.TicketValidator
         public ICasPrincipal Validate(string ticket)
         {
             string validationUrl = UrlUtil.ConstructValidateUrl(ticket, CasAuthentication.Gateway, CasAuthentication.Renew, CustomParameters);
-                
-            Trace.WriteLine(String.Format(string.Format("{0}:Constructed validation url:{1}", CommonUtils.MethodName, validationUrl)));
+            protoLogger.Debug("Constructed validation URL " + validationUrl);
 
             string serverResponse;
-
             try
             {
                 serverResponse = RetrieveResponseFromServer(validationUrl, ticket);
             }
             catch (Exception e)
             {
-                Trace.WriteLine("Ticket validation failed: " + e);
+                protoLogger.Info("Ticket validation failed: " + e);
                 throw new TicketValidationException("CAS server ticket validation threw an Exception", e);
             }
 
             if (serverResponse == null)
             {
-                Trace.WriteLine("CAS server returned no response");
+                protoLogger.Warn("CAS server returned no response");
                 throw new TicketValidationException("The CAS server returned no response.");
             }
 
-            Trace.WriteLine(String.Format("{0}:Ticket validation server response:>{1}<", CommonUtils.MethodName, serverResponse));
+            protoLogger.Debug("Ticket validation response:{0}{1}", Environment.NewLine, serverResponse);
 
             return ParseResponseFromServer(serverResponse, ticket);
         }

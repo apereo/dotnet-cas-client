@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
+using DotNetCasClient.Logging;
 using DotNetCasClient.Utils;
 
 namespace DotNetCasClient.Validation
@@ -31,6 +32,7 @@ namespace DotNetCasClient.Validation
     /// </summary>
     internal static class SamlUtils
     {
+        private static readonly Logger protoLogger = new Logger(Category.Protocol);
 #if DOT_NET_3
         /// <summary>
         /// Determines whether the SAML Assertion is valid in terms of the
@@ -162,23 +164,21 @@ namespace DotNetCasClient.Validation
         {
             if (notBefore == DateTime.MinValue || notOnOrAfter == DateTime.MinValue)
             {
-                Trace.WriteLine(String.Format("{0}:Assertion has no bounding dates.  Will not process.", CommonUtils.MethodName));
+                protoLogger.Debug("Assertion has no bounding dates.  Will not process.");
                 return false;
             }
+            protoLogger.Debug("Assertion validity window: {0} - {1} +/- {1}ms", notBefore, notOnOrAfter, toleranceTicks * 10000);
             
             long utcNowTicks = DateTime.UtcNow.Ticks;
-
-            Trace.WriteLine(String.Format("{0}:compare {1} < {2}", CommonUtils.MethodName, utcNowTicks + toleranceTicks, notBefore.Ticks));
-
             if (utcNowTicks + toleranceTicks < notBefore.Ticks)
             {
-                Trace.WriteLine(String.Format("{0}:skipping assertion that's not yet valid...", CommonUtils.MethodName));
+                protoLogger.Debug("Assertion is not yet valid.");
                 return false;
             }
             
             if (notOnOrAfter.Ticks <= utcNowTicks - toleranceTicks)
             {
-                Trace.WriteLine(String.Format("{0}:skipping expired assertion...", CommonUtils.MethodName));
+                protoLogger.Debug("Assertion is expired.");
                 return false;
             }
 
@@ -214,13 +214,17 @@ namespace DotNetCasClient.Validation
             XmlNode nameIdentifierNode = attributeStmtNode.SelectSingleNode("child::assertion:Subject/child::assertion:NameIdentifier", nsmgr);
             if (nameIdentifierNode == null)
             {
+                protoLogger.Debug("No NameIdentifier found in SAML response");
                 throw new TicketValidationException("No NameIdentifier found in AttributeStatement of the CAS response.");
             }
 
             string subject = nameIdentifierNode.FirstChild.Value;
             if (String.IsNullOrEmpty(subjectName) || !subjectName.Equals(subject))
             {
-                throw new TicketValidationException(string.Format("AttributeStatement subject ({0}) does not match requested subject ({1}) in the CAS response.", subject, subjectName));
+                string message = string.Format("Subject ({0}) does not match requested subject ({1}) in the CAS response.",
+                    subject, subjectName);
+                protoLogger.Debug(message);
+                throw new TicketValidationException(message);
             }
 
             IDictionary<string, IList<string>> attributes = new Dictionary<string, IList<string>>();

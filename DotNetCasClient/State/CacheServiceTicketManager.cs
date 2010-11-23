@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Web;
 using System.Web.Caching;
+using DotNetCasClient.Logging;
 using DotNetCasClient.Utils;
 
 namespace DotNetCasClient.State
@@ -39,6 +40,8 @@ namespace DotNetCasClient.State
         /// This prefix is prepended to CAS Service Ticket as the key to the cache.
         /// </summary>
         private const string CACHE_TICKET_KEY_PREFIX = "CasTicket::";
+
+        private static readonly Logger securityLogger = new Logger(Category.Security);
 
         /// <summary>
         /// The constructor is marked internal because this object is not suitable for use 
@@ -324,37 +327,17 @@ namespace DotNetCasClient.State
                 string cacheServiceTicket = cacheAuthTicket.ServiceTicket;
                 if (cacheServiceTicket == incomingServiceTicket)
                 {
-                    /*
-                    if (casAuthTicket.Expired)
-                    {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("{0}:Ticket [{1}] presented is already expired but did resolved to a ticket in the cache.  Removing from cache.", CommonUtils.MethodName, incomingServiceTicket);
-                        }
-                        RevokeTicket(incomingServiceTicket);
-                        return false;
-                    }
-
-                    if (cacheAuthTicket.Expired)
-                    {
-                        if (Log.IsDebugEnabled)
-                        {
-                            Log.DebugFormat("{0}:Ticket [{1}] resolved to an expired ticket in the cache.  Removing from cache.", CommonUtils.MethodName, incomingServiceTicket);
-                        }
-                        RevokeTicket(incomingServiceTicket);
-                        return false;
-                    }
-                    */
-
                     if (String.Compare(cacheAuthTicket.NetId, casAuthenticationTicket.NetId, true) != 0)
                     {
-                        Trace.WriteLine(String.Format("{0}:Ticket [{1}] failed username verification [{2}]", CommonUtils.MethodName, incomingServiceTicket, casAuthenticationTicket.NetId));
+                        securityLogger.Info("Username {0} in ticket {1} does not match cached value.",
+                            casAuthenticationTicket.NetId, incomingServiceTicket);
                         return false;
                     }
 
                     if (String.Compare(cacheAuthTicket.Assertion.PrincipalName, casAuthenticationTicket.Assertion.PrincipalName, true) != 0)
                     {
-                        Trace.WriteLine(String.Format("{0}:Ticket assertion failed username verification [{1}]", CommonUtils.MethodName, casAuthenticationTicket.Assertion.PrincipalName));
+                        securityLogger.Info("Principal name {0} in assertion of ticket {1} does not match cached value.",
+                            casAuthenticationTicket.NetId, casAuthenticationTicket.Assertion.PrincipalName);
                         return false;
                     }
 
@@ -363,7 +346,8 @@ namespace DotNetCasClient.State
             }
             else
             {
-                Trace.WriteLine(String.Format("{0}:Ticket [{1}] not found in cache.  Never existed, expired, or removed via Single Sign Out", CommonUtils.MethodName, incomingServiceTicket));
+                securityLogger.Info("Ticket {0} not found in cache.  Never existed, expired, or removed via single sign out",
+                    incomingServiceTicket);
                 return false;
             }
             return false;

@@ -26,6 +26,7 @@ using System.Web.Configuration;
 using System.Web.Security;
 using System.Xml;
 using DotNetCasClient.Configuration;
+using DotNetCasClient.Logging;
 using DotNetCasClient.Security;
 using DotNetCasClient.State;
 using DotNetCasClient.Utils;
@@ -49,6 +50,11 @@ namespace DotNetCasClient
         #endregion
 
         #region Fields
+        // Loggers
+        private static readonly Logger configLogger = new Logger(Category.Config);
+        private static readonly Logger protoLogger = new Logger(Category.Protocol);
+        private static readonly Logger securityLogger = new Logger(Category.Security);
+
         // Thread-safe initialization
         private static readonly object LockObject;
         private static bool initialized;
@@ -124,19 +130,20 @@ namespace DotNetCasClient
 
                         if (AuthenticationConfig == null)
                         {
-                            Trace.WriteLine("Application is not configured for Authentication");
-                            throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
+                            LogAndThrowConfigurationException(
+                                "The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
 
                         if (AuthenticationConfig.Mode != AuthenticationMode.Forms)
                         {
-                            Trace.WriteLine("Application is not configured for Forms Authentication");
-                            throw new CasConfigurationException("The CAS authentication provider requires Forms authentication to be enabled in web.config.");
+                            LogAndThrowConfigurationException(
+                                "The CAS authentication provider requires Forms authentication to be enabled in web.config.");
                         }
 
                         if (FormsAuthentication.CookieMode != HttpCookieMode.UseCookies)
                         {
-                            throw new CasConfigurationException("CAS requires Forms Authentication to use cookies (cookieless='UseCookies').");
+                            LogAndThrowConfigurationException(
+                                "CAS requires Forms Authentication to use cookies (cookieless='UseCookies').");
                         }
 
                         xmlReaderSettings = new XmlReaderSettings();
@@ -156,25 +163,41 @@ namespace DotNetCasClient
 
                         if (string.IsNullOrEmpty(CasClientConfig.CasServerUrlPrefix))
                         {
-                            throw new CasConfigurationException("The CasServerUrlPrefix is required");
+                            LogAndThrowConfigurationException("The CasServerUrlPrefix is required");
                         }
 
                         casServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
+                        configLogger.Info("casServerUrlPrefix = " + casServerUrlPrefix);
                         casServerLoginUrl = CasClientConfig.CasServerLoginUrl;
+                        configLogger.Info("casServerLoginUrl = " + casServerLoginUrl);
                         ticketValidatorName = CasClientConfig.TicketValidatorName;
+                        configLogger.Info("ticketValidatorName = " + ticketValidatorName);
                         ticketTimeTolerance = CasClientConfig.TicketTimeTolerance;
+                        configLogger.Info("ticketTimeTolerance = " + ticketTimeTolerance);
                         serverName = CasClientConfig.ServerName;
+                        configLogger.Info("serverName = " + serverName);
                         renew = CasClientConfig.Renew;
+                        configLogger.Info("renew = " + renew);
                         gateway = CasClientConfig.Gateway;
+                        configLogger.Info("gateway = " + gateway);
                         gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
+                        configLogger.Info("gatewayStatusCookieName = " + gatewayStatusCookieName);
                         redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
+                        configLogger.Info("redirectAfterValidation = " + redirectAfterValidation);
                         singleSignOut = CasClientConfig.SingleSignOut;
+                        configLogger.Info("singleSignOut = " + singleSignOut);
                         serviceTicketManagerProvider = CasClientConfig.ServiceTicketManager;
+                        configLogger.Info("serviceTicketManagerProvider = " + serviceTicketManagerProvider);
                         proxyTicketManagerProvider = CasClientConfig.ProxyTicketManager;
+                        configLogger.Info("proxyTicketManagerProvider = " + proxyTicketManagerProvider);
                         notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
+                        configLogger.Info("notAuthorizedUrl = " + notAuthorizedUrl);
                         cookiesRequiredUrl = CasClientConfig.CookiesRequiredUrl;
+                        configLogger.Info("cookiesRequiredUrl = " + cookiesRequiredUrl);
                         gatewayParameterName = CasClientConfig.GatewayParameterName;
+                        configLogger.Info("gatewayParameterName = " + gatewayParameterName);
                         proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
+                        configLogger.Info("proxyCallbackParameterName = " + proxyCallbackParameterName);
 
                         if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
@@ -190,7 +213,7 @@ namespace DotNetCasClient
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown ticket validator " + ticketValidatorName);
+                            LogAndThrowConfigurationException("Unknown ticket validator " + ticketValidatorName);
                         }
 
                         if (String.IsNullOrEmpty(serviceTicketManagerProvider))
@@ -203,7 +226,7 @@ namespace DotNetCasClient
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown service ticket manager provider: " + serviceTicketManagerProvider);
+                            LogAndThrowConfigurationException("Unknown service ticket manager provider: " + serviceTicketManagerProvider);
                         }
 
                         if (String.IsNullOrEmpty(proxyTicketManagerProvider))
@@ -216,34 +239,35 @@ namespace DotNetCasClient
                         }
                         else
                         {
-                            throw new CasConfigurationException("Unknown proxy ticket manager provider: " + proxyTicketManagerProvider);
+                            LogAndThrowConfigurationException("Unknown proxy ticket manager provider: " + proxyTicketManagerProvider);
                         }
 
                         // Validate configuration
                         bool haveServerName = !String.IsNullOrEmpty(serverName);
                         if (!haveServerName)
                         {
-                            throw new CasConfigurationException(CasClientConfiguration.SERVER_NAME + " cannot be null or empty.");
+                            LogAndThrowConfigurationException(CasClientConfiguration.SERVER_NAME + " cannot be null or empty.");
                         }
 
                         if (String.IsNullOrEmpty(casServerLoginUrl))
                         {
-                            throw new CasConfigurationException(CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
+                            LogAndThrowConfigurationException(CasClientConfiguration.CAS_SERVER_LOGIN_URL + " cannot be null or empty.");
                         }
 
                         if (serviceTicketManager == null && singleSignOut)
                         {
-                            throw new CasConfigurationException("Single Sign Out support requires a ServiceTicketManager.");
+                            LogAndThrowConfigurationException("Single Sign Out support requires a ServiceTicketManager.");
                         }
 
                         if (gateway && renew)
                         {
-                            throw new CasConfigurationException("Gateway and Renew functionalities are mutually exclusive");
+                            LogAndThrowConfigurationException("Gateway and Renew functionalities are mutually exclusive");
                         }
 
                         if (!redirectAfterValidation)
                         {
-                            throw new CasConfigurationException("Forms Authentication based modules require RedirectAfterValidation to be set to true.");
+                            LogAndThrowConfigurationException(
+                                "Forms Authentication based modules require RedirectAfterValidation to be set to true.");
                         }
 
                         initialized = true;
@@ -356,29 +380,29 @@ namespace DotNetCasClient
 
             if (ServiceTicketManager == null)
             {
-                throw new InvalidOperationException("Proxy authentication requires a ServiceTicketManager");
+                LogAndThrowConfigurationException("Proxy authentication requires a ServiceTicketManager");
             }
 
             FormsAuthenticationTicket formsAuthTicket = GetFormsAuthenticationTicket();
 
             if (formsAuthTicket == null)
             {
-                throw new InvalidOperationException("The request is not authenticated (does not have a CAS Service or Proxy ticket).");
+                LogAndThrowOperationException("The request is not authenticated (does not have a CAS Service or Proxy ticket).");
             }
 
             if (string.IsNullOrEmpty(formsAuthTicket.UserData))
             {
-                throw new InvalidOperationException("The request does not have a CAS Service Ticket.");
+                LogAndThrowOperationException("The request does not have a CAS Service Ticket.");
             }
 
             CasAuthenticationTicket casTicket = ServiceTicketManager.GetTicket(formsAuthTicket.UserData);
 
             if (casTicket == null)
             {
-                throw new InvalidOperationException("The request does not have a valid CAS Service Ticket.");
+                LogAndThrowOperationException("The request does not have a valid CAS Service Ticket.");
             }
             
-            string proxyTicketResponse;
+            string proxyTicketResponse = null;
             try
             {
                 string proxyUrl = UrlUtil.ConstructProxyTicketRequestUrl(casTicket.ProxyGrantingTicket, targetServiceUrl);
@@ -386,54 +410,49 @@ namespace DotNetCasClient
             }
             catch
             {
-                throw new TicketValidationException("Unable to obtain CAS Proxy Ticket.");
+                LogAndThrowOperationException("Unable to obtain CAS Proxy Ticket.");
             }
 
             if (String.IsNullOrEmpty(proxyTicketResponse))
             {
-                throw new TicketValidationException("Unable to obtain CAS Proxy Ticket (response was empty)");
+                LogAndThrowOperationException("Unable to obtain CAS Proxy Ticket (response was empty)");
             }
 
-            ServiceResponse serviceResponse;
+            string proxyTicket = null;
             try
             {
-                serviceResponse = ServiceResponse.ParseResponse(proxyTicketResponse);
+                ServiceResponse serviceResponse = ServiceResponse.ParseResponse(proxyTicketResponse);
+                if (serviceResponse.IsProxySuccess)
+                {
+                    ProxySuccess success = (ProxySuccess)serviceResponse.Item;
+                    if (!String.IsNullOrEmpty(success.ProxyTicket))
+                    {
+                        protoLogger.Info(String.Format("Proxy success: {0}", success.ProxyTicket));
+                    }
+                    proxyTicket = success.ProxyTicket;
+                }
+                else
+                {
+                    ProxyFailure failure = (ProxyFailure)serviceResponse.Item;
+                    if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
+                    {
+                       protoLogger.Info(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
+                    }
+                    else if (!String.IsNullOrEmpty(failure.Message))
+                    {
+                        protoLogger.Info(String.Format("Proxy failure: {0}", failure.Message));
+                    }
+                    else if (!String.IsNullOrEmpty(failure.Code))
+                    {
+                        protoLogger.Info(String.Format("Proxy failure: Code {0}", failure.Code));
+                    }
+                }
             }
             catch (InvalidOperationException)
             {
-                throw new TicketValidationException("CAS Server response does not conform to CAS 2.0 schema");
+                LogAndThrowOperationException("CAS Server response does not conform to CAS 2.0 schema");
             }
-
-            if (serviceResponse.IsProxyFailure)
-            {
-                ProxyFailure failure = (ProxyFailure)serviceResponse.Item;
-                if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
-                {
-                    Trace.WriteLine(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
-                }
-                else if (!String.IsNullOrEmpty(failure.Message))
-                {
-                    Trace.WriteLine(String.Format("Proxy failure: {0}", failure.Message));
-                }
-                else if (!String.IsNullOrEmpty(failure.Code))
-                {
-                    Trace.WriteLine(String.Format("Proxy failure: Code {0}", failure.Code));
-                }
-                return null;
-            }
-
-            if (serviceResponse.IsProxySuccess)
-            {
-                ProxySuccess success = (ProxySuccess) serviceResponse.Item;
-                if (!String.IsNullOrEmpty(success.ProxyTicket))
-                {
-                    Trace.WriteLine(String.Format("Proxy success: {0}", success.ProxyTicket));
-                }
-
-                return success.ProxyTicket;
-            }
-            
-            return null;
+            return proxyTicket;
         }
 
         /// <summary>
@@ -456,6 +475,7 @@ namespace DotNetCasClient
             HttpResponse response = context.Response;
 
             string redirectUrl = UrlUtil.ConstructLoginRedirectUrl(false, forceRenew);
+            protoLogger.Info("Redirecting to " + redirectUrl);
             response.Redirect(redirectUrl, false);
         }
 
@@ -558,7 +578,7 @@ namespace DotNetCasClient
             SetGatewayStatusCookie(GatewayStatus.Attempting);
 
             string redirectUrl = UrlUtil.ConstructLoginRedirectUrl(true, false);
-
+            protoLogger.Info("Performing gateway redirect to " + redirectUrl);
             response.Redirect(redirectUrl, false);
             application.CompleteRequest();
         }
@@ -581,6 +601,7 @@ namespace DotNetCasClient
 
             HttpContext context = HttpContext.Current;
             HttpResponse response = context.Response;
+
 
             // Necessary for ASP.NET MVC Support.
             if (context.User.Identity.IsAuthenticated)
@@ -610,22 +631,20 @@ namespace DotNetCasClient
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
 
-            Trace.WriteLine(String.Format("{0}:Processing SingleSignOut request", CommonUtils.MethodName));
+            protoLogger.Debug("Examining request for single sign-out signature");
 
             if (request.HttpMethod == "POST" && request.Form["logoutRequest"] != null)
             {
+                protoLogger.Debug("Attempting to get CAS service ticket from request");
                 // TODO: Should we be checking to make sure that this special POST is coming from a trusted source?
                 //       It would be tricky to do this by IP address because there might be a white list or something.
                 
                 string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Params["logoutRequest"]);
-                
-                Trace.WriteLine(String.Format("{0}:casTicket=[{1}]", CommonUtils.MethodName, casTicket));
-                
                 if (!String.IsNullOrEmpty(casTicket))
                 {
+                    protoLogger.Info("Processing single sign-out request for " + casTicket);
                     ServiceTicketManager.RevokeTicket(casTicket);
-
-                    Trace.WriteLine(String.Format("{0}:SingleSignOut returned true --> processed CAS logoutRequest", CommonUtils.MethodName));
+                    protoLogger.Debug("Successfully removed " + casTicket);
 
                     response.StatusCode = 200;
                     response.ContentType = "text/plain";
@@ -633,8 +652,6 @@ namespace DotNetCasClient
                     response.Write("OK");
 
                     context.ApplicationInstance.CompleteRequest();
-
-                    Trace.WriteLine(String.Format("{0}:Revoked casTicket [{1}]]", CommonUtils.MethodName, casTicket));
                 }
             }
         }
@@ -664,16 +681,16 @@ namespace DotNetCasClient
             string proxyGrantingTicket = request.Params[PARAM_PROXY_GRANTING_TICKET];
             if (String.IsNullOrEmpty(proxyGrantingTicket))
             {
-                Trace.WriteLine(String.Format("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET));
+                protoLogger.Info("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET);
                 return false;
             }
             else if (String.IsNullOrEmpty(proxyGrantingTicketIou))
             {
-                Trace.WriteLine(String.Format("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET_IOU));
+                protoLogger.Info("Invalid request - {0} parameter not found", PARAM_PROXY_GRANTING_TICKET_IOU);
                 return false;
             }
 
-            Trace.WriteLine(String.Format("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou));
+            protoLogger.Info("Recieved proxyGrantingTicketId [{0}] for proxyGrantingTicketIou [{1}]", proxyGrantingTicket, proxyGrantingTicketIou);
 
             ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
 
@@ -747,9 +764,10 @@ namespace DotNetCasClient
                 app.CompleteRequest();
                 return;
             }
-            catch (TicketValidationException)
+            catch (TicketValidationException e)
             {
                 // Leave principal null.  This might not have been a CAS service ticket.
+                protoLogger.Error("Ticket validation error: " + e);
             }
         }
 
@@ -783,7 +801,8 @@ namespace DotNetCasClient
 
                         if (!ServiceTicketManager.VerifyClientTicket(casTicket))
                         {
-                            Trace.WriteLine(String.Format("{0}:Ticket failed verification." + Environment.NewLine, CommonUtils.MethodName));
+
+                            securityLogger.Warn("CasAuthenticationTicket failed verification: " + casTicket);
 
                             // Deletes the invalid FormsAuthentication cookie from the client.
                             ClearAuthCookie();
@@ -811,6 +830,7 @@ namespace DotNetCasClient
                     {
                         // This didn't resolve to a ticket in the TicketStore.  Revoke it.
                         ClearAuthCookie();
+                        securityLogger.Debug("Revoking ticket " + serviceTicket);
                         ServiceTicketManager.RevokeTicket(serviceTicket);
 
                         // Don't give this request a User/Principal.  Remove it if it was created
@@ -1020,12 +1040,9 @@ namespace DotNetCasClient
         /// <returns>Instance of a FormsAuthenticationTicket</returns>
         public static FormsAuthenticationTicket CreateFormsAuthenticationTicket(string netId, string cookiePath, string serviceTicket, DateTime? validFromDate, DateTime? validUntilDate)
         {
-            CommonUtils.AssertNotNullOrEmpty(netId, "netId parameter cannot be null or empty.");
-            CommonUtils.AssertNotNullOrEmpty(serviceTicket, "serviceTicket parameter cannot be null or empty.");
-
             Initialize();
 
-            Trace.WriteLine(String.Format("{0}:Incoming CAS Assertion: {1}", CommonUtils.MethodName, serviceTicket));
+            protoLogger.Debug("Creating FormsAuthenticationTicket for " + serviceTicket);
 
             DateTime fromDate = validFromDate.HasValue ? validFromDate.Value : DateTime.Now;
             DateTime toDate = validUntilDate.HasValue ? validUntilDate.Value : fromDate.Add(FormsTimeout);
@@ -1133,6 +1150,18 @@ namespace DotNetCasClient
                 }
             }
             return elementText;
+        }
+
+        private static void LogAndThrowConfigurationException(string message)
+        {
+            configLogger.Error(message);
+            throw new CasConfigurationException(message);
+        }
+
+        private static void LogAndThrowOperationException(string message)
+        {
+            protoLogger.Error(message);
+            throw new InvalidOperationException(message);
         }
         #endregion
 

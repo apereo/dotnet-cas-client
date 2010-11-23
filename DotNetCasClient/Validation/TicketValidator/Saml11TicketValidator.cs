@@ -103,7 +103,7 @@ namespace DotNetCasClient.Validation.TicketValidator
         {
             if (response == null)
             {
-                throw new TicketValidationException("CAS Server could not validate ticket.");
+                throw new ArgumentNullException("response");
             }
 
             // parse Assertion element out of SAML response from CAS
@@ -111,7 +111,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             
             if (casSaml11Response.HasCasSamlAssertion)
             {
-                Trace.WriteLine(String.Format("{0}: Valid Assertion found: {1}", CommonUtils.MethodName, casSaml11Response.CasPrincipal.Assertion));
+                protoLogger.Debug("Valid Assertion found: " + casSaml11Response.CasPrincipal.Assertion);
                 return casSaml11Response.CasPrincipal;
             }
             else
@@ -193,7 +193,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             messageBuilder.AppendLine(@"</samlp:AssertionArtifact></samlp:Request></SOAP-ENV:Body></SOAP-ENV:Envelope>");
             string message = messageBuilder.ToString();
 
-            Trace.WriteLine(String.Format("{0}:messageBytes=>{1}< with length={2}", CommonUtils.MethodName, message, Encoding.UTF8.GetByteCount(message)));
+            protoLogger.Debug("Constructed SAML request:{0}{1}", Environment.NewLine, message);
             
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(validationUrl);
             req.Method = "POST";
@@ -202,26 +202,17 @@ namespace DotNetCasClient.Validation.TicketValidator
             req.CookieContainer = new CookieContainer();                
             req.Headers.Add("SOAPAction", "http://www.oasis-open.org/committees/security");                
             req.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-            
-            Trace.WriteLine(String.Format("{0}: CachePolicy={1} ContentLength={2} ContentType={3} Headers={4} Method={5} RequestUri={6}", CommonUtils.MethodName, req.CachePolicy, req.ContentLength, req.ContentType, req.Headers, req.Method, req.RequestUri));
+           
+            protoLogger.Debug("Request URI: " + req.RequestUri);
+            protoLogger.Debug("Request headers: " + req.Headers);
 
-            // ++ NETC-29
             byte[] payload = Encoding.UTF8.GetBytes(message);
             using (Stream requestStream = req.GetRequestStream())
             {
                 requestStream.Write(payload, 0, payload.Length);
             }
-            
-            // -- NETC-29
-            //using (StreamWriter requestWriter = new StreamWriter(req.GetRequestStream(), Encoding.UTF8))
-            //{
-            //    requestWriter.Write(message);
-            //    requestWriter.Flush();
-            //}
 
             HttpWebResponse response = (HttpWebResponse)req.GetResponse();
-            Trace.WriteLine(String.Format("{0}: Received {1} response from {2}", CommonUtils.MethodName, response.StatusCode, response.Server));
-
             Stream responseStream = response.GetResponseStream();
             if (responseStream != null)
             {

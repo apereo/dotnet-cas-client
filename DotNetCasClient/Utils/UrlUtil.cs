@@ -66,8 +66,6 @@ namespace DotNetCasClient.Utils
 
             string url = ub.Uri.AbsoluteUri;
 
-            Trace.WriteLine(String.Format("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url));
-
             return url;
         }
 
@@ -111,12 +109,7 @@ namespace DotNetCasClient.Utils
             {
                 ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
             }
-
-            string url = ub.Uri.AbsoluteUri;
-
-            Trace.WriteLine(String.Format("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url));
-            
-            return url;
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
@@ -162,12 +155,7 @@ namespace DotNetCasClient.Utils
                     ub.QueryItems.Add(key, value);
                 }
             }
-
-            string url = ub.Uri.AbsoluteUri;
-
-            Trace.WriteLine(String.Format("{0}: url=>{1}<", CommonUtils.MethodName, url));
-
-            return url;
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
@@ -197,11 +185,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructServiceUrl(false));
             ub.QueryItems.Set(CasAuthentication.ProxyCallbackParameterName, "true");
 
-            string url = ub.Uri.AbsoluteUri;
-
-            Trace.WriteLine(String.Format("{0}:return generated serviceUri: {1}", CommonUtils.MethodName, url));
-
-            return url;
+            return ub.Uri.AbsoluteUri;
         }
         
         /// <summary>
@@ -229,11 +213,7 @@ namespace DotNetCasClient.Utils
             ub.QueryItems.Add("pgt", proxyGrantingTicketId);
             ub.QueryItems.Add("targetService", HttpUtility.UrlEncode(targetService));
 
-            string url = ub.Uri.AbsoluteUri;
-
-            Trace.WriteLine(String.Format("{0}:return generated proxy ticket request Uri: {1}", CommonUtils.MethodName, url));
-
-            return url;
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
@@ -289,11 +269,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "logout"));
             ub.QueryItems.Set(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(false)));
 
-            string url = ub.Uri.AbsoluteUri;
-
-            Trace.WriteLine(String.Format("{0}: redirectToUrl=>{1}<", CommonUtils.MethodName, url));
-
-            return url;
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
@@ -321,11 +297,7 @@ namespace DotNetCasClient.Utils
                 ub.Port = uriServerName.Port;
             }
 
-            string result = ub.Uri.AbsoluteUri;
-            
-            Trace.WriteLine(String.Format("Redirecting to {0}", result));
-            
-            return result;
+            return ub.Uri.AbsoluteUri;
         }
 
         /// <summary>
