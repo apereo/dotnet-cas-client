@@ -24,11 +24,15 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DotNetCasClient")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyDescription("CAS client integration library for the .NET Framework.")]
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
+[assembly: AssemblyCompany("Jasig")]
 [assembly: AssemblyProduct("DotNetCasClient")]
-[assembly: AssemblyCopyright("Copyright © 2007-2010 The JA-SIG Collaborative. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2007-2010 Jasig.  All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

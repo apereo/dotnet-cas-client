@@ -24,11 +24,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DotNetCasProxyDemoApp")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Windows proxy demonstration application for .NET CAS Client.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Jasig")]
 [assembly: AssemblyProduct("DotNetCasProxyDemoApp")]
-[assembly: AssemblyCopyright("Copyright © 2007-2010 The JA-SIG Collaborative. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2007-2010 Jasig. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
