@@ -291,7 +291,17 @@ namespace DotNetCasClient.Utils
             ub.QueryItems.Remove(CasAuthentication.ProxyCallbackParameterName);
             
             // ++ NETC-28
-            Uri uriServerName = new Uri(CasAuthentication.ServerName);
+            Uri uriServerName;
+            if (CasAuthentication.ServerName.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) ||
+                CasAuthentication.ServerName.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                uriServerName = new Uri(CasAuthentication.ServerName);
+            }
+            else
+            {
+                // .NET URIs require scheme
+                uriServerName = new Uri("https://" + CasAuthentication.ServerName);
+            }
             if (uriServerName.Port != 80 || uriServerName.Port != 443)
             {
                 ub.Port = uriServerName.Port;
