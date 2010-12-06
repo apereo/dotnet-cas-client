@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Web;
@@ -41,6 +40,10 @@ namespace DotNetCasClient
     /// in the .NET framework.  It also exposes all configured CAS client configuration 
     /// parameters as public static properties.
     /// </summary>
+    /// <author>Marvin S. Addison</author>
+    /// <author>Scott Holodak</author>
+    /// <author>William G. Thompson, Jr.</author>
+    /// <author>Catherine D. Winfrey</author>
     public sealed class CasAuthentication
     {
         #region Constants

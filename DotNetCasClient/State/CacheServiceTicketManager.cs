@@ -20,7 +20,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Web;
 using System.Web.Caching;
 using DotNetCasClient.Logging;
@@ -34,6 +33,7 @@ namespace DotNetCasClient.State
     /// server (either in memory or on disk).  A limitation of this model is that it will not 
     /// support clustered, load balanced, or round-robin style configurations.
     /// </summary>
+    /// <author>Scott Holodak</author>
     public sealed class CacheServiceTicketManager : IServiceTicketManager
     {
         /// <summary>

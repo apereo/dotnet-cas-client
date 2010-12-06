@@ -22,6 +22,7 @@ namespace DotNetCasClient
     /// <summary>
     /// Lists the possible states of the gateway feature. 
     /// </summary>
+    /// <author>Scott Holodak</author>
     public enum GatewayStatus
     {
         /// <summary>

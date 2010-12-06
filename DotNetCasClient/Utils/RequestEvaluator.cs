@@ -26,6 +26,7 @@ namespace DotNetCasClient.Utils
     /// <summary>
     /// A utility class for evaluating the type of request 
     /// </summary>
+    /// <author>Scott Holodak</author>
     internal static class RequestEvaluator
     {
         // The requested content types that are appropriate for 

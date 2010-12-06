@@ -24,34 +24,9 @@ namespace DotNetCasClient.Utils
     /// <summary>
     /// Utility methods for the Jasig CAS Client.
     /// </summary>
+    /// <author>Marvin S. Addison</author>
     public static class CommonUtils
     {
-        /// <summary>
-        /// The name of the method that accessed this property, typically used for
-        /// logging purposes.
-        /// </summary>
-        public static string MethodName
-        {
-            get
-            {
-                // TODO: Check if this relies on reflection (i.e., will not work in Low/Medium trust configurations)
-                return new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name;
-            }
-        }
-
-        /// <summary>
-        /// The name of the parent of the method that accessed this property,
-        /// typically used for logging purposes.
-        /// </summary>
-        public static string ParentMethodName
-        {
-            get
-            {
-                // TODO: Check if this relies on reflection (i.e., will not work in Low/Medium trust configurations)
-                return new System.Diagnostics.StackTrace().GetFrame(2).GetMethod().Name;
-            }
-        }
-
         /// <summary>
         /// Checks whether the object is null.
         /// </summary>

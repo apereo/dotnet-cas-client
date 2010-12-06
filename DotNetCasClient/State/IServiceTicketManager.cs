@@ -26,6 +26,7 @@ namespace DotNetCasClient.State
     /// IServiceTicketManager defines the core contract that a ticket manager must implement in 
     /// order to support the CAS client features which require server-side state tracking.
     /// </summary>
+    /// <author>Scott Holodak</author>
     public interface IServiceTicketManager
     {
         /// <summary>

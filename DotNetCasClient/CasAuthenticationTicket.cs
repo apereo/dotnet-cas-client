@@ -31,6 +31,7 @@ namespace DotNetCasClient
     /// ServiceTicketManager instance.  Without a ServiceTicketManager configured, the 
     /// CasAuthententicationTicket cannot be retrieved.
     /// </summary>
+    /// <author>Scott Holodak</author>
     [Serializable]
     public sealed class CasAuthenticationTicket
     {
@@ -45,7 +46,7 @@ namespace DotNetCasClient
         /// The CAS Service Ticket returned from the CAS Server (typically as the 
         /// ticket parameter in the URL).
         /// </summary>
-        public string ServiceTicket { get; set; }
+        public string ServiceTicket { get; private set; }
 
         /// <summary>
         /// The Proxy Granting Ticket IOU used to retrieve a Proxy ticket.
@@ -60,7 +61,7 @@ namespace DotNetCasClient
         /// <summary>
         /// The Proxy path associated with the user
         /// </summary>
-        public List<string> Proxies { get; internal set; }
+        public List<string> Proxies { get; private set; }
 
         /// <summary>
         /// The ServiceName used during the initial authentication and ticket 
@@ -68,7 +69,7 @@ namespace DotNetCasClient
         /// server, this is used as a safety mechanism to confirm that the CAS 
         /// server's SSO request is valid.
         /// </summary>
-        public string OriginatingServiceName { get; set; }
+        public string OriginatingServiceName { get; private set; }
 
         /// <summary>
         /// The IP address of the client that originally requested the CAS Service 
@@ -76,14 +77,14 @@ namespace DotNetCasClient
         /// ServiceTicketManager configured to detect and/or prevent multiple logins by a 
         /// user from different IP addresses.  
         /// </summary>
-        public string ClientHostAddress { get; set; }
+        public string ClientHostAddress { get; private set; }
 
         /// <summary>
         /// The CAS assertion associated with the service ticket.  This contains the 
         /// principal name, the validity date/times, and the attributes associated
         /// with the service ticket.
         /// </summary>
-        public IAssertion Assertion { get; set; }
+        public IAssertion Assertion { get; private set; }
 
         /// <summary>
         /// The ValidFromDate associated with the ticket.  This is derived from, but 
@@ -91,7 +92,7 @@ namespace DotNetCasClient
         /// ValidFromDate is equal to DateTime.MinValue, the CasAuthenticationTicket's 
         /// ValidFromDate is set to DateTime.Now.
         /// </summary>
-        public DateTime ValidFromDate { get; set; }
+        public DateTime ValidFromDate { get; private set; }
 
         /// <summary>
         /// The ValidUntilDate associated with the ticket.  This is derived from, but
@@ -102,7 +103,7 @@ namespace DotNetCasClient
         /// the past, the ValidFromDate + FormsAuthentication.Timeout timespan is
         /// used.
         /// </summary>
-        public DateTime ValidUntilDate { get; set; }
+        public DateTime ValidUntilDate { get; private set; }
 
         /// <summary>
         /// Readonly property which indicates whether or not the ValidUntilDate is in
@@ -121,7 +122,7 @@ namespace DotNetCasClient
         /// <summary>
         /// Empty constructor (to be used during Serialization/Deserialization)
         /// </summary>
-        public CasAuthenticationTicket()
+        private CasAuthenticationTicket()
         {
             CasAuthentication.Initialize();
             Proxies = new List<string>();

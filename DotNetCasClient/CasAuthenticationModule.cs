@@ -18,7 +18,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Web;
 using DotNetCasClient.Logging;
 using DotNetCasClient.Utils;
@@ -28,6 +27,10 @@ namespace DotNetCasClient
     /// <summary>
     /// HttpModule implementation to intercept requests and perform authentication via CAS.
     /// </summary>
+    /// <author>Marvin S. Addison</author>
+    /// <author>Scott Holodak</author>
+    /// <author>William G. Thompson, Jr.</author>
+    /// <author>Catherine D. Winfrey</author>
     public sealed class CasAuthenticationModule : IHttpModule
     {
         private static readonly Logger logger = new Logger(Category.HttpModule);

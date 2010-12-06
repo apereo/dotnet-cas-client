@@ -7,6 +7,7 @@ namespace DotNetCasClient.Utils
     /// <summary>
     /// A helper utility class to facilitate outbound HTTP GET and POST request
     /// </summary>
+    /// <author>Scott Holodak</author>
     internal static class HttpUtil
     {
         /// <summary>

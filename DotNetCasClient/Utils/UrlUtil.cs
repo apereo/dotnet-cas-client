@@ -19,20 +19,20 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Text;
 using System.Web;
 
 namespace DotNetCasClient.Utils
 {
-    ///<summary>
+    /// <summary>
     /// An internal class used to generate and modify URLs
     /// as needed for redirection and external communication.
-    ///</summary>
-    ///<remarks>
+    /// </summary>
+    /// <remarks>
     /// See https://wiki.jasig.org/display/CASC/UrlUtil+Methods for additional
     /// information including sample output of each method.
-    ///</remarks>
+    /// </remarks>
+    /// <author>Scott Holodak</author>
     public sealed class UrlUtil
     {
         /// <summary>
@@ -316,9 +316,9 @@ namespace DotNetCasClient.Utils
         /// <remarks>
         /// Derived from: http://weblogs.asp.net/palermo4/archive/2004/06/18/getting-the-absolute-path-in-asp-net-part-2.aspx
         /// </remarks>        
+        /// </summary>
         /// <author>J. Michael Palermo IV</author>
         /// <author>Scott Holodak</author>
-        /// </summary>
         /// <param name="url">The Url to resolve</param>
         /// <returns>The fullly resolved Url</returns>
         internal static string ResolveUrl(string url)

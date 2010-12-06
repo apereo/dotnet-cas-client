@@ -25,6 +25,8 @@ namespace DotNetCasClient.Configuration
     /// <summary>
     /// CAS specific ConfigurationSection for Web.config.
     /// </summary>
+    /// <author>Scott Holodak</author>
+    /// <author>Marvin S. Addison</author>
     class CasClientConfiguration : ConfigurationSection
     {
         #region Fields

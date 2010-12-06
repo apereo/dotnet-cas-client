@@ -26,6 +26,7 @@ namespace DotNetCasClient.State
     /// persistent storage mechanism that is accessible from any node or server that handles
     /// web requests.
     ///</summary>
+    /// <author>Scott Holodak</author>
     public interface IProxyTicketManager
     {
         /// <summary>
