@@ -19,10 +19,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Xml;
 using DotNetCasClient.Logging;
-using DotNetCasClient.Utils;
 
 namespace DotNetCasClient.Validation
 {
@@ -32,116 +30,8 @@ namespace DotNetCasClient.Validation
     /// </summary>
     internal static class SamlUtils
     {
-        private static readonly Logger protoLogger = new Logger(Category.Protocol);
-#if DOT_NET_3
-        /// <summary>
-        /// Determines whether the SAML Assertion is valid in terms of the
-        /// 'not before' and the 'not on or after' times.
-        /// </summary>
-        /// <param name="assertion">the SAML Assertion to be checked</param>
-        /// <param name="toleranceTicks">
-        /// Tolerance ticks for checking the current time against the SAML Assertion
-        /// valid times.
-        /// </param>
-        /// <returns>
-        /// true if this Assertion is valid relative to the current time; otherwise
-        /// returns false
-        /// </returns>
-        public static bool IsValidAssertion(System.IdentityModel.Tokens.SamlAssertion assertion, long toleranceTicks)
-        {
-            DateTime notBefore = assertion.Conditions.NotBefore;
-            DateTime notOnOrAfter = assertion.Conditions.NotOnOrAfter;
+        private static readonly Logger ProtoLogger = new Logger(Category.Protocol);
 
-            return IsValidAssertion(notBefore, notOnOrAfter, toleranceTicks);
-        }
-
-
-        /// <summary>
-        ///  Populates an IList with the Values from a SAML Attribute.
-        /// </summary>
-        /// <param name="attribute">the SAML Attribute to be parsed</param>
-        /// <returns>
-        /// the IList of existing values, which will be an empty List if no
-        /// values are found
-        /// </returns>
-        public static IList<string> GetValuesFor(System.IdentityModel.Tokens.SamlAttribute attribute)
-        {
-            IList<string> values = new List<string>();
-            foreach (string value in attribute.AttributeValues)
-            {
-                values.Add(value);
-            }
-            return values;
-        }
-
-
-        /// <summary>
-        /// Retrieves the Authentication Statement from a SAML Assertion.
-        /// </summary>
-        /// <param name="assertion">the SAML Assertion to be parsed</param>
-        /// <returns>
-        /// the Authentication Statement for this Assertion if one exists; otherwise
-        /// returns null.
-        /// </returns>
-        public static System.IdentityModel.Tokens.SamlAuthenticationStatement GetSAMLAuthenticationStatement(System.IdentityModel.Tokens.SamlAssertion assertion)
-        {
-            IEnumerable<System.IdentityModel.Tokens.SamlStatement> samlStmtEnum = assertion.Statements;
-            Type targetTypeAuth = typeof(System.IdentityModel.Tokens.SamlAuthenticationStatement);
-            
-            int stmtCount = 0;            
-            foreach (Object obj in samlStmtEnum)
-            {
-                stmtCount++;
-                System.IdentityModel.Tokens.SamlStatement nextStmt = (System.IdentityModel.Tokens.SamlStatement) obj;
-                if (nextStmt.GetType().Equals(targetTypeAuth))
-                {
-                    return (System.IdentityModel.Tokens.SamlAuthenticationStatement) nextStmt;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Populates an IList with the Attributes from the SAML Assertion for the
-        /// given SAML subject.
-        /// </summary>
-        /// <param name="assertion">the SAML Assertion to be parsed</param>
-        /// <param name="subject">
-        /// the SAML Subject for which Attributes are to be retrieved
-        /// </param>
-        /// <returns>
-        /// the IList of matching attributes, which will be an empty List if no
-        /// matches are found
-        /// </returns>
-        public static IList<System.IdentityModel.Tokens.SamlAttribute> GetAttributesFor(System.IdentityModel.Tokens.SamlAssertion assertion, System.IdentityModel.Tokens.SamlSubject subject)
-        {
-            IList<System.IdentityModel.Tokens.SamlAttribute> attributes = new List<System.IdentityModel.Tokens.SamlAttribute>();
-            IEnumerable<System.IdentityModel.Tokens.SamlStatement> samlStmtEnum = assertion.Statements;
-            Type targetTypeAttr = typeof(System.IdentityModel.Tokens.SamlAttributeStatement);
-
-            foreach (Object obj in samlStmtEnum)
-            {
-                System.IdentityModel.Tokens.SamlStatement nextStmt = (System.IdentityModel.Tokens.SamlStatement)obj;
-                if (nextStmt.GetType().Equals(targetTypeAttr))
-                {
-                    System.IdentityModel.Tokens.SamlAttributeStatement attributeStatement = (System.IdentityModel.Tokens.SamlAttributeStatement) nextStmt;
-                    if (!(subject.Equals(attributeStatement.SamlSubject) || subject.Name.Equals(attributeStatement.SamlSubject.Name)))
-                    {
-                        continue;
-                    }
-
-                    // Found attributes for this Subject.  Transfer them to List.
-                    foreach (System.IdentityModel.Tokens.SamlAttribute nextAttr in attributeStatement.Attributes)
-                    {
-                        attributes.Add(nextAttr);
-                    }
-                }
-            }
-            
-            return attributes;
-        }
-#endif
         /// <summary>
         /// Determines whether the SAML Assertion is valid in terms of the
         /// 'not before' and the 'not on or after' times.
@@ -164,21 +54,21 @@ namespace DotNetCasClient.Validation
         {
             if (notBefore == DateTime.MinValue || notOnOrAfter == DateTime.MinValue)
             {
-                protoLogger.Debug("Assertion has no bounding dates.  Will not process.");
+                ProtoLogger.Debug("Assertion has no bounding dates.  Will not process.");
                 return false;
             }
-            protoLogger.Debug("Assertion validity window: {0} - {1} +/- {2}ms", notBefore, notOnOrAfter, toleranceTicks / 10000);
+            ProtoLogger.Debug("Assertion validity window: {0} - {1} +/- {2}ms", notBefore, notOnOrAfter, toleranceTicks / 10000);
             
             long utcNowTicks = DateTime.UtcNow.Ticks;
             if (utcNowTicks + toleranceTicks < notBefore.Ticks)
             {
-                protoLogger.Debug("Assertion is not yet valid.");
+                ProtoLogger.Debug("Assertion is not yet valid.");
                 return false;
             }
             
             if (notOnOrAfter.Ticks <= utcNowTicks - toleranceTicks)
             {
-                protoLogger.Debug("Assertion is expired.");
+                ProtoLogger.Debug("Assertion is expired.");
                 return false;
             }
 
@@ -214,7 +104,7 @@ namespace DotNetCasClient.Validation
             XmlNode nameIdentifierNode = attributeStmtNode.SelectSingleNode("child::assertion:Subject/child::assertion:NameIdentifier", nsmgr);
             if (nameIdentifierNode == null)
             {
-                protoLogger.Debug("No NameIdentifier found in SAML response");
+                ProtoLogger.Debug("No NameIdentifier found in SAML response");
                 throw new TicketValidationException("No NameIdentifier found in AttributeStatement of the CAS response.");
             }
 
@@ -223,7 +113,7 @@ namespace DotNetCasClient.Validation
             {
                 string message = string.Format("Subject ({0}) does not match requested subject ({1}) in the CAS response.",
                     subject, subjectName);
-                protoLogger.Debug(message);
+                ProtoLogger.Debug(message);
                 throw new TicketValidationException(message);
             }
 
