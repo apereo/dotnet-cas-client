@@ -302,10 +302,10 @@ namespace DotNetCasClient.Utils
                 // .NET URIs require scheme
                 uriServerName = new Uri("https://" + CasAuthentication.ServerName);
             }
-            if (uriServerName.Port != 80 || uriServerName.Port != 443)
-            {
-                ub.Port = uriServerName.Port;
-            }
+
+            ub.Scheme = uriServerName.Scheme;
+            ub.Host = uriServerName.Host;
+            ub.Port = uriServerName.Port;
 
             return ub.Uri.AbsoluteUri;
         }

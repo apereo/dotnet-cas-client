@@ -3,14 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCasClient", "DotNetCasClient\DotNetCasClient.csproj", "{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{8CE89EF1-2586-4602-AC30-51753D393390}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{AB664070-2775-4311-8D0F-BF76FD20EB3A}"
-	ProjectSection(SolutionItems) = preProject
-		Common.targets = Common.targets
-		MSBuild.Community.Tasks.targets = MSBuild.Community.Tasks.targets
-	EndProjectSection
-EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ExampleWebSite", "ExampleWebSite\", "{F9E9F25D-1008-4098-A4A7-179A0512F745}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFramework = "3.5"
@@ -35,10 +27,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCasProxyDemoApp", "DotNetCasProxyDemoApp\DotNetCasProxyDemoApp.csproj", "{C8D6000A-13EC-4F2E-8FCD-AC7806F5BD4C}"
 EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|.NET = Debug|.NET
 		Debug|Any CPU = Debug|Any CPU
@@ -62,30 +50,6 @@ Global
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}.Release|x86.ActiveCfg = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|.NET.ActiveCfg = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|.NET.ActiveCfg = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{8CDD7266-891D-42A1-BDE7-312EC740982C}.Release|x86.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|.NET.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|.NET.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{8CE89EF1-2586-4602-AC30-51753D393390}.Release|x86.ActiveCfg = Release|Any CPU
 		{F9E9F25D-1008-4098-A4A7-179A0512F745}.Debug|.NET.ActiveCfg = Debug|.NET
 		{F9E9F25D-1008-4098-A4A7-179A0512F745}.Debug|.NET.Build.0 = Debug|.NET
 		{F9E9F25D-1008-4098-A4A7-179A0512F745}.Debug|Any CPU.ActiveCfg = Debug|.NET
@@ -113,5 +77,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal
