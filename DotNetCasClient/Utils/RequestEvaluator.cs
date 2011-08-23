@@ -29,22 +29,6 @@ namespace DotNetCasClient.Utils
     /// <author>Scott Holodak</author>
     internal static class RequestEvaluator
     {
-        // The requested content types that are appropriate for 
-        // authentication-related redirections
-        private static readonly string[] AppropriateContentTypes = new[] 
-            {
-                "text/plain",
-                "text/html"
-            };
-
-        // The built in ASP.NET handler files that are inappropriate
-        // for authentication-related redirections.
-        private static readonly string[] BuiltInHandlers = new[]
-            {
-                "trace.axd",
-                "webresource.axd"        
-            };
-        
         /// <summary>
         /// Determines whether the request has a CAS ticket in the URL
         /// </summary>
@@ -355,22 +339,30 @@ namespace DotNetCasClient.Utils
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;
 
-            string contentType = response.ContentType.ToLowerInvariant();
+            string contentType = response.ContentType;
             string fileName = request.Url.Segments[request.Url.Segments.Length - 1];
 
             bool contentTypeIsEligible = false;
             bool fileNameIsEligible = true;
 
-            foreach (string appropriateContentType in AppropriateContentTypes)
+            if (string.IsNullOrEmpty(contentType) && CasAuthentication.RequireCasForMissingContentTypes)
             {
-                if (string.Compare(contentType, appropriateContentType, true, CultureInfo.InvariantCulture) == 0)
+                contentTypeIsEligible = true;
+            }
+
+            if (!contentTypeIsEligible)
+            {
+                foreach (string appropriateContentType in CasAuthentication.RequireCasForContentTypes)
                 {
-                    contentTypeIsEligible = true;
-                    break;
+                    if (string.Compare(contentType, appropriateContentType, true, CultureInfo.InvariantCulture) == 0)
+                    {
+                        contentTypeIsEligible = true;
+                        break;
+                    }
                 }
             }
 
-            foreach (string builtInHandler in BuiltInHandlers)
+            foreach (string builtInHandler in CasAuthentication.BypassCasForHandlers)
             {
                 if (string.Compare(fileName, builtInHandler, true, CultureInfo.InvariantCulture) == 0)
                 {
@@ -379,7 +371,6 @@ namespace DotNetCasClient.Utils
                 }
             }
 
-            // TODO: Should this be || instead of && ?
             return (contentTypeIsEligible && fileNameIsEligible);
         }        
     }

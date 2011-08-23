@@ -96,6 +96,9 @@ namespace DotNetCasClient
         private static string cookiesRequiredUrl;
         private static string gatewayParameterName;
         private static string proxyCallbackParameterName;
+        private static bool requireCasForMissingContentTypes;
+        private static string[] requireCasForContentTypes;
+        private static string[] bypassCasForHandlers;
 
         // XML Reader Settings for SAML parsing.
         private static XmlReaderSettings xmlReaderSettings;
@@ -171,36 +174,60 @@ namespace DotNetCasClient
 
                         casServerUrlPrefix = CasClientConfig.CasServerUrlPrefix;
                         configLogger.Info("casServerUrlPrefix = " + casServerUrlPrefix);
+                        
                         casServerLoginUrl = CasClientConfig.CasServerLoginUrl;
                         configLogger.Info("casServerLoginUrl = " + casServerLoginUrl);
+                        
                         ticketValidatorName = CasClientConfig.TicketValidatorName;
                         configLogger.Info("ticketValidatorName = " + ticketValidatorName);
+                        
                         ticketTimeTolerance = CasClientConfig.TicketTimeTolerance;
                         configLogger.Info("ticketTimeTolerance = " + ticketTimeTolerance);
+                        
                         serverName = CasClientConfig.ServerName;
                         configLogger.Info("serverName = " + serverName);
+                        
                         renew = CasClientConfig.Renew;
                         configLogger.Info("renew = " + renew);
+                        
                         gateway = CasClientConfig.Gateway;
                         configLogger.Info("gateway = " + gateway);
+                        
                         gatewayStatusCookieName = CasClientConfig.GatewayStatusCookieName;
                         configLogger.Info("gatewayStatusCookieName = " + gatewayStatusCookieName);
+                        
                         redirectAfterValidation = CasClientConfig.RedirectAfterValidation;
                         configLogger.Info("redirectAfterValidation = " + redirectAfterValidation);
+                        
                         singleSignOut = CasClientConfig.SingleSignOut;
                         configLogger.Info("singleSignOut = " + singleSignOut);
+                        
                         serviceTicketManagerProvider = CasClientConfig.ServiceTicketManager;
                         configLogger.Info("serviceTicketManagerProvider = " + serviceTicketManagerProvider);
+                        
                         proxyTicketManagerProvider = CasClientConfig.ProxyTicketManager;
                         configLogger.Info("proxyTicketManagerProvider = " + proxyTicketManagerProvider);
+                        
                         notAuthorizedUrl = CasClientConfig.NotAuthorizedUrl;
                         configLogger.Info("notAuthorizedUrl = " + notAuthorizedUrl);
+                        
                         cookiesRequiredUrl = CasClientConfig.CookiesRequiredUrl;
                         configLogger.Info("cookiesRequiredUrl = " + cookiesRequiredUrl);
+                        
                         gatewayParameterName = CasClientConfig.GatewayParameterName;
                         configLogger.Info("gatewayParameterName = " + gatewayParameterName);
+                        
                         proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
                         configLogger.Info("proxyCallbackParameterName = " + proxyCallbackParameterName);
+
+                        requireCasForMissingContentTypes = CasClientConfig.RequireCasForMissingContentTypes;
+                        configLogger.Info("requireCasForMissingContentTypes = " + requireCasForMissingContentTypes);
+
+                        requireCasForContentTypes = CasClientConfig.RequireCasForContentTypes;
+                        configLogger.Info("requireCasForContentTypes = " + requireCasForContentTypes);
+
+                        bypassCasForHandlers = CasClientConfig.BypassCasForHandlers;
+                        configLogger.Info("bypassCasForHandlers = " + bypassCasForHandlers);
 
                         if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
@@ -1470,6 +1497,43 @@ namespace DotNetCasClient
                 return proxyCallbackParameterName;
             }
         }
+
+        /// <summary>
+        /// Specifies whether to require CAS for requests that have null/empty content-types
+        /// </summary>
+        public static bool RequireCasForMissingContentTypes
+        {
+            get
+            {
+                Initialize();
+                return requireCasForMissingContentTypes;
+            }
+        }
+
+        /// <summary>
+        /// Content-types for which CAS authentication will be required
+        /// </summary>
+        public static string[] RequireCasForContentTypes
+        {
+            get
+            {
+                Initialize();
+                return requireCasForContentTypes;
+            }
+        }
+
+        /// <summary>
+        /// Handlers for which CAS authentication will be bypassed.
+        /// </summary>
+        public static string[] BypassCasForHandlers
+        {
+            get
+            {
+                Initialize();
+                return bypassCasForHandlers;
+            }
+        }
+
         #endregion
     }
 }

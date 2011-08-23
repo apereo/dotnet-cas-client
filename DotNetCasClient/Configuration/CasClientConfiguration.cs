@@ -27,7 +27,7 @@ namespace DotNetCasClient.Configuration
     /// </summary>
     /// <author>Scott Holodak</author>
     /// <author>Marvin S. Addison</author>
-    class CasClientConfiguration : ConfigurationSection
+    public class CasClientConfiguration : ConfigurationSection
     {
         #region Fields
         // Required Properties
@@ -46,6 +46,9 @@ namespace DotNetCasClient.Configuration
         public const string GATEWAY_STATUS_COOKIE_NAME = "gatewayStatusCookieName";
         public const string ARTIFACT_PARAMETER_NAME = "artifactParameterName";
         public const string SERVICE_PARAMETER_NAME = "serviceParameterName";
+        public const string REQUIRE_CAS_FOR_MISSING_CONTENT_TYPES_PARAMETER_NAME = "requireCasForMissingContentTypes";
+        public const string REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME = "requireCasForContentTypes";
+        public const string BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME = "bypassCasForHandlers";
         
         // NETC-20 - Not sure whether these attributes are relevant.
         // public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
@@ -234,6 +237,62 @@ namespace DotNetCasClient.Configuration
                 return this[SERVICE_PARAMETER_NAME] as string ?? "service";
             }
         }
+
+        /// <summary>
+        /// Specifies whether to require CAS for requests that have null/empty content-types
+        /// </summary>
+        [ConfigurationProperty(REQUIRE_CAS_FOR_MISSING_CONTENT_TYPES_PARAMETER_NAME, IsRequired = false, DefaultValue = true)]
+        public bool RequireCasForMissingContentTypes
+        {
+            get
+            {
+                return Convert.ToBoolean(this[REQUIRE_CAS_FOR_MISSING_CONTENT_TYPES_PARAMETER_NAME]);
+            }
+        }
+
+        /// <summary>
+        /// Content-types for which CAS authentication will be required
+        /// </summary>
+        [ConfigurationProperty(REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME, IsRequired = false, DefaultValue = new[] { "text/plain", "text/html" })]
+        public string[] RequireCasForContentTypes { 
+            get
+            {
+                string[] types = ((this[REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME] as string) ?? "text/plain,text/html").Split(',');
+                for (int i = 0; i < types.Length; i++)
+                {
+                    string type = types[i];
+                    if (type.StartsWith(" ") || type.EndsWith(" "))
+                    {
+                        types[i] = type.Trim();
+                    }
+                }
+                return types;
+            }
+        }
+
+        /// <summary>
+        /// Handlers for which CAS authentication will be bypassed.
+        /// </summary>
+        [ConfigurationProperty(BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME, IsRequired = false, DefaultValue = new[] { "trace.axd", "webresource.axd" })]
+        public string[] BypassCasForHandlers
+        {
+            get
+            {
+                string[] types = ((this[REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME] as string) ?? "trace.axd,webresource.axd").Split(',');
+                for (int i = 0; i < types.Length; i++)
+                {
+                    string type = types[i];
+                    if (type.StartsWith(" ") || type.EndsWith(" "))
+                    {
+                        types[i] = type.Trim();
+                    }
+                }
+                return types;
+            }
+        }
+
+        // public const string REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME = "requireCasForContentTypes";
+        // public const string BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME = "bypassCasForHandlers";
 
         /// <summary>
         /// Whether to redirect to the same URL after ticket validation, but without the ticket
