@@ -100,6 +100,11 @@ namespace DotNetCasClient
         private static string[] requireCasForContentTypes;
         private static string[] bypassCasForHandlers;
 
+        // Provide reliable way for arbitrary components in forms
+        // authentication pipeline to access CAS principal
+        [ThreadStatic]
+        private static ICasPrincipal currentPrincipal;
+
         // XML Reader Settings for SAML parsing.
         private static XmlReaderSettings xmlReaderSettings;
 
@@ -118,6 +123,14 @@ namespace DotNetCasClient
         {
             LockObject = new object();
         }
+
+        /// <summary>
+        /// Current authenticated principal or null if current user is unauthenticated.
+        /// </summary>
+        public static ICasPrincipal CurrentPrincipal
+        {
+            get { return currentPrincipal; }
+        }   
 
         /// <summary>
         /// Initializes configuration-related properties and validates configuration.
@@ -875,6 +888,7 @@ namespace DotNetCasClient
 
                 context.User = principal;
                 Thread.CurrentPrincipal = principal;
+                currentPrincipal = principal;
 
                 if (principal == null)
                 {

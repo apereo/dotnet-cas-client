@@ -174,7 +174,7 @@
         </authorization>
         <roleManager enabled="true" defaultProvider="AspNetReadOnlyXmlRoleProvider">
             <providers>
-                <add name="AspNetReadOnlyXmlRoleProvider" type="Example.ReadOnlyXmlRoleProvider" xmlFileName="~/App_Data/UserRoles.xml"/>
+                <add name="AspNetReadOnlyXmlRoleProvider" type="DotNetCasClient.Security.ReadOnlyXmlRoleProvider" xmlFileName="~/App_Data/UserRoles.xml"/>
             </providers>
         </roleManager>
         <siteMap enabled="true">

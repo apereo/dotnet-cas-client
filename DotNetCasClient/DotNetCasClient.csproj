@@ -69,9 +69,11 @@
     <Compile Include="Logging\Category.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\Assertion.cs" />
+    <Compile Include="Security\AssertionRoleProvider.cs" />
     <Compile Include="Security\CasPrincipal.cs" />
     <Compile Include="Security\IAssertion.cs" />
     <Compile Include="Security\ICasPrincipal.cs" />
+    <Compile Include="Security\ReadOnlyXmlRoleProvider.cs" />
     <Compile Include="State\CacheProxyTicketManager.cs" />
     <Compile Include="State\CacheServiceTicketManager.cs" />
     <Compile Include="State\IProxyTicketManager.cs" />

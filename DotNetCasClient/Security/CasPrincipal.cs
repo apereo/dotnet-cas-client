@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Principal;
+using System.Web.Security;
 using DotNetCasClient.Utils;
 
 namespace DotNetCasClient.Security
@@ -89,17 +90,32 @@ namespace DotNetCasClient.Security
 
         /// <summary>
         /// Determines whether the user identified by this principal is
-        /// in the role supplied.
+        /// in the given role by delegating to the default <see cref="RoleProvider"/>.
         /// </summary>
         /// <param name="role">The role to check for membership</param>
         /// <returns>
-        /// True or False indicating whether the user is in the role 
-        /// specified.
+        /// True if this principal is a member of the given role, false otherwise.
         /// </returns>
         public bool IsInRole(string role)
         {
-            // TODO answer this with query to Attributes???)
-            throw new NotImplementedException();
+            // Delegate to a role provider if this is a Web context and one is configured
+            if (Roles.Provider != null)
+            {
+                return Roles.Provider.IsUserInRole(Identity.Name, role);
+            }
+            // Default to assertion as role data source.
+            // Since we do not know the attribute name,
+            // iterate over all attributes looking for one with the matching value.
+            // It should be a fairly safe assumption that attributes have
+            // distinct namespaces.
+            foreach (string attr in Assertion.Attributes.Keys)
+            {
+                if (Assertion.Attributes[attr].Contains(role))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         #endregion
 

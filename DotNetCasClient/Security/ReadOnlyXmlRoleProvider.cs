@@ -26,8 +26,33 @@ using System.Xml;
 using System.Security.Permissions;
 using System.Web;
 
-namespace Example
+namespace DotNetCasClient.Security
 {
+    /// <summary>
+    /// Simple role provider that uses an immutable username-role mapping in an XML to define
+    /// role membership.  Sample XML follows:
+    /// <code>
+    ///&lt;Users&gt;
+    ///    &lt;User&gt;
+    ///        &lt;UserName&gt;admin&lt;/UserName&gt;
+    ///        &lt;Roles&gt;Administrators&lt;/Roles&gt;
+    ///    &lt;/User&gt;
+    ///    &lt;User&gt;
+    ///        &lt;UserName&gt;user&lt;/UserName&gt;
+    ///        &lt;Roles&gt;Users&lt;/Roles&gt;
+    ///    &lt;/User&gt;
+    ///    &lt;User&gt;
+    ///        &lt;UserName&gt;bob&lt;/UserName&gt;
+    ///        &lt;Roles&gt;Users&lt;/Roles&gt;
+    ///    &lt;/User&gt;
+    ///    &lt;User&gt;
+    ///        &lt;UserName&gt;noroles&lt;/UserName&gt;
+    ///        &lt;Roles&gt;&lt;/Roles&gt;
+    ///    &lt;/User&gt;
+    ///&lt;/Users&gt;
+    /// </code>
+    /// 
+    /// </summary>
     public class ReadOnlyXmlRoleProvider : RoleProvider
     {
         private readonly Dictionary<string, string[]> usersAndRoles = new Dictionary<string, string[]>(16, StringComparer.InvariantCultureIgnoreCase);
