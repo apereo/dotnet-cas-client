@@ -34,11 +34,15 @@ public partial class Restricted_AuthenticatedUsersOnly_Default : System.Web.UI.P
             RoleList.DataBind();
             RoleList.Enabled = false;
 
-            foreach (string role in roles)
+            foreach (ListItem item in RoleList.Items)
             {
-                foreach (ListItem item in RoleList.Items)
+                foreach (string role in roles)
                 {
-                    item.Selected = (item.Value == role);
+                    if (item.Value == role)
+                    {
+                        item.Selected = true;
+                        break;
+                    }
                 }
             }
         }
