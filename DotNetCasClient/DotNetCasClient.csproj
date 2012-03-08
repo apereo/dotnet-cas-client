@@ -272,13 +272,7 @@
     <Content Include="LICENSE.txt" />
     <Content Include="NOTICE.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\AssemblyInfo.cs.tmpl" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="BeforeBuild">
-    <Exec Command="subwcrev &quot;$(ProjectDir).&quot; &quot;$(ProjectDir)Properties\AssemblyInfo.cs.tmpl&quot; &quot;$(ProjectDir)Properties\AssemblyInfo.cs&quot;" IgnoreExitCode="true" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="AfterBuild">
