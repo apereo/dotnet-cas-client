@@ -1,13 +1,13 @@
 # .NET CAS Client
 
 The Jasig .NET CAS Client provides CAS integration for applications that use
-the .NET framework, including applications or static content hosted in IIS
+the .NET framework as well as applications or static content hosted in IIS
 running in Integrated Mode.
 
 ## Building
 
 The source is intended to be built with Visual Studio.  Solution files
-for VS 2010 and VS 2012 are included with the project.  The project can
+for VS 2008 and VS 2010 are included with the project.  The project can
 also be built on the command line using MSBuild, although that is advanced
 usage and not documented.
 
