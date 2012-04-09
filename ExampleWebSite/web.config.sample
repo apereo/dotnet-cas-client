@@ -43,16 +43,6 @@
     
         - casServerLoginUrl
                 URL of CAS login form.
-        - serverName
-                Host name of the server hosting this application.  This is used to generate URLs 
-                that will be sent to the CAS server for redirection.  The CAS server must be able
-                to resolve this host name.  If your web application is behind a load balancer, SSL
-                offloader, or any other type of device that accepts incoming requests on behalf of
-                the web application, you will generally need to supply the public facing host name
-                unless your CAS server is in the same private network as the application server.  
-                The protocol prefix is optional (http:// or https://).  If you are using a non-
-                standard port number, be sure to include it (i.e., server.school.edu:8443 or 
-                https://cas.example.com:8443).  Do not include the trailing backslash.
         - casServerUrlPrefix
                 URL to root of CAS server application.
         - ticketValidatorName
@@ -60,6 +50,17 @@
                 Name of ticket validator that validates CAS tickets using a particular protocol.
 
         Optional Attributes:
+         - serverName
+                Host name of the server hosting this application.  This is used to generate URLs 
+                that will be sent to the CAS server for redirection. If serverName is not provided, 
+                the URL will be derived based on current HttpContext. The CAS server must be able
+                to resolve this host name.  If your web application is behind a load balancer, SSL
+                offloader, or any other type of device that accepts incoming requests on behalf of
+                the web application, you will generally need to supply the public facing host name
+                unless your CAS server is in the same private network as the application server.  
+                The protocol prefix is optional (http:// or https://).  If you are using a non-
+                standard port number, be sure to include it (i.e., server.school.edu:8443 or 
+                https://cas.example.com:8443).  Do not include the trailing backslash.
         - gateway (default false)
                 Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
         - renew (default true)

@@ -289,7 +289,8 @@ namespace DotNetCasClient
                         bool haveServerName = !String.IsNullOrEmpty(serverName);
                         if (!haveServerName)
                         {
-                            LogAndThrowConfigurationException(CasClientConfiguration.SERVER_NAME + " cannot be null or empty.");
+                            //If serverName configuration setting is not provided, derive current URL of application
+                            serverName = FullApplicationPath();
                         }
 
                         if (String.IsNullOrEmpty(casServerLoginUrl))
@@ -321,6 +322,16 @@ namespace DotNetCasClient
                 if (ProxyTicketManager != null) ProxyTicketManager.Initialize();
                 if (TicketValidator != null) TicketValidator.Initialize();
             }
+        }
+
+        /// <summary>
+        /// Used to obtain the current URL based on HttpContext if serverName configuration setting is not specified
+        /// </summary>
+        /// <returns></returns>
+        public static string FullApplicationPath()
+        {
+            return HttpContext.Current.Request.Url.AbsoluteUri.Replace(HttpContext.Current.Request.Url.AbsolutePath,
+            string.Empty) + HttpContext.Current.Request.ApplicationPath;
         }
 
         /// <summary>
