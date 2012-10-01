@@ -99,6 +99,7 @@ namespace DotNetCasClient.Utils
             EnhancedUriBuilder ub = new EnhancedUriBuilder(buffer.ToString());
             ub.Path = request.Url.AbsolutePath;
             ub.QueryItems.Add(request.QueryString);
+            ub.QueryItems.Remove(CasAuthentication.TicketValidator.ServiceParameterName);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
 
             if (gateway)
