@@ -67,6 +67,7 @@ namespace DotNetCasClient.Configuration
         public const string COOKIES_REQUIRED_URL = "cookiesRequiredUrl";
         public const string GATEWAY_PARAMETER_NAME = "gatewayParameterName";
         public const string PROXY_CALLBACK_PARAMETER_NAME = "proxyCallbackParameterName";
+        public const string PROXY_CALLBACK_URL = "proxyCallbackUrl";
 
         // Names for the supported ticket validators
         public const string CAS10_TICKET_VALIDATOR_NAME = "Cas10";
@@ -427,6 +428,18 @@ namespace DotNetCasClient.Configuration
             get
             {
                 return this[PROXY_CALLBACK_PARAMETER_NAME] as string;
+            }
+        }
+
+        /// <summary>
+        /// Defines the exact proxy call back url
+        /// </summary>
+        [ConfigurationProperty(PROXY_CALLBACK_URL, IsRequired = false)]
+        public string ProxyCallbackUrl
+        {
+            get
+            {
+                return this[PROXY_CALLBACK_URL] as string;
             }
         }
         #endregion

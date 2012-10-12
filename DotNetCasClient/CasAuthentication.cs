@@ -96,6 +96,7 @@ namespace DotNetCasClient
         private static string cookiesRequiredUrl;
         private static string gatewayParameterName;
         private static string proxyCallbackParameterName;
+        private static string casProxyCallbackUrl;
         private static bool requireCasForMissingContentTypes;
         private static string[] requireCasForContentTypes;
         private static string[] bypassCasForHandlers;
@@ -232,6 +233,9 @@ namespace DotNetCasClient
                         
                         proxyCallbackParameterName = CasClientConfig.ProxyCallbackParameterName;
                         configLogger.Info("proxyCallbackParameterName = " + proxyCallbackParameterName);
+
+                        casProxyCallbackUrl = CasClientConfig.ProxyCallbackUrl;
+                        configLogger.Info("proxyCallbackUrl = " + casProxyCallbackUrl);
 
                         requireCasForMissingContentTypes = CasClientConfig.RequireCasForMissingContentTypes;
                         configLogger.Info("requireCasForMissingContentTypes = " + requireCasForMissingContentTypes);
@@ -1509,6 +1513,18 @@ namespace DotNetCasClient
             {
                 Initialize();
                 return proxyCallbackParameterName;
+            }
+        }
+
+        /// <summary>
+        /// URL for CAS Proxy callback
+        /// </summary>
+        public static String CasProxyCallbackUrl
+        {
+            get
+            {
+                Initialize();
+                return casProxyCallbackUrl;
             }
         }
 

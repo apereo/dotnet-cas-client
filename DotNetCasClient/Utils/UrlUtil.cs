@@ -161,6 +161,47 @@ namespace DotNetCasClient.Utils
         /// <summary>
         /// Constructs a proxy callback URL containing a ProxyCallbackParameter 
         /// (proxyResponse by default).  This URL is sent to the CAS server during a proxy
+        /// ticket request and is then connected to by the CAS server. If the 'CasProxyCallbackUrl' settings is specified,
+        /// its value will be used to construct the proxy url. Otherwise, `ServerName` will be used.
+        /// If the CAS server cannot successfully connect (generally due to SSL configuration issues), the
+        /// CAS server will refuse to send a proxy ticket. 
+        /// </summary>
+        /// <returns>the proxy callback URL to use</returns>
+        public static string ConstructProxyCallbackUrl(bool gateway)
+        {
+            CasAuthentication.Initialize();
+
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
+
+            StringBuilder buffer = new StringBuilder();
+            if (!(CasAuthentication.CasProxyCallbackUrl.StartsWith("https://") || CasAuthentication.CasProxyCallbackUrl.StartsWith("http://")))
+                buffer.Append(request.IsSecureConnection ? "https://" : "http://");
+
+            if (CasAuthentication.CasProxyCallbackUrl != null && CasAuthentication.CasProxyCallbackUrl.Length > 0)
+                buffer.Append(CasAuthentication.CasProxyCallbackUrl);
+            else
+                buffer.Append(CasAuthentication.ServerName);
+
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(buffer.ToString());
+            ub.Path = request.Url.AbsolutePath;
+            ub.QueryItems.Add(request.QueryString);
+            ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
+
+            if (gateway)
+            {
+                ub.QueryItems.Set(CasAuthentication.GatewayParameterName, "true");
+            }
+            else
+            {
+                ub.QueryItems.Remove(CasAuthentication.GatewayParameterName);
+            }
+            return ub.Uri.AbsoluteUri;
+        }
+
+        /// <summary>
+        /// Constructs a proxy callback URL containing a ProxyCallbackParameter 
+        /// (proxyResponse by default).  This URL is sent to the CAS server during a proxy
         /// ticket request and is then connected to by the CAS server.  If the CAS server
         /// cannot successfully connect (generally due to SSL configuration issues), the
         /// CAS server will refuse to send a proxy ticket. 
@@ -182,7 +223,7 @@ namespace DotNetCasClient.Utils
         {
             CasAuthentication.Initialize();
 
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructServiceUrl(false));
+            EnhancedUriBuilder ub = new EnhancedUriBuilder(ConstructProxyCallbackUrl(false));
             ub.QueryItems.Set(CasAuthentication.ProxyCallbackParameterName, "true");
 
             return ub.Uri.AbsoluteUri;
