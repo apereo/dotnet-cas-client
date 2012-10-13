@@ -19,8 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Principal;
+using System.Web;
 using System.Web.Security;
+using System.Xml;
+using DotNetCasClient.Configuration;
 using DotNetCasClient.Utils;
 
 namespace DotNetCasClient.Security
@@ -75,6 +79,67 @@ namespace DotNetCasClient.Security
         {
             get;
             private set;
+        }
+
+
+        /// <summary>
+        /// The implementation uses the CAS clearPass extension to obtain the user's password
+        /// by requesting a proxy ticket for clearPass and parsing out the user's password that
+        /// is returned as part of the response enclosed within <![CDATA[<cas:credentials>]]> elements.
+        /// </summary>
+        public string GetPassword()
+        {
+            string password = null;
+
+            EnhancedUriBuilder clearPassUri = new EnhancedUriBuilder(CasAuthentication.CasServerUrlPrefix);
+            clearPassUri.Path += "clearPass";
+
+            string clearPassUrl = clearPassUri.Uri.AbsoluteUri;
+            string proxyTicket = CasAuthentication.GetProxyTicketIdFor(clearPassUrl);
+
+            if (String.IsNullOrEmpty(proxyTicket))
+            {
+                throw new HttpException("Unable to obtain CAS Proxy Ticket for clearPass. ");
+            }
+
+            string clearPassResponse = null;
+            try
+            {
+                clearPassUri.QueryItems.Add(CasClientConfiguration.Config.ArtifactParameterName, proxyTicket);
+                clearPassUri.QueryItems.Add(CasClientConfiguration.Config.ServiceParameterName, clearPassUrl);
+
+                string clearPassRequest = clearPassUri.Uri.AbsoluteUri;
+                clearPassResponse = HttpUtil.PerformHttpGet(clearPassRequest, true);
+            }
+            catch (Exception e)
+            {
+                throw new HttpException("Unable to obtain clearPass response from CAS. Review CAS logs and ensure the proxy chain is configured correctly.");
+            }
+
+            if (String.IsNullOrEmpty(clearPassResponse))
+            {
+                throw new HttpException("No response for clearPass is received from CAS");
+            }
+
+            using (TextReader stringReader = new StringReader(clearPassResponse))
+            {
+                XmlReaderSettings xmlReaderSetting = new XmlReaderSettings();
+                xmlReaderSetting.ConformanceLevel = ConformanceLevel.Auto;
+                xmlReaderSetting.IgnoreWhitespace = true;
+                using (XmlReader xmlReader = XmlReader.Create(stringReader, xmlReaderSetting))
+                {
+                    if (xmlReader.ReadToFollowing("cas:credentials"))
+                    {
+                        password = xmlReader.ReadElementString();
+                        if (String.IsNullOrEmpty(password))
+                        {
+                            throw new HttpException("No password was received from CAS. Review clearPass configuration for CAS and ensure the feature is turned on");
+                        }
+                    }
+                }
+            }
+            
+            return password;
         }
         #endregion
 
