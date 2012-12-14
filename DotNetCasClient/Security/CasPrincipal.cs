@@ -97,26 +97,25 @@ namespace DotNetCasClient.Security
             string clearPassUrl = clearPassUri.Uri.AbsoluteUri;
             string proxyTicket = CasAuthentication.GetProxyTicketIdFor(clearPassUrl);
 
-            if (String.IsNullOrEmpty(proxyTicket))
+            if (string.IsNullOrEmpty(proxyTicket))
             {
-                throw new HttpException("Unable to obtain CAS Proxy Ticket for clearPass. ");
+                throw new HttpException("Unable to obtain CAS Proxy Ticket for clearPass.");
             }
 
             string clearPassResponse = null;
             try
             {
                 clearPassUri.QueryItems.Add(CasClientConfiguration.Config.ArtifactParameterName, proxyTicket);
-                clearPassUri.QueryItems.Add(CasClientConfiguration.Config.ServiceParameterName, clearPassUrl);
-
+                
                 string clearPassRequest = clearPassUri.Uri.AbsoluteUri;
                 clearPassResponse = HttpUtil.PerformHttpGet(clearPassRequest, true);
             }
             catch (Exception e)
             {
-                throw new HttpException("Unable to obtain clearPass response from CAS. Review CAS logs and ensure the proxy chain is configured correctly.");
+                throw new HttpException("Unable to obtain clearPass response from CAS. Review CAS logs and ensure the proxy chain is configured correctly.", e);
             }
 
-            if (String.IsNullOrEmpty(clearPassResponse))
+            if (string.IsNullOrEmpty(clearPassResponse)) 
             {
                 throw new HttpException("No response for clearPass is received from CAS");
             }
