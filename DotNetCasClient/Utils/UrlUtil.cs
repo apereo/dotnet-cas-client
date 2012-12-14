@@ -175,14 +175,15 @@ namespace DotNetCasClient.Utils
             HttpRequest request = context.Request;
 
             StringBuilder buffer = new StringBuilder();
-            if (!(CasAuthentication.CasProxyCallbackUrl.StartsWith("https://") || CasAuthentication.CasProxyCallbackUrl.StartsWith("http://")))
-                buffer.Append(request.IsSecureConnection ? "https://" : "http://");
 
             if (CasAuthentication.CasProxyCallbackUrl != null && CasAuthentication.CasProxyCallbackUrl.Length > 0)
+            {
                 buffer.Append(CasAuthentication.CasProxyCallbackUrl);
+            }
             else
+            {
                 buffer.Append(CasAuthentication.ServerName);
-
+            }
             EnhancedUriBuilder ub = new EnhancedUriBuilder(buffer.ToString());
             ub.Path = request.Url.AbsolutePath;
             ub.QueryItems.Add(request.QueryString);
