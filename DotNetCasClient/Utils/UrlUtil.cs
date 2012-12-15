@@ -209,6 +209,16 @@ namespace DotNetCasClient.Utils
         {
             CasAuthentication.Initialize();
 
+            if (String.IsNullOrEmpty(proxyGrantingTicketId))
+            {
+                throw new ArgumentException("For proxy ticket requests, proxyGrantingTicketId cannot be null and must be specified.");
+            }
+
+            if (String.IsNullOrEmpty(targetService))
+            {
+                throw new ArgumentException("For proxy ticket requests, targetService cannot be null and must be specified.");
+            }
+
             // TODO: Make "proxy" configurable.
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, "proxy"));
             ub.QueryItems.Add("pgt", proxyGrantingTicketId);

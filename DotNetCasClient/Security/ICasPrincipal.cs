@@ -75,5 +75,10 @@ namespace DotNetCasClient.Security
         {
             get;
         }
+
+        /// <summary>
+        /// Allows for a mechanism to retrieve the principal's password.
+        /// </summary>
+        string GetPassword();
     }
 }
