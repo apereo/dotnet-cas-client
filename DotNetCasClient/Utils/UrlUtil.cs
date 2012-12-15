@@ -174,17 +174,15 @@ namespace DotNetCasClient.Utils
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
 
-            StringBuilder buffer = new StringBuilder();
-
+            EnhancedUriBuilder ub = null;
             if (CasAuthentication.CasProxyCallbackUrl != null && CasAuthentication.CasProxyCallbackUrl.Length > 0)
             {
-                buffer.Append(CasAuthentication.CasProxyCallbackUrl);
+                ub = new EnhancedUriBuilder(CasAuthentication.CasProxyCallbackUrl);
             }
             else
             {
-                buffer.Append(CasAuthentication.ServerName);
+                ub = new EnhancedUriBuilder(CasAuthentication.ServerName);
             }
-            EnhancedUriBuilder ub = new EnhancedUriBuilder(buffer.ToString());
             ub.Path = request.Url.AbsolutePath;
             ub.QueryItems.Add(request.QueryString);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
