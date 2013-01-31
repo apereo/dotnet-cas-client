@@ -81,6 +81,7 @@
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\EnhancedUriBuilder.cs" />
     <Compile Include="Utils\HttpUtil.cs" />
+    <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="Utils\RequestEvaluator.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Utils\UrlUtil.cs" />

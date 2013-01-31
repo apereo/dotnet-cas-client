@@ -44,10 +44,9 @@ namespace DotNetCasClient.State
         private static readonly Logger securityLogger = new Logger(Category.Security);
 
         /// <summary>
-        /// The constructor is marked internal because this object is not suitable for use 
-        /// outside of this assembly.
+        /// Parameterless constructor needed for Reflection to instantiate it properly        
         /// </summary>
-        internal CacheServiceTicketManager() { }
+        public CacheServiceTicketManager() { }
 
         /// <summary>
         /// Performs initialization of the CacheServiceTicketManager

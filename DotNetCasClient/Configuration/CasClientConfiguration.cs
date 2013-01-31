@@ -123,7 +123,7 @@ namespace DotNetCasClient.Configuration
         /// <summary>
         /// The ticket validator to use to validate tickets returned by the CAS server.
         /// <remarks>
-        /// Currently supported values: Cas10 / Cas20 / Saml11
+        /// Currently supported values: Cas10 / Cas20 / Saml11 or any fully qualified type which extends AbstractCasProtocolTicketValidator
         /// </remarks>
         /// </summary>
         [ConfigurationProperty(TICKET_VALIDATOR_NAME, IsRequired = true)]
@@ -335,7 +335,7 @@ namespace DotNetCasClient.Configuration
         /// The service ticket manager to use to store tickets returned by the 
         /// CAS server for validation, revocation, and single sign out support.
         /// <remarks>
-        /// Currently supported values: CacheServiceTicketManager
+        /// Currently supported values: A fully qualified type name supporting IServiceTicketManager or the short name of a type in DotNetCasClient.State
         /// </remarks>
         /// </summary>
         [ConfigurationProperty(SERVICE_TICKET_MANAGER, IsRequired = false)]
@@ -351,7 +351,7 @@ namespace DotNetCasClient.Configuration
         /// The proxy ticket manager to use to store and resolve 
         /// ProxyGrantingTicket IOUs to ProxyGrantingTickets
         /// <remarks>
-        /// Currently supported values: CacheProxyTicketManager
+        /// Currently supported values: A fully qualified type name supporting IProxyTicketManager or the short name of a type in DotNetCasClient.State
         /// </remarks>
         /// </summary>
         [ConfigurationProperty(PROXY_TICKET_MANAGER, IsRequired = false)]

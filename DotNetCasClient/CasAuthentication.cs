@@ -32,6 +32,7 @@ using DotNetCasClient.Utils;
 using DotNetCasClient.Validation;
 using DotNetCasClient.Validation.Schema.Cas20;
 using DotNetCasClient.Validation.TicketValidator;
+using System.Collections.Generic;
 
 namespace DotNetCasClient
 {
@@ -242,47 +243,65 @@ namespace DotNetCasClient
                         bypassCasForHandlers = CasClientConfig.BypassCasForHandlers;
                         configLogger.Info("bypassCasForHandlers = " + bypassCasForHandlers);
 
-                        if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
+                        // setup type aliases for backwards-compatability and user-friendliness in the config file
+                        Dictionary<string, string> ticketValidatorAliases = new Dictionary<string, string>();
+                        ticketValidatorAliases.Add(CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, typeof(Cas10TicketValidator).ToString());
+                        ticketValidatorAliases.Add(CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, typeof(Cas20ServiceTicketValidator).ToString());
+                        ticketValidatorAliases.Add(CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, typeof(Saml11TicketValidator).ToString());
+
+                        List<Type> allTicketValidators = ReflectionUtils.FindAllTypesWithInterface(typeof(AbstractUrlTicketValidator));
+                        Type ticketValidatorType = ReflectionUtils.GetTypeFromList(ticketValidatorName, "DotNetCasClient.Validation.TicketValidator", 
+                                                                                   allTicketValidators, ticketValidatorAliases);
+                        if (ticketValidatorType != null)
                         {
-                            ticketValidator = new Cas10TicketValidator();
-                        }
-                        else if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, true) == 0)
-                        {
-                            ticketValidator = new Cas20ServiceTicketValidator();
-                        }
-                        else if (String.Compare(ticketValidatorName, CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, true) == 0)
-                        {
-                            ticketValidator = new Saml11TicketValidator();
+                            // Instantiate the ticketValidator using reflection
+                            ticketValidator = (AbstractUrlTicketValidator)Activator.CreateInstance(ticketValidatorType);
+                            configLogger.Info("TicketValidator type = " + ticketValidator.GetType().ToString());
                         }
                         else
                         {
                             LogAndThrowConfigurationException("Unknown ticket validator " + ticketValidatorName);
                         }
 
+                        List<Type> allServiceTicketManagers = ReflectionUtils.FindAllTypesWithInterface(typeof(IServiceTicketManager));
                         if (String.IsNullOrEmpty(serviceTicketManagerProvider))
                         {
                             // Web server cannot maintain ticket state, verify tickets, perform SSO, etc.
                         }
-                        else if (String.Compare(serviceTicketManagerProvider, CasClientConfiguration.CACHE_SERVICE_TICKET_MANAGER) == 0)
-                        {
-                            serviceTicketManager = new CacheServiceTicketManager();
-                        }
                         else
                         {
-                            LogAndThrowConfigurationException("Unknown service ticket manager provider: " + serviceTicketManagerProvider);
+                            // look for all service ticket managers in the assembly, types don't needs to be fully qualified if in DotNetCasClient.State
+                            Type serviceTicketManagerType = ReflectionUtils.GetTypeFromList(serviceTicketManagerProvider, "DotNetCasClient.State", allServiceTicketManagers);
+                            if (serviceTicketManagerType != null)
+                            {
+                                // Instantiate the ProxyTicketManager using reflection
+                                serviceTicketManager = (IServiceTicketManager)Activator.CreateInstance(serviceTicketManagerType);
+                                configLogger.Info("ServiceTicketManager type = " + serviceTicketManager.GetType().ToString());
+                            }
+                            else
+                            {
+                                LogAndThrowConfigurationException("Unknown service ticket manager provider " + serviceTicketManagerProvider);
+                            }
                         }
 
+                        List<Type> allProxyTicketManagers = ReflectionUtils.FindAllTypesWithInterface(typeof(IProxyTicketManager));
                         if (String.IsNullOrEmpty(proxyTicketManagerProvider))
                         {
                             // Web server cannot generate proxy tickets
                         }
-                        else if (String.Compare(proxyTicketManagerProvider, CasClientConfiguration.CACHE_PROXY_TICKET_MANAGER) == 0)
-                        {
-                            proxyTicketManager = new CacheProxyTicketManager();
-                        }
                         else
                         {
-                            LogAndThrowConfigurationException("Unknown proxy ticket manager provider: " + proxyTicketManagerProvider);
+                            Type proxyTicketManagerType = ReflectionUtils.GetTypeFromList(proxyTicketManagerProvider, "DotNetCasClient.State", allProxyTicketManagers);
+                            if (proxyTicketManagerType != null)
+                            {
+                                // Instantiate the ProxyTicketManager using reflection
+                                proxyTicketManager = (IProxyTicketManager)Activator.CreateInstance(proxyTicketManagerType);
+                                configLogger.Info("ProxyTicketManager type = " + proxyTicketManager.GetType().ToString());
+                            }
+                            else
+                            {
+                                LogAndThrowConfigurationException("Unknown proxy ticket manager provider: " + proxyTicketManagerProvider);
+                            }
                         }
 
                         // Validate configuration
