@@ -120,6 +120,30 @@ namespace DotNetCasClient.Security
         /// <param name="validUntilDate">
         /// The date this assertion is valid until.
         /// </param>
+        public Assertion(string principalName, DateTime validFromDate, DateTime validUntilDate)
+        {
+            CommonUtils.AssertNotNull(principalName, "principalName cannot be null.");
+            CommonUtils.AssertNotNull(validFromDate, "validFromDate cannot be null.");
+
+            PrincipalName = principalName;
+            ValidFromDate = validFromDate;
+            ValidUntilDate = validUntilDate;
+            Attributes = new Dictionary<string, IList<string>>();
+        }
+
+        /// <summary>
+        /// Creates a new Assertion with the supplied principal name, Assertion
+        /// attributes, ValidFromDate, and ValidUntilDate.
+        /// </summary>
+        /// <param name="principalName">
+        /// the principal name associated with this Assertion.
+        /// </param>
+        /// <param name="validFromDate">
+        /// The date from which this Assertion is valid.
+        /// </param>
+        /// <param name="validUntilDate">
+        /// The date this assertion is valid until.
+        /// </param>
         /// <param name="attributes">
         /// the key/value pairs for the attributes to associate with this
         /// Assertion.

@@ -160,15 +160,23 @@ namespace DotNetCasClient.Validation
                     
                     string subject = nameIdentifierNode.FirstChild.Value;
 
-                    XmlNode attributeStmtNode = assertionNode.SelectSingleNode("descendant::assertion:AttributeStatement", nsmgr);
-                    IDictionary<string, IList<string>> personAttributes = SamlUtils.GetAttributesFor(attributeStmtNode, nsmgr, subject);
-                    IDictionary<string, IList<string>> authenticationAttributes = new Dictionary<string, IList<string>>();
                     IList<string> authValues = new List<string>();
-                    
+                    IDictionary<string, IList<string>> authenticationAttributes = new Dictionary<string, IList<string>>();
                     authValues.Add(authMethod);
-                    
                     authenticationAttributes.Add("samlAuthenticationStatement::authMethod", authValues);
-                    IAssertion casAssertion = new Assertion(subject, notBefore, notOnOrAfter, personAttributes);
+                    
+                    IAssertion casAssertion;
+
+                    XmlNode attributeStmtNode = assertionNode.SelectSingleNode("descendant::assertion:AttributeStatement", nsmgr);
+                    if (attributeStmtNode != null)
+                    {
+                        IDictionary<string, IList<string>> personAttributes = SamlUtils.GetAttributesFor(attributeStmtNode, nsmgr, subject);
+                        casAssertion = new Assertion(subject, notBefore, notOnOrAfter, personAttributes);
+                    }
+                    else
+                    {
+                        casAssertion = new Assertion(subject, notBefore, notOnOrAfter);
+                    }
                     
                     CasPrincipal = new CasPrincipal(casAssertion, null, null);
                     

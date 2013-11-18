@@ -101,6 +101,12 @@ namespace DotNetCasClient.Validation
         /// </exception>
         public static IDictionary<string, IList<string>> GetAttributesFor(XmlNode attributeStmtNode, XmlNamespaceManager nsmgr, string subjectName)
         {
+            IDictionary<string, IList<string>> attributes = new Dictionary<string, IList<string>>();
+            if (attributeStmtNode == null)
+            {
+                return attributes;
+            }
+
             XmlNode nameIdentifierNode = attributeStmtNode.SelectSingleNode("child::assertion:Subject/child::assertion:NameIdentifier", nsmgr);
             if (nameIdentifierNode == null)
             {
@@ -117,7 +123,6 @@ namespace DotNetCasClient.Validation
                 throw new TicketValidationException(message);
             }
 
-            IDictionary<string, IList<string>> attributes = new Dictionary<string, IList<string>>();
             XmlNodeList attributeNodes = attributeStmtNode.SelectNodes("descendant::assertion:Attribute", nsmgr);
             
             if (attributeNodes != null)
