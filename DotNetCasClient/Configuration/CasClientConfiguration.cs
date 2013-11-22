@@ -254,11 +254,16 @@ namespace DotNetCasClient.Configuration
         /// <summary>
         /// Content-types for which CAS authentication will be required
         /// </summary>
-        [ConfigurationProperty(REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME, IsRequired = false, DefaultValue = new[] { "text/plain", "text/html" })]
-        public string[] RequireCasForContentTypes { 
+        [ConfigurationProperty(REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME, IsRequired = false,DefaultValue = "text/plain,text/html")]
+        private string _RequireCasForContentTypes
+        {
+            get { return this[REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME] as string; }
+        }
+
+        public string[] RequireCasForContentTypes {
             get
             {
-                string[] types = ((this[REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME] as string) ?? "text/plain,text/html").Split(',');
+                string[] types = _RequireCasForContentTypes.Split(',');
                 for (int i = 0; i < types.Length; i++)
                 {
                     string type = types[i];
@@ -274,12 +279,20 @@ namespace DotNetCasClient.Configuration
         /// <summary>
         /// Handlers for which CAS authentication will be bypassed.
         /// </summary>
-        [ConfigurationProperty(BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME, IsRequired = false, DefaultValue = new[] { "trace.axd", "webresource.axd" })]
+        [ConfigurationProperty(BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME, IsRequired = false, DefaultValue = "trace.axd,webresource.axd")]
+        private string _BypassCasForHandlers
+        {
+            get { return this[BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME] as string; }
+        }
+
+        /// <summary>
+        /// Handlers for which CAS authentication will be bypassed.
+        /// </summary>
         public string[] BypassCasForHandlers
         {
             get
             {
-                string[] types = ((this[REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME] as string) ?? "trace.axd,webresource.axd").Split(',');
+                string[] types = _BypassCasForHandlers.Split(',');
                 for (int i = 0; i < types.Length; i++)
                 {
                     string type = types[i];
