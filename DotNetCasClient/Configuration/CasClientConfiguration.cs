@@ -49,6 +49,7 @@ namespace DotNetCasClient.Configuration
         public const string REQUIRE_CAS_FOR_MISSING_CONTENT_TYPES_PARAMETER_NAME = "requireCasForMissingContentTypes";
         public const string REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME = "requireCasForContentTypes";
         public const string BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME = "bypassCasForHandlers";
+        public const string AUTHENTICATION_TYPE = "authenticationType";
         
         // NETC-20 - Not sure whether these attributes are relevant.
         // public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
@@ -440,6 +441,18 @@ namespace DotNetCasClient.Configuration
             get
             {
                 return this[PROXY_CALLBACK_URL] as string;
+            }
+        }
+
+        /// <summary>
+        /// Sets the AuthenticationType for IIdentity
+        /// </summary>
+        [ConfigurationProperty(AUTHENTICATION_TYPE, IsRequired = false, DefaultValue = "Jasig CAS")]
+        public string AuthenticationType
+        {
+            get
+            {
+                return this[AUTHENTICATION_TYPE] as string ?? "Jasig CAS";
             }
         }
         #endregion

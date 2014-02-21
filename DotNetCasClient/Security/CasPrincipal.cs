@@ -46,7 +46,8 @@ namespace DotNetCasClient.Security
         /// Constant representing the IIdentity AuthenticationType for 
         /// authentications via CAS.
         /// </summary>
-        public const string CAS_AUTH_TYPE = "Jasig CAS";
+        //public const string CAS_AUTH_TYPE = "Jasig CAS";
+        //static CasClientConfiguration CasClientConfig;
 
         #region ICasPrincipal Members
         /// <summary>
@@ -221,7 +222,7 @@ namespace DotNetCasClient.Security
         {
             CommonUtils.AssertNotNull(assertion, "assertion cannot be null.");
 
-            Identity = new GenericIdentity(assertion.PrincipalName, CAS_AUTH_TYPE);
+            Identity = new GenericIdentity(assertion.PrincipalName, CasClientConfiguration.Config.AuthenticationType);
             Assertion = assertion;
             ProxyGrantingTicket = proxyGrantingTicket;
 

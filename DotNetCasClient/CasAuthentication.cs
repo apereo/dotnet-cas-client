@@ -100,6 +100,7 @@ namespace DotNetCasClient
         private static bool requireCasForMissingContentTypes;
         private static string[] requireCasForContentTypes;
         private static string[] bypassCasForHandlers;
+        private static string authenticationType;
 
         // Provide reliable way for arbitrary components in forms
         // authentication pipeline to access CAS principal
