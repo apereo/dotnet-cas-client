@@ -47,7 +47,6 @@ namespace DotNetCasClient.Security
         /// authentications via CAS.
         /// </summary>
         //public const string CAS_AUTH_TYPE = "Jasig CAS";
-        //static CasClientConfiguration CasClientConfig;
 
         #region ICasPrincipal Members
         /// <summary>
