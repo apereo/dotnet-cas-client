@@ -42,12 +42,7 @@ namespace DotNetCasClient.Security
     [Serializable]
     public class CasPrincipal : ICasPrincipal
     {
-        /// <summary>
-        /// Constant representing the IIdentity AuthenticationType for 
-        /// authentications via CAS.
-        /// </summary>
-        //public const string CAS_AUTH_TYPE = "Jasig CAS";
-
+        
         #region ICasPrincipal Members
         /// <summary>
         /// The Assertion backing this Principal
