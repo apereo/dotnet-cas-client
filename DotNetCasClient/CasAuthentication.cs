@@ -1579,7 +1579,6 @@ namespace DotNetCasClient
                 return authenticationType;
             }
         }
-
         #endregion
     }
 }
