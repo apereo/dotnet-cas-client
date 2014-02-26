@@ -229,7 +229,6 @@ namespace DotNetCasClient.Security
                 Proxies = new List<string>();
             }
         }
-
         #endregion
     }
 }
