@@ -2,6 +2,10 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
+# Declare files that will always have CRLF line endings on checkout.
+*.cs text eol=crlf
+*.sln text eol=crlf
+*.proj text eol=crlf
 
 ###############################################################################
 # Set default behavior for command prompt diff.
