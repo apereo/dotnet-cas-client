@@ -42,7 +42,6 @@ namespace DotNetCasClient.Security
     [Serializable]
     public class CasPrincipal : ICasPrincipal
     {
-        
         #region ICasPrincipal Members
         /// <summary>
         /// The Assertion backing this Principal

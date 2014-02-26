@@ -455,6 +455,7 @@ namespace DotNetCasClient.Configuration
                 return this[AUTHENTICATION_TYPE] as string ?? "Jasig CAS";
             }
         }
+
         #endregion
     }
 }

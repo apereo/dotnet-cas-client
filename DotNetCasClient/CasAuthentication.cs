@@ -1569,7 +1569,7 @@ namespace DotNetCasClient
         }
 
         /// <summary>
-        /// IIdentity AuthenticationType for authentications via CAS
+        /// IIdentity AuthenticationType for authentication via CAS
         /// </summary>
         public static string AuthenticationType
         {
