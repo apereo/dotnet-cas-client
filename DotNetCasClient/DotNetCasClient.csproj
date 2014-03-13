@@ -78,6 +78,7 @@
     <Compile Include="State\CacheServiceTicketManager.cs" />
     <Compile Include="State\IProxyTicketManager.cs" />
     <Compile Include="State\IServiceTicketManager.cs" />
+    <Compile Include="Utils\AssertionUtil.cs" />
     <Compile Include="Utils\CommonUtils.cs" />
     <Compile Include="Utils\EnhancedUriBuilder.cs" />
     <Compile Include="Utils\HttpUtil.cs" />
