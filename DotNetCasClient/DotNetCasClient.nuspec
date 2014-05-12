@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://stbapps01.stb.sun.ac.za/NuGetServer/Licenses/Default.html</licenseUrl>
+    <projectUrl>http://dev.sun.ac.za/jira/browse/INFA-384</projectUrl>
+    <iconUrl>http://stbapps01.stb.sun.ac.za/NuGetServer/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>DotNetCasClient Cas Lightswitch</tags>
+  </metadata>
+</package>
