@@ -139,7 +139,7 @@ namespace DotNetCasClient.Utils
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(EnhancedUriBuilder.Combine(CasAuthentication.CasServerUrlPrefix, CasAuthentication.TicketValidator.UrlSuffix));
             ub.QueryItems.Add(CasAuthentication.TicketValidator.ServiceParameterName, HttpUtility.UrlEncode(ConstructServiceUrl(gateway)));
-            ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, serviceTicket);
+            ub.QueryItems.Add(CasAuthentication.TicketValidator.ArtifactParameterName, HttpUtility.UrlEncode(serviceTicket));
 
             if (renew)
             {
