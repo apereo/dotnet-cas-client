@@ -183,8 +183,8 @@ namespace DotNetCasClient.Utils
             else
             {
                 ub = new EnhancedUriBuilder(CasAuthentication.ServerName);
+                ub.Path = request.Url.AbsolutePath;
             }
-            ub.Path = request.Url.AbsolutePath;
             ub.QueryItems.Add(request.QueryString);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
 
