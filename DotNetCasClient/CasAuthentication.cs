@@ -69,7 +69,7 @@ namespace DotNetCasClient
 
         // Ticket validator fields
         private static string ticketValidatorName;
-        private static AbstractUrlTicketValidator ticketValidator;
+		private static ITicketValidator ticketValidator;
 
         // Ticket manager fields
         private static string serviceTicketManagerProvider;
@@ -261,8 +261,8 @@ namespace DotNetCasClient
                                 Type ticketValidatorType = Type.GetType(ticketValidatorName, false, true);
                                 if (ticketValidatorType != null)
                                 {
-                                    if(typeof(AbstractUrlTicketValidator).IsAssignableFrom(ticketValidatorType))
-                                        ticketValidator = (AbstractUrlTicketValidator)Activator.CreateInstance(ticketValidatorType);                                    
+									if (typeof(ITicketValidator).IsAssignableFrom(ticketValidatorType))
+										ticketValidator = (ITicketValidator)Activator.CreateInstance(ticketValidatorType);                                    
                                     else
                                         LogAndThrowConfigurationException("Ticket validator type is not correct " + ticketValidatorName);
                                 }
@@ -1270,7 +1270,7 @@ namespace DotNetCasClient
         /// a Cas10TicketValidator, Cas20TicketValidator, or 
         /// Saml11TicketValidator.
         /// </summary>
-        internal static AbstractUrlTicketValidator TicketValidator
+		internal static ITicketValidator TicketValidator
         {
             get
             {
