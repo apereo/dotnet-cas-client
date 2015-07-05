@@ -333,8 +333,6 @@ namespace DotNetCasClient.Utils
         /// <returns>True if the request is appropriate for CAS authentication, otherwise False</returns>
         internal static bool GetRequestIsAppropriateForCasAuthentication()
         {
-            CasAuthentication.Initialize();
-
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
             HttpResponse response = context.Response;

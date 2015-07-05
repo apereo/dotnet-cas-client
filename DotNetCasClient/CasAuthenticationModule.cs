@@ -70,13 +70,19 @@ namespace DotNetCasClient
         /// <param name="e">Not used</param>
         private static void OnBeginRequest(object sender, EventArgs e)
         {
+            // Validate the ticket coming back from the CAS server
+            if (!RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
+            {
+                logger.Debug("BeginRequest bypassed for " + HttpContext.Current.Request.RawUrl);
+                return;
+            }
             CasAuthentication.Initialize();
 
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
-
+         
             logger.Debug("Starting BeginRequest for " + request.RawUrl);
-            
+
             // Cleanup expired ServiceTickets in the ServiceTicketManager
             if (CasAuthentication.ServiceTicketManager != null)
             {
@@ -127,15 +133,14 @@ namespace DotNetCasClient
         /// <param name="e">Not used</param>
         private static void OnAuthenticateRequest(object sender, EventArgs e)
         {
-            HttpContext context = HttpContext.Current;
-            HttpRequest request = context.Request;
-
-            // Validate the ticket coming back from the CAS server
             if (!RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
             {
-                logger.Debug("AuthenticateRequest bypassed for " + request.RawUrl);
+                logger.Debug("AuthenticateRequest bypassed for " + HttpContext.Current.Request.RawUrl);
                 return;
             }
+
+            HttpContext context = HttpContext.Current;
+            HttpRequest request = context.Request;
 
             // Validate the ticket coming back from the CAS server
             if (RequestEvaluator.GetRequestHasCasTicket())
@@ -178,11 +183,15 @@ namespace DotNetCasClient
         /// <param name="e">Not used</param>
         private static void OnEndRequest(object sender, EventArgs e)
         {
+            if (!RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
+            {
+                logger.Debug("EndRequest bypassed for " + HttpContext.Current.Request.RawUrl);
+                return;
+            }
+
             HttpContext context = HttpContext.Current;
             HttpRequest request = context.Request;
 
-            if (RequestEvaluator.GetRequestIsAppropriateForCasAuthentication())
-            {
                 logger.Debug("Starting EndRequest for " + request.RawUrl);
 
                 if (RequestEvaluator.GetRequestRequiresGateway())
@@ -220,13 +229,7 @@ namespace DotNetCasClient
                     logger.Info("  Redirecting to CAS Login Page");
                     CasAuthentication.RedirectToLoginPage();
                 }
-
                 logger.Debug("Ending EndRequest for " + request.RawUrl);
-            }
-            else
-            {
-                logger.Debug("No EndRequest processing for " + request.RawUrl);
-            }
         }
    }
 }

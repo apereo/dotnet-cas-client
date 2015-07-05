@@ -241,10 +241,10 @@ namespace DotNetCasClient
                         configLogger.Info("requireCasForMissingContentTypes = " + requireCasForMissingContentTypes);
 
                         requireCasForContentTypes = CasClientConfig.RequireCasForContentTypes;
-                        configLogger.Info("requireCasForContentTypes = " + requireCasForContentTypes);
+                        configLogger.Info("requireCasForContentTypes = " + string.Join(",", requireCasForContentTypes));
 
                         bypassCasForHandlers = CasClientConfig.BypassCasForHandlers;
-                        configLogger.Info("bypassCasForHandlers = " + bypassCasForHandlers);
+                        configLogger.Info("bypassCasForHandlers = " + string.Join(",", bypassCasForHandlers));
 
                         if (String.Compare(ticketValidatorName, CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, true) == 0)
                         {
@@ -771,7 +771,7 @@ namespace DotNetCasClient
             ICasPrincipal principal;
 
             string ticket = request[TicketValidator.ArtifactParameterName];
-            
+ 
             try
             {
                 // Attempt to authenticate the ticket and resolve to an ICasPrincipal
