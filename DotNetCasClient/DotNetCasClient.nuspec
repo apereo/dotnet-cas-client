@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/Jasig/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Jasig/dotnet-cas-client</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>DotNet CAS Client Release $version$</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>$version$</tags>
+  </metadata>
+</package>
