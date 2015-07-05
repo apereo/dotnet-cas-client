@@ -33,12 +33,13 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <remarks>
     /// This is the .Net port of 
     ///   org.jasig.cas.client.validation.AbstractUrlBasedTicketValidator
+    ///   must be public to allow for external assemblies to extend
     /// </remarks>
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
     /// <author>Marvin S. Addison</author>
     /// <author>Scott Holodak (.Net)</author>
-    abstract class AbstractUrlTicketValidator : ITicketValidator
+    public abstract class AbstractUrlTicketValidator : ITicketValidator
     {
         #region Fields
         protected static readonly Logger protoLogger = new Logger(Category.Protocol);

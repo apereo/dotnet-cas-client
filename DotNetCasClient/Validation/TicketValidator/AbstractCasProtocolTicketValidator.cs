@@ -22,7 +22,10 @@ using System.Text;
 
 namespace DotNetCasClient.Validation.TicketValidator
 {
-    abstract class AbstractCasProtocolTicketValidator : AbstractUrlTicketValidator
+    /// <remarks>
+    ///   must be public to allow for external assemblies to extend
+    /// </remarks>
+    public abstract class AbstractCasProtocolTicketValidator : AbstractUrlTicketValidator
     {
         private const string CAS_ARTIFACT_PARAM = "ticket";
         private const string CAS_SERVICE_PARAM = "service";
