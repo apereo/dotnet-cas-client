@@ -357,6 +357,11 @@ namespace DotNetCasClient.Utils
             ub.Scheme = uriServerName.Scheme;
             ub.Host = uriServerName.Host;
             ub.Port = uriServerName.Port;
+            
+            foreach (string k in ub.QueryItems.AllKeys)
+            {
+                ub.QueryItems[k] = HttpUtility.UrlEncode(ub.QueryItems[k]);
+            }
 
             return ub.Uri.AbsoluteUri;
         }
