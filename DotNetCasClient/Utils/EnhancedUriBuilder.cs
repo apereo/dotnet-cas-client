@@ -277,7 +277,7 @@ namespace DotNetCasClient.Utils
                 {
                     if (item.Length > 0)
                     {
-                        string[] namevalue = item.Split('=');
+                        string[] namevalue = item.Split(new char[] { '=' }, 2);
                         _QueryItems.Add(namevalue[0], namevalue.Length > 1 ? namevalue[1] : String.Empty);
                     }
                 }
