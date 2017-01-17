@@ -146,6 +146,13 @@ Configure the ASP.NET Forms authentication section, `<forms>`, so that it points
 ### Configure Authorization
 Configure authorization roles and resources using the familiar ASP.NET directives. We recommend the user of a role provider that queries a role store given the principal name returned from the CAS server. There is not support at present for extracting authorization data from the attributes released from CAS via the SAML protocol.
 
+### CAS attributes
+
+I added a hack so that you can access your CAS attributes. E.g., we have an attribute that's called `ad_nummer`, and I use it like this:
+
+            var principal = System.Web.HttpContext.Current.User as CasPrincipal;
+            myAdNr = int.Parse(principal.Assertion.Attributes["cas:ad_nummer"].First());
+
 ### Configure Diagnostic Tracing (optional)
 `CasAuthenticationModule` uses the .NET Framework `System.Diagnostics` tracing facility for internal logging. Enabling the internal trace switches should be the first step taken to troubleshoot integration problems.
 

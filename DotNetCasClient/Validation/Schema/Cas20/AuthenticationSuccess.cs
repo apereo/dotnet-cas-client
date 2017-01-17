@@ -20,8 +20,10 @@
 #pragma warning disable 1591
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace DotNetCasClient.Validation.Schema.Cas20
@@ -39,6 +41,27 @@ namespace DotNetCasClient.Validation.Schema.Cas20
         {
             get;
             set;
+        }
+
+        [XmlElement("attributes")]
+        public Object AttributesNodes { get; set; }
+
+        [XmlIgnore]
+        public Dictionary<String, IList<String>> Attributes
+        {
+            get
+            {
+                var result = new Dictionary<String, IList<String>>();
+                foreach (var element in AttributesNodes as IEnumerable<XmlNode>)
+                {
+                    if (!result.ContainsKey(element.Name))
+                    {
+                        result[element.Name] = new List<string>();
+                    }
+                    result[element.Name].Add(element.InnerText);
+                }
+                return result;
+            }
         }
 
         [XmlElement("proxyGrantingTicket")]
