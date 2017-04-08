@@ -141,7 +141,7 @@ namespace DotNetCasClient.Configuration
         /// Tolerance milliseconds for checking the current time against the SAML Assertion
         /// valid times.
         /// </summary>
-        [ConfigurationProperty(TICKET_TIME_TOLERANCE, DefaultValue = 1000L, IsRequired = false)]
+        [ConfigurationProperty(TICKET_TIME_TOLERANCE, DefaultValue = 30000L, IsRequired = false)]
         public long TicketTimeTolerance
         {
             get
