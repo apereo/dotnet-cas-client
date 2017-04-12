@@ -125,11 +125,11 @@ namespace DotNetCasClient.Validation.TicketValidator
 
                 if (authSuccessResponse.Proxies != null && authSuccessResponse.Proxies.Length > 0)
                 {
-                    return new CasPrincipal(new Assertion(authSuccessResponse.User), proxyGrantingTicketIou, authSuccessResponse.Proxies);
+                    return new CasPrincipal(new Assertion(authSuccessResponse.User, authSuccessResponse.Attributes), proxyGrantingTicketIou, authSuccessResponse.Proxies);
                 } 
                 else
                 {
-                    return new CasPrincipal(new Assertion(authSuccessResponse.User), proxyGrantingTicketIou);
+                    return new CasPrincipal(new Assertion(authSuccessResponse.User, authSuccessResponse.Attributes), proxyGrantingTicketIou);
                 }
             }
             
