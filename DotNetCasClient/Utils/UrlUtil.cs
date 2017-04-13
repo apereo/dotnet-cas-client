@@ -98,7 +98,14 @@ namespace DotNetCasClient.Utils
 
             EnhancedUriBuilder ub = new EnhancedUriBuilder(buffer.ToString());
             ub.Path = request.Url.AbsolutePath;
-            ub.QueryItems.Add(request.QueryString);
+
+            // Iterate through each of the name/value pairs in the query component of the service URL
+            foreach(string name in request.QueryString.AllKeys)
+            {
+                // URL encode each name/value pair and then add it to the query items collection
+                ub.QueryItems.Add(HttpUtility.UrlEncode(name), HttpUtility.UrlEncode(request.QueryString[name]));
+            }
+
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ServiceParameterName);
             ub.QueryItems.Remove(CasAuthentication.TicketValidator.ArtifactParameterName);
 
