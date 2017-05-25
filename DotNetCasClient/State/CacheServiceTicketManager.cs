@@ -98,7 +98,7 @@ namespace DotNetCasClient.State
 
             // Don't enforce sliding expiration on the cache entry.  Sliding expiration 
             // is handled by the HttpModule
-            HttpContext.Current.Cache.Insert(GetTicketKey(casAuthenticationTicket.ServiceTicket), casAuthenticationTicket, null, expiration, Cache.NoSlidingExpiration);
+            HttpContext.Current.Cache.Insert(GetTicketKey(casAuthenticationTicket.ServiceTicket), casAuthenticationTicket, null, expiration.ToUniversalTime(), Cache.NoSlidingExpiration);
         }
 
         /// <summary>
