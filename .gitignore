@@ -266,6 +266,10 @@ paket-files/
 
 # FAKE - F# Make
 .fake/
+build/
+test/
+deploy/
+tools/FAKE/
 
 # JetBrains Rider
 .idea/
