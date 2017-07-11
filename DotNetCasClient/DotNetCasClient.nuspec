@@ -9,6 +9,7 @@
         <licenseUrl>https://github.com/apereo/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
         <projectUrl>https://github.com/apereo/dotnet-cas-client</projectUrl>
         <iconUrl>https://avatars2.githubusercontent.com/u/4679233?v=3&amp;s=64</iconUrl>
+        <copyright>@copyright@</copyright>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>.NET client for the Apereo Central Authentication Service (CAS)</description>
         <summary>The Apereo .NET CAS client provides CAS integration for the Microsoft Windows platform via the .NET framework.</summary>
