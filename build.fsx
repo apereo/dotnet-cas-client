@@ -10,12 +10,11 @@ RestorePackages()
 
 // Directories
 let buildDir  = @".\build\"
-let testDir   = @".\test\"
-let deployDir = @".\deploy\"
+let artifactsDir = @".\artifacts\"
 
 // Properties
 let owners = "Apereo Foundation"
-let copyright = "Copyright © 2007-2017 Apereo.  All rights reserved."
+let copyright = "Copyright 2007-2017 Apereo.  All rights reserved."
 let releaseNotes = 
     ReadFile "ReleaseNotes.md"
     |> ReleaseNotesHelper.parseReleaseNotes
@@ -23,9 +22,6 @@ let projectName = "Apereo .NET CAS Client"
 let projectDir = @".\DotNetCasClient\"
 let project = projectDir + "DotNetCasClient.csproj"
 let buildMode = getBuildParamOrDefault "buildMode" "Release"
-let nugetFeedApiKey = getBuildParamOrDefault "apiKey" ""
-let nugetFeedUrl = getBuildParamOrDefault "feedUrl" ""
-let publishNuGetPackages = getBuildParamOrDefault "publishNuGetPackages" "false"
 
 // Versioning related variables
 let version = releaseNotes.AssemblyVersion
@@ -65,7 +61,7 @@ Target "Trace" (fun _ ->
 Target "Clean" (fun _ ->
     trace " --- Cleaning directories --- "
 
-    CleanDirs [buildDir; testDir; deployDir]
+    CleanDirs [buildDir; artifactsDir]
 )
 
 Target "SetAssemblyInfo" (fun _ ->
@@ -83,7 +79,7 @@ Target "SetAssemblyInfo" (fun _ ->
 )
 
 Target "BuildAndPackageDotNetCasClient" (fun _ -> 
-    trace " --- Building DotNetCasClient --- "
+    trace " --- Building DotNetCasClient project --- "
     
     // Properties
     let buildProperties =
@@ -99,7 +95,7 @@ Target "BuildAndPackageDotNetCasClient" (fun _ ->
     MSBuild projectBuildDir "Build" buildProperties [project]
     |> Log "AppBuild-Output: "
 
-    trace " --- Fininshed building DotNetCasClient --- "
+    trace " --- Fininshed building DotNetCasClient project --- "
 
     trace " --- Creating NuGet package --- "
 
@@ -107,13 +103,11 @@ Target "BuildAndPackageDotNetCasClient" (fun _ ->
         {p with
             Title = projectName
             Version = nugetSemanticVersion
-            OutputPath = deployDir
+            OutputPath = artifactsDir
             WorkingDir = projectBuildDir
             NoPackageAnalysis = false
-            Publish = Convert.ToBoolean(publishNuGetPackages)
+            Publish = false
             Copyright = copyright
-            AccessKey = nugetFeedApiKey
-            PublishUrl = nugetFeedUrl
             ToolPath = @".\tools\nuget\nuget.exe"
         })
         (projectDir @@ "DotNetCasClient.nuspec")
