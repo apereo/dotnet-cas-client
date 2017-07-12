@@ -21,13 +21,12 @@ let releaseNotes =
 let projectName = "Apereo .NET CAS Client"
 let projectDir = @".\DotNetCasClient\"
 let project = projectDir + "DotNetCasClient.csproj"
-let buildMode = getBuildParamOrDefault "buildMode" "Release"
 
 // Versioning related variables
 let version = releaseNotes.AssemblyVersion
-let buildNumber = getBuildParamOrDefault "buildNumber" "0"
-let vcsRevision = getBuildParamOrDefault "vcsRevision" "0000000000000000000000000000000000000000"
-let vcsBranchNameParam = (getBuildParam "vcsBranchName")
+let buildNumber = environVarOrDefault "APPVEYOR_BUILD_NUMBER" "0"
+let vcsRevision = environVarOrDefault "APPVEYOR_REPO_COMMIT" "0000000000000000000000000000000000000000"
+let vcsBranchNameParam = (environVarOrDefault "APPVEYOR_REPO_BRANCH" "")
 let vcsBranchName = 
     if isNullOrWhiteSpace vcsBranchNameParam then "localDeveloperMachine"
     elif (( >** ) @"^(release/).+$" vcsBranchNameParam) then "release"
@@ -87,7 +86,7 @@ Target "BuildAndPackageDotNetCasClient" (fun _ ->
             "Optimize", "True"
             "DebugSymbols", "False"
             "DebugType", "None"
-            "Configuration", buildMode
+            "Configuration", "Release"
         ]
 
     // Build
