@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package >
-  <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>https://github.com/Jasig/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/Jasig/dotnet-cas-client</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>DotNet CAS Client Release $version$</releaseNotes>
-    <copyright>Copyright 2015</copyright>
-    <tags>$version$</tags>
-  </metadata>
+    <metadata>
+        <id>DotNetCasClient</id>
+        <version>@build.number@</version>
+        <title>@title@</title>
+        <authors>Marvin S. Addison,Scott Battaglia,Scott Holodak,Misagh Moayyed,William G. Thompson,Jr.,Catherine D. Winfrey,Blair Allen,Jason Kanaris</authors>
+        <owners>Apereo Foundation</owners>
+        <licenseUrl>https://github.com/apereo/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/apereo/dotnet-cas-client</projectUrl>
+        <iconUrl>https://avatars2.githubusercontent.com/u/4679233?v=3&amp;s=64</iconUrl>
+        <copyright>@copyright@</copyright>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>.NET client for the Apereo Central Authentication Service (CAS)</description>
+        <summary>The Apereo .NET CAS client provides CAS integration for the Microsoft Windows platform via the .NET framework.</summary>
+        <language>en-US</language>
+        <releaseNotes>See the ReleaseNotes.md file in repository on the project site.</releaseNotes>
+        <tags>Apereo Jasig CAS Authentication Authn ASP.NET MVC MVC2 MVC3 MVC4 MVC5 WebForms</tags>
+        <dependencies>
+            <dependency id="log4net" version="[1.2.10, 3.0)" />
+        </dependencies>
+        <references>
+            <group targetFramework="net20">
+                <reference file="DotNetCasClient.dll" />
+            </group>
+        </references>
+    </metadata>
+    <files>
+        <file src="DotNetCasClient.dll" target="lib\net20" />
+        <file src="DotNetCasClient.xml" target="lib\net20" />
+    </files>
 </package>
