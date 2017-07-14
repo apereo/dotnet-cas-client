@@ -16,9 +16,6 @@
         <language>en-US</language>
         <releaseNotes>See the ReleaseNotes.md file in repository on the project site.</releaseNotes>
         <tags>Apereo Jasig CAS Authentication Authn ASP.NET MVC MVC2 MVC3 MVC4 MVC5 WebForms</tags>
-        <dependencies>
-            <dependency id="log4net" version="[1.2.10, 3.0)" />
-        </dependencies>
         <references>
             <group targetFramework="net20">
                 <reference file="DotNetCasClient.dll" />
