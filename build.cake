@@ -17,9 +17,6 @@ var configuration = Argument("configuration", "Release");
 var buildDir = Directory("./DotNetCasClient/bin") + Directory(configuration);
 var artifactDir = Directory("./artifacts");
 
-// Parse release notes.
-var releaseNote = ParseReleaseNotes("./ReleaseNotes.md");
-
 // Define project metadata properties.
 var projectOwners = "Apereo Foundation";
 var projectName = "Apereo .NET CAS Client";
@@ -106,12 +103,23 @@ Task("Pack")
     .IsDependentOn("Build")
     .Does(() =>
     {
+        // Parse release notes.
+        var latestReleaseNote = ParseReleaseNotes("./ReleaseNotes.md");
+        var releaseNotes = new StringBuilder();
+        releaseNotes.AppendFormat("Version: {0}", latestReleaseNote.Version);
+        foreach(var note in latestReleaseNote.Notes)
+        {
+            releaseNotes.AppendFormat("\t{0}", note);
+        }
+
+        // Configure NuGet Pack settings.
         var nuGetPackSettings = new NuGetPackSettings {
             Version = versionInfo.NuGetVersion,
             Title = projectName,
             Owners = new []{projectOwners},
             Copyright = copyright,
             Description = projectDescription,
+            ReleaseNotes = new []{releaseNotes.ToString()},
             BasePath = buildDir,
             OutputDirectory = artifactDir
         };

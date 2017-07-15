@@ -14,7 +14,6 @@
         <description>$description$</description>
         <summary>The Apereo .NET CAS client provides CAS integration for the Microsoft Windows platform via the .NET framework.</summary>
         <language>en-US</language>
-        <releaseNotes>See the ReleaseNotes.md file in repository on the project site.</releaseNotes>
         <tags>Apereo Jasig CAS Authentication Authn ASP.NET MVC MVC2 MVC3 MVC4 MVC5 WebForms</tags>
     </metadata>
     <files>
