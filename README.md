@@ -11,19 +11,22 @@ NuGet packages for the .NET client are available at http://www.nuget.org/List/Pa
 
 ## Building [![Build status](https://ci.appveyor.com/api/projects/status/py9b6esq9smjr6u5/branch/master?svg=true)](https://ci.appveyor.com/project/mmoayyed/dotnet-cas-client)
 
-The source is intended to be built with Visual Studio. Solution files for VS 2008 and VS 2010 are included with the project.
-The project can also be built on the command line using MSBuild, although that is advanced usage and not documented.
+The source is intended to be built with Visual Studio 2017.
+
+The project can also be built on the command line using Cake (C# Make).  All you need to do is drop to the command line using PowerShell and then run the **build.ps1** file to build the project and associated NuGet package.  The NuGet package will be copied to the **artifacts** folder in the root of the repo when the build process has completed.
 
 ## Running
 
-The build produces a single managed assembly, DotNetClient.dll, that may be included as a dependency of another project. In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the .NET CAS Client documentation for detailed configuration instructions.
+The build (via Visual Studio 2017) produces a single managed assembly, DotNetCasClient.dll, that may be included as a dependency of another project.  However, it is recommended you install the NuGet package instead of referencing the DotNetCasClient.dll directly in a project.  In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the .NET CAS Client documentation for detailed configuration instructions.
 
 ## Features
+
 - Supports CAS Protocol 1.0 and 2.0 and SAML 1.1
 - Supports CAS single sign-out
 - Rich support for Microsoft ASP.NET platform integration through Forms Authentication framework
 
 ## Integration Instructions
+
 The .NET CAS client integrates with ASP.NET applications by customizing the application web.config file. The client is implemented as an ASP.NET IHttpModule, CasAuthenticationModule, that provides hooks into the ASP.NET request/response pipeline through lifecycle events. This provides a familiar configuration path for client integration, including the following:
 
 - Custom `casClientConfig` section containing CAS-specific configuration parameters that apply to `CasAuthenticationModule`
