@@ -266,9 +266,6 @@ paket-files/
 
 # FAKE - F# Make
 .fake/
-build/
-artifacts/
-tools/
 
 # JetBrains Rider
 .idea/
@@ -282,8 +279,8 @@ __pycache__/
 *.pyc
 
 # Cake - Uncomment if you are using it
-# tools/**
-# !tools/packages.config
+tools/**
+!tools/packages.config
 
 # Tabs Studio
 *.tss
