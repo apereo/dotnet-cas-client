@@ -1,8 +1,8 @@
 ﻿/*
- * Licensed to Jasig under one or more contributor license
+ * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
- * Jasig licenses this file to you under the Apache License,
+ * Apereo licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a
  * copy of the License at:
@@ -283,7 +283,17 @@ namespace DotNetCasClient
                         else
                         {
                             if (String.Compare(CasClientConfiguration.CACHE_SERVICE_TICKET_MANAGER, serviceTicketManagerProvider) == 0)
+                            {
+#if NET20 || NET35
+                                // Use the service ticket manager that implements an in-memory cache supported by .NET 2.0/3.5.
                                 serviceTicketManager = new CacheServiceTicketManager();
+#endif
+
+#if NET40 || NET45
+                                // Use the service ticket manager that implements an in-memory cache supported by .NET 4.x.
+                                serviceTicketManager = new MemoryCacheServiceTicketManager();
+#endif
+                            }
                             else
                             {
                                 // the service ticket manager  is not recognized, let's try to get it using Reflection then
@@ -308,7 +318,17 @@ namespace DotNetCasClient
                         else
                         {
                             if (String.Compare(CasClientConfiguration.CACHE_PROXY_TICKET_MANAGER, proxyTicketManagerProvider) == 0)
+                            {
+#if NET20 || NET35
+                                // Use the proxy ticket manager that implements an in-memory cache supported by .NET 2.0/3.5.
                                 proxyTicketManager = new CacheProxyTicketManager();
+#endif
+
+#if NET40 || NET45
+                                // Use the proxy ticket manager that implements an in-memory cache supported by .NET 4.x.
+                                proxyTicketManager = new MemoryCacheProxyTicketManager();
+#endif
+                            }
                             else
                             {
                                 // the proxy ticket manager  is not recognized, let's try to get it using Reflection then
@@ -1248,9 +1268,9 @@ namespace DotNetCasClient
             protoLogger.Error(message);
             throw new InvalidOperationException(message);
         }
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
         /// <summary>
         /// Name of ticket validator that validates CAS tickets using a 
         /// particular protocol.  Valid values are Cas10, Cas20, and Saml11.
@@ -1601,6 +1621,6 @@ namespace DotNetCasClient
             }
         }
 
-        #endregion
+#endregion
     }
 }

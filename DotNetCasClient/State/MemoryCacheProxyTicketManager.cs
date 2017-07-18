@@ -17,21 +17,18 @@
  * under the License.
  */
 
-#if NET20 || NET35
+#if NET40 || NET45
 using System;
-using System.Web;
-using System.Web.Caching;
 
 namespace DotNetCasClient.State
-{
-    ///<summary>
-    /// An IProxyTicketManager implementation that relies on the ASP.NET Caching model for ticket 
+{///<summary>
+    /// An IProxyTicketManager implementation that relies on the System.Runtime.Caching caching model for ticket 
     /// storage.  Generally this implies that the ticket storage is maintained locally on the web
     /// server (either in memory or on disk).  A limitation of this model is that it will not 
     /// support clustered, load balanced, or round-robin style configurations.
     ///</summary>
-    /// <author>Scott Holodak</author>
-    public class CacheProxyTicketManager : IProxyTicketManager
+    /// <author>Jason Kanaris</author>
+    public class MemoryCacheProxyTicketManager : IProxyTicketManager
     {
         private static readonly TimeSpan DefaultExpiration = new TimeSpan(0, 0, 3, 0); // 180 seconds
 
@@ -51,7 +48,7 @@ namespace DotNetCasClient.State
         /// </summary>
         public void RemoveExpiredMappings()
         {
-            // No-op.  ASP.NET Cache provider removes expired entries automatically.
+            // No-op.  The System.Runtime.Caching.ObjectCache provider removes expired entries automatically.
         }
 
         /// <summary>
@@ -61,7 +58,7 @@ namespace DotNetCasClient.State
         /// <param name="proxyGrantingTicket">used as the value</param>
         public void InsertProxyGrantingTicketMapping(string proxyGrantingTicketIou, string proxyGrantingTicket)
         {
-            HttpContext.Current.Cache.Insert(proxyGrantingTicketIou, proxyGrantingTicket, null, DateTime.Now.Add(DefaultExpiration), Cache.NoSlidingExpiration);
+            MemoryCacheManager.Instance.Set(proxyGrantingTicketIou, proxyGrantingTicket, DefaultExpiration);
         }
 
         /// <summary>
@@ -74,9 +71,10 @@ namespace DotNetCasClient.State
         /// <returns>the ProxyGrantingTicket Id or null if it can't be found</returns>
         public string GetProxyGrantingTicket(string proxyGrantingTicketIou)
         {
-            if (HttpContext.Current.Cache[proxyGrantingTicketIou] != null && HttpContext.Current.Cache[proxyGrantingTicketIou].ToString().Length > 0)
+            
+            if (MemoryCacheManager.Instance.Contains(proxyGrantingTicketIou) && !string.IsNullOrWhiteSpace(MemoryCacheManager.Instance.Get<string>(proxyGrantingTicketIou)))
             {
-                return HttpContext.Current.Cache[proxyGrantingTicketIou].ToString();
+                return MemoryCacheManager.Instance.Get<string>(proxyGrantingTicketIou);
             }
 
             return null;
