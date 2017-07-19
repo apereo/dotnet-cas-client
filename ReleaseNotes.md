@@ -1,3 +1,11 @@
+### New in 1.1.0 (Released 2017/07/19)
+
+* GitHub Issue #44
+* GitHub Issue #54
+* GitHub Issue #56
+* GitHub Issue #58
+* GitHub Issue #60
+
 ### New in 1.0.2 (Released 2015/05/27)
 
 * See GitHub repository history.
