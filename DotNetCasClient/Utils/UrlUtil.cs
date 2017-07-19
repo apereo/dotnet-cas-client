@@ -1,8 +1,8 @@
 ﻿/*
- * Licensed to Jasig under one or more contributor license
+ * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
- * Jasig licenses this file to you under the Apache License,
+ * Apereo licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a
  * copy of the License at:
@@ -78,7 +78,7 @@ namespace DotNetCasClient.Utils
         /// </summary>
         /// <remarks>
         /// The server name is not parsed from the request for security reasons, which
-        /// is why the service and server name configuration parameters exist, per Jasig
+        /// is why the service and server name configuration parameters exist, per Apereo
         /// website.
         /// </remarks>
         /// <returns>the service URL to use, not encoded</returns>
