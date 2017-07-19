@@ -120,7 +120,6 @@ Task("Pack")
             Copyright = copyright,
             Description = projectDescription,
             ReleaseNotes = new []{releaseNotes.ToString()},
-            BasePath = buildDir,
             OutputDirectory = artifactDir
         };
 
