@@ -696,7 +696,7 @@ namespace DotNetCasClient
         /// configured to maintain session state on the server.  In the case of 
         /// ASP.NET web applications using DotNetCasClient, this requires defining a 
         /// serviceTicketManager.  The configuration for other client types (Java, 
-        /// PHP) varies based on the client implementation.  Consult the Jasig wiki
+        /// PHP) varies based on the client implementation.  Consult the Apereo wiki
         /// for more details.
         /// </summary>
         public static void SingleSignOut()
@@ -1364,7 +1364,7 @@ namespace DotNetCasClient
         }
 
         /// <summary>
-        /// Enable CAS gateway feature, see http://www.jasig.org/cas/protocol section 2.1.1.
+        /// Enable CAS gateway feature, see https://apereo.github.io/cas/5.1.x/protocol/CAS-Protocol-Specification.html section 2.1.1.
         /// Default is false.
         /// </summary>
         public static bool Gateway

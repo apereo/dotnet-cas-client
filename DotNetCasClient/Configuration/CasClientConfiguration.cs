@@ -1,8 +1,8 @@
 ﻿/*
- * Licensed to Jasig under one or more contributor license
+ * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
- * Jasig licenses this file to you under the Apache License,
+ * Apereo licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a
  * copy of the License at:
@@ -447,12 +447,12 @@ namespace DotNetCasClient.Configuration
 		/// <summary>
         /// Sets the AuthenticationType for IIdentity
         /// </summary>
-        [ConfigurationProperty(AUTHENTICATION_TYPE, IsRequired = false, DefaultValue = "Jasig CAS")]
+        [ConfigurationProperty(AUTHENTICATION_TYPE, IsRequired = false, DefaultValue = "Apereo CAS")]
         public string AuthenticationType
         {
 	    	get
 			{
-				return this[AUTHENTICATION_TYPE] as string ?? "Jasig CAS";
+				return this[AUTHENTICATION_TYPE] as string ?? "Apereo CAS";
 			}
 	    }
         #endregion

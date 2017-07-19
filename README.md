@@ -26,6 +26,11 @@ The build (via Visual Studio 2017) produces a single managed assembly, DotNetCas
 - Supports CAS single sign-out
 - Rich support for Microsoft ASP.NET platform integration through Forms Authentication framework
 
+## Documentation
+
+- Apereo .NET CAS Client: https://wiki.jasig.org/display/casc/.net+cas+client
+- Apereo Central Authentication Service (CAS): https://apereo.github.io/cas/
+
 ## Integration Instructions
 
 The .NET CAS client integrates with ASP.NET applications by customizing the application web.config file. The client is implemented as an ASP.NET IHttpModule, CasAuthenticationModule, that provides hooks into the ASP.NET request/response pipeline through lifecycle events. This provides a familiar configuration path for client integration, including the following:
