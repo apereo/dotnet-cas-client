@@ -11,6 +11,6 @@ using System.Reflection;
 [assembly: AssemblyProduct("Apereo .NET CAS Client")]
 [assembly: AssemblyVersion("1.1.0.0")]
 [assembly: AssemblyFileVersion("1.1.0.0")]
-[assembly: AssemblyInformationalVersion("1.1.0-issue-54-1.0+Branch.feature/issue-54.Sha.7d13e3f929603bc8e0a10db8110278d334a5cf0b")]
+[assembly: AssemblyInformationalVersion("1.1.0-unstable.58+Branch.develop.Sha.6b6d0705708a9763edca73dd2ea3dc639da3dd2a")]
 [assembly: AssemblyCopyright("Copyright (c) 2007-2017 Apereo.  All rights reserved.")]
 
