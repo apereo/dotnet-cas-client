@@ -28,9 +28,16 @@
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="net20/DotNetCasClient.dll" target="lib\net20" />
-        <file src="net35/DotNetCasClient.dll" target="lib\net35" />
-        <file src="net40/DotNetCasClient.dll" target="lib\net40" />
-        <file src="net45/DotNetCasClient.dll" target="lib\net45" />
+        <file src="web.config.install.xdt" target="content" />
+        <file src="web.config.transform" target="content" />
+        <file src="web.config.uninstall.xdt" target="content" />
+        <file src="bin\Release\net20/DotNetCasClient.dll" target="lib\net20" />
+        <file src="bin\Release\net20/DotNetCasClient.xml" target="lib\net20" />
+        <file src="bin\Release\net35/DotNetCasClient.dll" target="lib\net35" />
+        <file src="bin\Release\net35/DotNetCasClient.xml" target="lib\net35" />
+        <file src="bin\Release\net40/DotNetCasClient.dll" target="lib\net40" />
+        <file src="bin\Release\net40/DotNetCasClient.xml" target="lib\net40" />
+        <file src="bin\Release\net45/DotNetCasClient.dll" target="lib\net45" />
+        <file src="bin\Release\net45/DotNetCasClient.xml" target="lib\net45" />
     </files>
 </package>

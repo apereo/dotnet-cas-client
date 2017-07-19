@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>DotNetCasClient</RootNamespace>
     <AssemblyName>DotNetCasClient</AssemblyName>
     <TargetFrameworks>net45;net40;net35;net20</TargetFrameworks>

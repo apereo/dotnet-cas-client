@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+
+	<!-- Remove casClientConfig section from configSections section -->
+	<configSections>
+		<section xdt:Transform="Remove" xdt:Locator="Match(name)" name="casClientConfig" />
+		<section xdt:Transform="Insert" xdt:Locator="Match(name)" name="casClientConfig" type="System.Configuration.IgnoreSection, System.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"  />
+  	</configSections>
+	
+	<configSections xdt:Transform="RemoveAll" xdt:Locator="Condition(count(*)=0)" />
+	
+	<!-- Remove DotNetCasClient from system.web/httpModules -->
+	<system.web>
+		<httpModules>
+			<add xdt:Transform="Remove" xdt:Locator="Match(name)" name="DotNetCasClient" />
+		</httpModules>
+	</system.web>
+	
+	<system.web>
+		<httpModules xdt:Transform="RemoveAll" xdt:Locator="Condition(count(*)=0)" />
+	</system.web>
+
+	<!-- Remove DotNetCasClient from system.webServer/modules -->
+	<system.webServer>
+		<modules>
+			<remove xdt:Transform="Remove" xdt:Locator="Match(name)" name="DotNetCasClient" />
+			<add xdt:Transform="Remove" xdt:Locator="Match(name)" name="DotNetCasClient" />
+		</modules>
+	</system.webServer>
+	
+	<system.webServer>
+		<modules xdt:Transform="RemoveAll" xdt:Locator="Condition(count(*)=0)" />
+	</system.webServer>
+</configuration>
