@@ -447,12 +447,12 @@ namespace DotNetCasClient.Configuration
 		/// <summary>
         /// Sets the AuthenticationType for IIdentity
         /// </summary>
-        [ConfigurationProperty(AUTHENTICATION_TYPE, IsRequired = false, DefaultValue = "Jasig CAS")]
+        [ConfigurationProperty(AUTHENTICATION_TYPE, IsRequired = false, DefaultValue = "Apereo CAS")]
         public string AuthenticationType
         {
 	    	get
 			{
-				return this[AUTHENTICATION_TYPE] as string ?? "Jasig CAS";
+				return this[AUTHENTICATION_TYPE] as string ?? "Apereo CAS";
 			}
 	    }
         #endregion
