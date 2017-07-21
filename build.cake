@@ -25,6 +25,44 @@ var copyright = string.Format("Copyright (c) 2007-{0} Apereo.  All rights reserv
 
 // Get GitVersion information.
 var versionInfo = GitVersion();
+var buildNumber = EnvironmentVariable("APPVEYOR_BUILD_NUMBER") ?? "0";
+var assemblyVersion = string.Concat(new string[]{
+    versionInfo.Major.ToString(),
+    ".",
+    versionInfo.Minor.ToString(),
+    ".0.0"
+});
+var assemblyFileVersion = string.Concat(new string[]{
+    versionInfo.MajorMinorPatch,
+    ".",
+    buildNumber
+});
+var assemblyInformationalVersion = versionInfo.InformationalVersion;
+
+// Set NuGet version.
+var nuGetVersion = "";
+if (versionInfo.BranchName == "master")
+{
+    nuGetVersion = versionInfo.MajorMinorPatch;
+}
+else if (versionInfo.BranchName == "develop")
+{
+    nuGetVersion = string.Concat(new string[]{
+        versionInfo.MajorMinorPatch,
+        "-ci-",
+        buildNumber.PadLeft(5, '0')
+    });
+}
+else
+{
+    nuGetVersion = string.Concat(new string[]{
+        versionInfo.LegacySemVer,
+        "-",
+        versionInfo.BuildMetaData.PadLeft(5, '0')
+    });
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -41,15 +79,14 @@ Task("Version")
     .IsDependentOn("Clean")
     .Does(() => 
     {
-        var buildNumber = EnvironmentVariable("APPVEYOR_BUILD_NUMBER") ?? "0";
-        var assemblyVersion = string.Concat(versionInfo.MajorMinorPatch + "." + buildNumber);
-
-        Information("Version: {0}", versionInfo.MajorMinorPatch);
-        Information("Build Number: {0}", buildNumber);
-        
         Information("Assembly Version: {0}", assemblyVersion);
-        Information("Assembly SemVer: {0}", versionInfo.InformationalVersion);
-        Information("NuGet Version: {0}", versionInfo.NuGetVersion);
+        Information("Assembly File Version: {0}", assemblyFileVersion);
+        Information("Assembly Informational Version: {0}", assemblyInformationalVersion);
+        
+        Information("Build Meta Data: {0}", versionInfo.BuildMetaData);
+        Information("Build Number: {0}", buildNumber);
+
+        Information("NuGet Version: {0}", nuGetVersion);
         Information("VCS Revision: {0}", versionInfo.Sha);
         Information("VCS Branch Name: {0}", versionInfo.BranchName);
 
@@ -62,8 +99,8 @@ Task("Version")
             Description = projectDescription,
             Company = projectOwners,
             Version = assemblyVersion,
-            FileVersion = assemblyVersion,
-            InformationalVersion = versionInfo.InformationalVersion,
+            FileVersion = assemblyFileVersion,
+            InformationalVersion = assemblyInformationalVersion,
             Copyright = copyright
         });
     });
@@ -108,7 +145,7 @@ Task("Pack")
 
         // Configure NuGet Pack settings.
         var nuGetPackSettings = new NuGetPackSettings {
-            Version = versionInfo.NuGetVersion,
+            Version = nuGetVersion,
             Title = projectName,
             Owners = new []{projectOwners},
             Copyright = copyright,
