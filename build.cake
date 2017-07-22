@@ -54,7 +54,7 @@ if (isAppveyorBuild)
     if (tag.IsTag)
     {
         // Tag build.  Used for stable and pre-release NuGet packages.
-        nugetPackageVersion = tag.Name;
+        nugetPackageVersion = versionInfo.NuGetVersion;
     }
     else
     {
