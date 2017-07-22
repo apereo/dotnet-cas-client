@@ -53,6 +53,13 @@ else if (versionInfo.BranchName == "develop")
         buildNumber.PadLeft(5, '0')
     });
 }
+else if (versionInfo.BranchName.StartsWith("hotfix") || versionInfo.BranchName.StartsWith("release"))
+{
+    // We only deploy hotfix and release branches with a tag.
+    nuGetVersion = string.Concat(new string[]{
+        versionInfo.LegacySemVerPadded
+    });
+}
 else
 {
     nuGetVersion = string.Concat(new string[]{
