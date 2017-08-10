@@ -46,18 +46,22 @@ See [LICENSE.txt](https://github.com/apereo/dotnet-cas-client/blob/master/LICENS
 
 ## Documentation ##
 
-- Apereo .NET CAS Client: https://wiki.jasig.org/display/casc/.net+cas+client
-- Apereo Central Authentication Service (CAS): https://apereo.github.io/cas/
+- [Apereo .NET CAS Client](https://wiki.jasig.org/display/casc/.net+cas+client)
+- [Apereo Central Authentication Service (CAS)](https://apereo.github.io/cas/)
 
 ### Building
 
-The source is intended to be built with Visual Studio 2017.
+The source is intended to be built with [Visual Studio 2017](https://www.visualstudio.com/downloads/) (any 2017 edition including the free Community edition will work.)  
 
-The project can also be built on the command line using Cake (C# Make).  All you need to do is drop to the command line using PowerShell and then run the **build.ps1** file to build the project and associated NuGet package.  The NuGet package will be copied to the **artifacts** folder in the root of the repo when the build process has completed.
+The project can also be built via the command line using a [Cake](https://www.cakebuild.net/) build script.  If you are building from the command line, PowerShell or on a build server you must have the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/) installed on the machine the build is occurring on.
+
+To build the project from the command line, all you need to do is drop to PowerShell (or open a PowerShell window directly) and then run the **build.ps1** file to build the project and associated NuGet package.  The NuGet package will be copied to the **artifacts** folder in the root of the repo when the build process has completed.
 
 ### Running
 
-The build (via Visual Studio 2017) produces a single managed assembly, DotNetCasClient.dll, that may be included as a dependency of another project.  However, it is recommended you install the NuGet package instead of referencing the DotNetCasClient.dll directly in a project.  In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the .NET CAS Client documentation for detailed configuration instructions.
+The build (via Visual Studio 2017) produces a single managed assembly, DotNetCasClient.dll, that may be included as a dependency of another project.  However, it is recommended you install the NuGet package instead of referencing the DotNetCasClient.dll directly in a project because the NuGet package will handle adding/removing/updating other dependencies and references for you.
+
+In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the [Integration Instructions](#integration-instructions) below for details.
 
 ### Integration Instructions
 
@@ -181,12 +185,15 @@ Configure the ASP.NET Forms authentication section, `<forms>`, so that it points
 ```
 
 #### Configure Authorization
+
 Configure authorization roles and resources using the familiar ASP.NET directives. We recommend the user of a role provider that queries a role store given the principal name returned from the CAS server. There is not support at present for extracting authorization data from the attributes released from CAS via the SAML protocol.
 
 #### Configure Diagnostic Tracing (optional)
+
 `CasAuthenticationModule` uses the .NET Framework `System.Diagnostics` tracing facility for internal logging. Enabling the internal trace switches should be the first step taken to troubleshoot integration problems.
 
-`System.Diagnostics` tracing requires that the source be compiled with the /TRACE compiler option in order to produce output to trace listeners. The binary distributions of CAS provided here are compiled in DEBUG mode with the /TRACE option enabled.
+`System.Diagnostics` tracing requires that the source be compiled with the /TRACE compiler option in order to produce output to trace listeners. The binary distributions of the .NET CAS Client provided here on GitHub and as NuGet packages are compiled in RELEASE mode with the /TRACE option enabled. (Note: binary distributions prior to version 1.1.0 are compiled in DEBUG mode with the /TRACE option enabled.)
+
 The following web.config configuration section provides a sample trace configuration that should be used to troubleshoot integration problems.
 
 ```xml
