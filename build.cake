@@ -14,7 +14,7 @@ var configuration = Argument("configuration", "Release");
 //////////////////////////////////////////////////////////////////////
 
 // Define directories.
-var buildDir = Directory("./DotNetCasClient/bin") + Directory(configuration);
+var buildDir = Directory("./DotNetCasClient/bin/" + configuration);
 var artifactDir = Directory("./artifacts");
 
 // Define project metadata properties.
@@ -23,9 +23,12 @@ var projectName = "Apereo .NET CAS Client";
 var projectDescription = ".NET client for the Apereo Central Authentication Service (CAS)";
 var copyright = string.Format("Copyright (c) 2007-{0} Apereo.  All rights reserved.", DateTime.Now.Year);
 
-// Get GitVersion information.
+// Get/set version information.
 var versionInfo = GitVersion();
-var buildNumber = EnvironmentVariable("APPVEYOR_BUILD_NUMBER") ?? "0";
+var buildNumber = AppVeyor.Environment.Build.Number.ToString();
+var buildNumberPadded = AppVeyor.Environment.Build.Number.ToString("00000");
+var isAppveyorBuild = BuildSystem.IsRunningOnAppVeyor;
+
 var assemblyVersion = string.Concat(new string[]{
     versionInfo.Major.ToString(),
     ".",
@@ -40,29 +43,37 @@ var assemblyFileVersion = string.Concat(new string[]{
 var assemblyInformationalVersion = versionInfo.InformationalVersion;
 
 // Set NuGet version.
-var nuGetVersion = "";
-if (versionInfo.BranchName == "master")
+var nugetPackageVersion = "";
+
+if (isAppveyorBuild)
 {
-    nuGetVersion = versionInfo.MajorMinorPatch;
-}
-else if (versionInfo.BranchName == "develop")
-{
-    nuGetVersion = string.Concat(new string[]{
-        versionInfo.MajorMinorPatch,
-        "-ci-",
-        buildNumber.PadLeft(5, '0')
-    });
+    // AppVeyor build.
+
+    var tag = AppVeyor.Environment.Repository.Tag;
+
+    if (tag.IsTag)
+    {
+        // Tag build.  Used for stable and pre-release NuGet packages.
+        nugetPackageVersion = versionInfo.NuGetVersion;
+    }
+    else
+    {
+        // Regular commit build.
+        nugetPackageVersion = versionInfo.MajorMinorPatch + "-ci-" + buildNumberPadded;
+
+        if (AppVeyor.Environment.PullRequest.IsPullRequest)
+        {
+            nugetPackageVersion += "-pr-" + AppVeyor.Environment.PullRequest.Number;
+        }
+    }
+
+    AppVeyor.UpdateBuildVersion(nugetPackageVersion);
 }
 else
 {
-    nuGetVersion = string.Concat(new string[]{
-        versionInfo.LegacySemVer,
-        "-",
-        versionInfo.BuildMetaData.PadLeft(5, '0')
-    });
+    // Local developer machine build.
+    nugetPackageVersion = versionInfo.MajorMinorPatch + "-local-" + versionInfo.CommitsSinceVersionSource.PadLeft(5, '0');
 }
-
-
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -79,14 +90,24 @@ Task("Version")
     .IsDependentOn("Clean")
     .Does(() => 
     {
+        Information("Is AppVeyor Build: {0}", isAppveyorBuild);
+        if (isAppveyorBuild)
+        {
+            var tag = AppVeyor.Environment.Repository.Tag;
+            Information("Is AppVeyor Tag Build: {0}", tag.IsTag);
+            if (tag.IsTag)
+            {
+                Information("Tag Name: {0}", tag.Name);
+            }
+        }
+
         Information("Assembly Version: {0}", assemblyVersion);
         Information("Assembly File Version: {0}", assemblyFileVersion);
         Information("Assembly Informational Version: {0}", assemblyInformationalVersion);
         
-        Information("Build Meta Data: {0}", versionInfo.BuildMetaData);
         Information("Build Number: {0}", buildNumber);
 
-        Information("NuGet Version: {0}", nuGetVersion);
+        Information("NuGet Version: {0}", nugetPackageVersion);
         Information("VCS Revision: {0}", versionInfo.Sha);
         Information("VCS Branch Name: {0}", versionInfo.BranchName);
 
@@ -145,7 +166,7 @@ Task("Pack")
 
         // Configure NuGet Pack settings.
         var nuGetPackSettings = new NuGetPackSettings {
-            Version = nuGetVersion,
+            Version = nugetPackageVersion,
             Title = projectName,
             Owners = new []{projectOwners},
             Copyright = copyright,
