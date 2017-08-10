@@ -1,17 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package >
-  <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>https://github.com/Jasig/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/Jasig/dotnet-cas-client</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>DotNet CAS Client Release $version$</releaseNotes>
-    <copyright>Copyright 2015</copyright>
-    <tags>$version$</tags>
-  </metadata>
+<package>
+    <metadata>
+        <id>DotNetCasClient</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <authors>Marvin S. Addison,Scott Battaglia,Scott Holodak,Misagh Moayyed,William G. Thompson,Jr.,Catherine D. Winfrey,Blair Allen,Jason Kanaris</authors>
+        <owners>$owners$</owners>
+        <licenseUrl>https://github.com/apereo/dotnet-cas-client/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/apereo/dotnet-cas-client</projectUrl>
+        <iconUrl>https://avatars2.githubusercontent.com/u/4679233?v=3&amp;s=64</iconUrl>
+        <copyright>$copyright$</copyright>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>$description$</description>
+        <summary>The Apereo .NET CAS client provides CAS integration for the Microsoft Windows platform via the .NET framework.</summary>
+        <language>en-US</language>
+        <tags>Apereo Jasig CAS Authentication Authn ASP.NET MVC MVC2 MVC3 MVC4 MVC5 WebForms</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" />
+            <frameworkAssembly assemblyName="System.Configuration" />
+            <frameworkAssembly assemblyName="System.Data" />
+            <frameworkAssembly assemblyName="System.Drawing" />
+            <frameworkAssembly assemblyName="System.Runtime.Caching" targetFramework="net40, net45" />
+            <frameworkAssembly assemblyName="System.Web" />
+            <frameworkAssembly assemblyName="System.Web.ApplicationServices" targetFramework="net40, net45" />
+            <frameworkAssembly assemblyName="System.Windows.Forms" />
+            <frameworkAssembly assemblyName="System.Xml" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="web.config.install.xdt" target="content" />
+        <file src="web.config.transform" target="content" />
+        <file src="web.config.uninstall.xdt" target="content" />
+        <file src="bin\Release\net20/DotNetCasClient.dll" target="lib\net20" />
+        <file src="bin\Release\net20/DotNetCasClient.xml" target="lib\net20" />
+        <file src="bin\Release\net35/DotNetCasClient.dll" target="lib\net35" />
+        <file src="bin\Release\net35/DotNetCasClient.xml" target="lib\net35" />
+        <file src="bin\Release\net40/DotNetCasClient.dll" target="lib\net40" />
+        <file src="bin\Release\net40/DotNetCasClient.xml" target="lib\net40" />
+        <file src="bin\Release\net45/DotNetCasClient.dll" target="lib\net45" />
+        <file src="bin\Release\net45/DotNetCasClient.xml" target="lib\net45" />
+    </files>
 </package>

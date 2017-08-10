@@ -1,29 +1,70 @@
-# Intro
+# Apereo .NET CAS Client #
+
+[![Build status](https://ci.appveyor.com/api/projects/status/py9b6esq9smjr6u5/branch/master?svg=true)](https://ci.appveyor.com/project/mmoayyed/dotnet-cas-client/branch/master)
+[![Stable nuget](https://img.shields.io/nuget/v/DotNetCasClient.svg?label=stable%20nuget)](https://www.nuget.org/packages/DotNetCasClient/)
+[![Pre-release nuget](https://img.shields.io/myget/dotnetcasclient-prerelease/v/dotnetcasclient.svg?label=pre-release%20nuget)](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
+[![Unstable nuget](https://img.shields.io/myget/dotnetcasclient-ci/v/dotnetcasclient.svg?label=unstable%20nuget)](https://www.myget.org/feed/dotnetcasclient-ci/package/nuget/DotNetCasClient)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+[![Gitter](https://img.shields.io/gitter/room/apereo/cas.svg)](https://gitter.im/apereo/dotnet-cas-client)
+[![Stack Overflow](https://img.shields.io/badge/stackoverflow-cas%20%2B%20.net-orange.svg)](https://stackoverflow.com/questions/tagged/cas%2b.net)
+
+## Introduction ##
+
 The Apereo .NET CAS client provides CAS integration for the Microsoft Windows platform via the .NET framework.
 
-## Download 
+## Features ##
 
-### Releases
-https://github.com/Jasig/dotnet-cas-client/releases
-
-### NuGet Installation [![NuGet Status](http://nugetstatus.com/DotNetCasClient.png)](http://nugetstatus.com/packages/DotNetCasClient)
-NuGet packages for the .NET client are available at http://www.nuget.org/List/Packages/DotNetCasClient.
-
-## Building [![Build status](https://ci.appveyor.com/api/projects/status/py9b6esq9smjr6u5?svg=true)](https://ci.appveyor.com/project/mmoayyed/dotnet-cas-client)
-
-The source is intended to be built with Visual Studio. Solution files for VS 2008 and VS 2010 are included with the project.
-The project can also be built on the command line using MSBuild, although that is advanced usage and not documented.
-
-## Running
-
-The build produces a single managed assembly, DotNetClient.dll, that may be included as a dependency of another project. In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the .NET CAS Client documentation for detailed configuration instructions.
-
-## Features
 - Supports CAS Protocol 1.0 and 2.0 and SAML 1.1
 - Supports CAS single sign-out
 - Rich support for Microsoft ASP.NET platform integration through Forms Authentication framework
 
-## Integration Instructions
+## Table of Contents ##
+
+* [Downloads](#downloads)
+* [Release Notes](#release-notes)
+* [License](#license)
+* [Documentation](#documentation)
+    * [Building](#building)
+    * [Running](#running)
+    * [Integration Instructions](#integration-instructions)
+
+## Downloads ##
+
+* The latest (stable) release is [available on NuGet](https://www.nuget.org/packages/DotNetCasClient/) or can be [downloaded from GitHub](https://github.com/apereo/dotnet-cas-client/releases).
+* Unstable pre-release versions are [available on MyGet](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
+
+## Release Notes ##
+
+See [ReleaseNotes.md](https://github.com/apereo/dotnet-cas-client/blob/master/ReleaseNotes.md) for details.
+
+## License ##
+
+The Apereo .NET CAS Client is open source software, licensed under the Apache License 2.0.
+
+See [LICENSE.txt](https://github.com/apereo/dotnet-cas-client/blob/master/LICENSE.txt) for details.
+
+## Documentation ##
+
+- [Apereo .NET CAS Client](https://wiki.jasig.org/display/casc/.net+cas+client)
+- [Apereo Central Authentication Service (CAS)](https://apereo.github.io/cas/)
+
+### Building
+
+The source is intended to be built with [Visual Studio 2017](https://www.visualstudio.com/downloads/) (any 2017 edition including the free Community edition will work.)  
+
+The project can also be built via the command line using a [Cake](https://www.cakebuild.net/) build script.  If you are building from the command line, PowerShell or on a build server you must have the [Build Tools for Visual Studio 2017](https://www.visualstudio.com/downloads/) installed on the machine the build is occurring on.
+
+To build the project from the command line, all you need to do is drop to PowerShell (or open a PowerShell window directly) and then run the **build.ps1** file to build the project and associated NuGet package.  The NuGet package will be copied to the **artifacts** folder in the root of the repo when the build process has completed.
+
+### Running
+
+The build (via Visual Studio 2017) produces a single managed assembly, DotNetCasClient.dll, that may be included as a dependency of another project.  However, it is recommended you install the NuGet package instead of referencing the DotNetCasClient.dll directly in a project because the NuGet package will handle adding/removing/updating other dependencies and references for you.
+
+In addition to adding a dependency, the CAS integration must be configured via the web.config file. See the [Integration Instructions](#integration-instructions) below for details.
+
+### Integration Instructions
+
 The .NET CAS client integrates with ASP.NET applications by customizing the application web.config file. The client is implemented as an ASP.NET IHttpModule, CasAuthenticationModule, that provides hooks into the ASP.NET request/response pipeline through lifecycle events. This provides a familiar configuration path for client integration, including the following:
 
 - Custom `casClientConfig` section containing CAS-specific configuration parameters that apply to `CasAuthenticationModule`
@@ -84,11 +125,11 @@ The following attributes are supported in the casClientConfig configuration sect
 | `gatewayStatusCookieName ` | The name of the cookie used to store the Gateway status (NotAttempted, Success, Failed). This cookie is used to prevent the client from attempting to gateway authenticate every request. Default value is `cas_gateway_status`. | No
 | `cookiesRequiredUrl ` | The URL to redirect to when the client is not accepting session cookies. This condition is detected only when gateway is enabled. This will lock the users onto a specific page. Otherwise, every request will cause a silent round-trip to the CAS server, adding a parameter to the URL. | No
 
-### Register CasAuthenticationModule
+#### Register CasAuthenticationModule
 
 Register `CasAuthenticationModule` with the ASP.NET pipeline by adding it to the `<system.web><httpModules>` and `<system.webServer><modules>` sections as demonstrated in the following configuration blocks.
 
-#### Register with httpModules Section
+##### Register with httpModules Section
 
 ```xml
 <system.web>
@@ -101,7 +142,7 @@ Register `CasAuthenticationModule` with the ASP.NET pipeline by adding it to the
 </system.web>
 ```
 
-#### Register with modules Section
+##### Register with modules Section
 
 ```xml
 <system.webServer>
@@ -124,7 +165,7 @@ Register `CasAuthenticationModule` with the ASP.NET pipeline by adding it to the
 </system.webServer>
 ```
 
-### Configure ASP.NET Forms Authentication
+#### Configure ASP.NET Forms Authentication
 Configure the ASP.NET Forms authentication section, `<forms>`, so that it points to the login URL of the CAS server defined in the casServerLoginUrl attribute of the casClientConfig section. It is vitally important that the CAS login URL is the same in both locations.
 
 
@@ -143,13 +184,16 @@ Configure the ASP.NET Forms authentication section, `<forms>`, so that it points
 </system.web>
 ```
 
-### Configure Authorization
+#### Configure Authorization
+
 Configure authorization roles and resources using the familiar ASP.NET directives. We recommend the user of a role provider that queries a role store given the principal name returned from the CAS server. There is not support at present for extracting authorization data from the attributes released from CAS via the SAML protocol.
 
-### Configure Diagnostic Tracing (optional)
+#### Configure Diagnostic Tracing (optional)
+
 `CasAuthenticationModule` uses the .NET Framework `System.Diagnostics` tracing facility for internal logging. Enabling the internal trace switches should be the first step taken to troubleshoot integration problems.
 
-`System.Diagnostics` tracing requires that the source be compiled with the /TRACE compiler option in order to produce output to trace listeners. The binary distributions of CAS provided here are compiled in DEBUG mode with the /TRACE option enabled.
+`System.Diagnostics` tracing requires that the source be compiled with the /TRACE compiler option in order to produce output to trace listeners. The binary distributions of the .NET CAS Client provided here on GitHub and as NuGet packages are compiled in RELEASE mode with the /TRACE option enabled. (Note: binary distributions prior to version 1.1.0 are compiled in DEBUG mode with the /TRACE option enabled.)
+
 The following web.config configuration section provides a sample trace configuration that should be used to troubleshoot integration problems.
 
 ```xml

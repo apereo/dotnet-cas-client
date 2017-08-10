@@ -1,277 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>DotNetCasClient</RootNamespace>
     <AssemblyName>DotNetCasClient</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <TargetFrameworks>net45;net40;net35;net20</TargetFrameworks>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <ProjectGuid>{883A296E-C898-4D1F-9ED9-DE7569DEFB3D}</ProjectGuid>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>NET45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
+    <DefineConstants>NET40</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NET35</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
+    <DefineConstants>NET20</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Debug\DotNetCasClient.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\DotNetCasClient.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net35' OR '$(TargetFramework)'=='net20'">
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CasAuthentication.cs" />
-    <Compile Include="CasAuthenticationModule.cs" />
-    <Compile Include="CasAuthenticationTicket.cs" />
-    <Compile Include="Configuration\CasClientConfiguration.cs" />
-    <Compile Include="Configuration\CasConfigurationException.cs" />
-    <Compile Include="GatewayStatus.cs" />
-    <Compile Include="Logging\Category.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Security\Assertion.cs" />
-    <Compile Include="Security\AssertionRoleProvider.cs" />
-    <Compile Include="Security\CasPrincipal.cs" />
-    <Compile Include="Security\IAssertion.cs" />
-    <Compile Include="Security\ICasPrincipal.cs" />
-    <Compile Include="Security\ReadOnlyXmlRoleProvider.cs" />
-    <Compile Include="State\CacheProxyTicketManager.cs" />
-    <Compile Include="State\CacheServiceTicketManager.cs" />
-    <Compile Include="State\IProxyTicketManager.cs" />
-    <Compile Include="State\IServiceTicketManager.cs" />
-    <Compile Include="Utils\AssertionUtil.cs" />
-    <Compile Include="Utils\CommonUtils.cs" />
-    <Compile Include="Utils\EnhancedUriBuilder.cs" />
-    <Compile Include="Utils\HttpUtil.cs" />
-    <Compile Include="Utils\RequestEvaluator.cs" />
-    <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Utils\UrlUtil.cs" />
-    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassFailure.cs" />
-    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassResponse.cs" />
-    <Compile Include="Validation\Schema\Cas20\ClearPass\ClearPassSuccess.cs" />
-    <Compile Include="Validation\TicketValidator\AbstractCasProtocolTicketValidator.cs" />
-    <Compile Include="Validation\TicketValidator\AbstractUrlTicketValidator.cs" />
-    <Compile Include="Validation\TicketValidator\Cas10TicketValidator.cs" />
-    <Compile Include="Validation\TicketValidator\Cas20ServiceTicketValidator.cs" />
-    <Compile Include="Validation\CasSaml11Response.cs" />
-    <Compile Include="Validation\TicketValidator\ITicketValidator.cs" />
-    <Compile Include="Validation\TicketValidator\Saml11TicketValidator.cs" />
-    <Compile Include="Validation\SamlUtils.cs" />
-    <Compile Include="Validation\Schema\Cas20\AuthenticationFailure.cs" />
-    <Compile Include="Validation\Schema\Cas20\AuthenticationSuccess.cs" />
-    <Compile Include="Validation\Schema\Cas20\ProxyFailure.cs" />
-    <Compile Include="Validation\Schema\Cas20\ProxySuccess.cs" />
-    <Compile Include="Validation\Schema\Cas20\ServiceResponse.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\ActionType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\AdviceType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\AssertionType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Attribute\AttributeDesignatorType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Attribute\AttributeType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\AuthorityBindingType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Condition\AudienceRestrictionConditionType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Condition\ConditionAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Condition\ConditionsType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Condition\DoNotCacheConditionType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\DecisionType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\EvidenceType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\NameIdentifierType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\Statement\StatementAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectConfirmationType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectLocalityType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectStatement\AttributeStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectStatement\AuthenticationStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectStatement\AuthorizationDecisionStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectStatement\SubjectStatementAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Assertion\SubjectType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\Request\RequestAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\Request\RequestType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\Response\ResponseAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\Response\ResponseType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\StatusCodeType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\StatusDetailType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\StatusType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\SubjectQuery\AttributeQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\SubjectQuery\AuthenticationQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\SubjectQuery\AuthorizationDecisionQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\SubjectQuery\QueryAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml11\Protocol\SubjectQuery\SubjectQueryAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\ActionType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\AdviceType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\AssertionType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Attribute\AttributeType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\AuthnContextType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\BaseIdAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Condition\AudienceRestrictionType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Condition\ConditionAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Condition\ConditionsType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Condition\OneTimeUseType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Condition\ProxyRestrictionType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\EncryptedElementType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\NameIdType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Statement\AttributeStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Statement\AuthnStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Statement\AuthzDecisionStatementType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\Statement\StatementAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\SubjectConfirmationDataType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\SubjectConfirmationType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\SubjectLocalityType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Assertion\SubjectType.cs" />
-    <Compile Include="Validation\Schema\Saml20\AuthnContextComparisonType.cs" />
-    <Compile Include="Validation\Schema\Saml20\DecisionType.cs" />
-    <Compile Include="Validation\Schema\Saml20\EvidenceType.cs" />
-    <Compile Include="Validation\Schema\Saml20\KeyInfoConfirmationDataType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\AdditionalMetadataLocationType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\AffiliationDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\AttributeAuthorityDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\AttributeConsumingServiceType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\AuthnAuthorityDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\ContactType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\ContactTypeType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\EndpointType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\EntitiesDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\EntityDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\ExtensionsType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\IdpSsoDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\IndexedEndpointType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\KeyDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\KeyTypes.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\LocalizedNameType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\LocalizedUriType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\OrganizationType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\PdpDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\RequestedAttributeType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\RoleDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\SpSsoDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Metadata\SsoDescriptorType.cs" />
-    <Compile Include="Validation\Schema\Saml20\NameIdPolicyType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Extensions\ExtensionsType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\IdpEntryType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\IdpListType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\ArtifactResolveType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\AssertionIdRequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\AuthnRequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\LogoutRequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\ManageNameIdRequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\NameIdMappingRequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\RequestAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Request\RequestType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\RequestedAuthnContextType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\Response\ResponseType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\ScopingType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusCodeType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusDetailType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusResponse\ArtifactResponseType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusResponse\NameIdMappingResponseType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusResponse\StatusResponseType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\StatusType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\SubjectQuery\AttributeQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\SubjectQuery\AuthnQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\SubjectQuery\AuthzDecisionQueryType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\SubjectQuery\SubjectQueryAbstractType.cs" />
-    <Compile Include="Validation\Schema\Saml20\Protocol\TerminateType.cs" />
-    <Compile Include="Validation\Schema\Saml20\RelayStateType.cs" />
-    <Compile Include="Validation\Schema\Saml20\ResponseType.cs" />
-    <Compile Include="Validation\Schema\SoapEnvelope\Body.cs" />
-    <Compile Include="Validation\Schema\SoapEnvelope\Detail.cs" />
-    <Compile Include="Validation\Schema\SoapEnvelope\Envelope.cs" />
-    <Compile Include="Validation\Schema\SoapEnvelope\Fault.cs" />
-    <Compile Include="Validation\Schema\SoapEnvelope\Header.cs" />
-    <Compile Include="Validation\Schema\Xenc\AgreementMethodType.cs" />
-    <Compile Include="Validation\Schema\Xenc\CipherDataType.cs" />
-    <Compile Include="Validation\Schema\Xenc\CipherReferenceType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptedDataType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptedKeyType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptedType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptionMethodType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptionPropertiesType.cs" />
-    <Compile Include="Validation\Schema\Xenc\EncryptionPropertyType.cs" />
-    <Compile Include="Validation\Schema\Xenc\ReferenceList.cs" />
-    <Compile Include="Validation\Schema\Xenc\ReferenceType.cs" />
-    <Compile Include="Validation\Schema\Xenc\TransformsType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\CanonicalizationMethodType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\DigestMethodType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\DsaKeyValueType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\KeyInfoType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\KeyValueType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\ManifestType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\ObjectType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\PgpDataType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\ReferenceType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\RetrievalMethodType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\RsaKeyValueType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignatureMethodType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignaturePropertiesType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignaturePropertyType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignatureType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignatureValueType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SignedInfoType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\SpkiDataType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\TransformsType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\TransformType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\X509DataType.cs" />
-    <Compile Include="Validation\Schema\XmlDsig\X509IssuerSerialType.cs" />
-    <Compile Include="Validation\TicketValidationException.cs" />
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net45' OR '$(TargetFramework)'=='net40'">
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+
+	<!-- Configure configSections section -->
+	<configSections xdt:Transform="InsertIfMissing" />
+	
+	<configSections xdt:Transform="InsertBefore(/configuration/*[1])">
+  	</configSections>
+
+	<configSections xdt:Locator="XPath(/configuration/configSections[last()])">
+		<section xdt:Transform="Remove" xdt:Locator="Match(name)" name="casClientConfig" />
+  	</configSections>
+	
+	<configSections xdt:Locator="XPath(/configuration/configSections[last()])">
+		<section xdt:Transform="Insert" name="casClientConfig" type="DotNetCasClient.Configuration.CasClientConfiguration, DotNetCasClient" />
+  	</configSections>
+
+	<configSections xdt:Transform="RemoveAll" xdt:Locator="Condition(count(*)=0)" />
+
+	<!-- Configure system.web section -->
+	<system.web xdt:Transform="InsertIfMissing">
+		<authentication xdt:Transform="InsertIfMissing" />
+		<httpModules xdt:Transform="InsertIfMissing" />
+	</system.web>
+
+	<system.web>
+		<authentication xdt:Transform="SetAttributes" mode="Forms">
+			<forms xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)" name=".DotNetCasClientAuth" loginUrl="https://cas.example.com/cas/login" cookieless="UseCookies" />
+		</authentication>
+		<httpModules>
+            <add xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)" name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient" />
+        </httpModules>
+	</system.web>
+
+	<!-- Configure system.webServer section -->
+	<system.webServer xdt:Transform="InsertIfMissing">
+		<validation xdt:Transform="InsertIfMissing" />
+        <modules xdt:Transform="InsertIfMissing" />
+	</system.webServer>
+
+	<system.webServer>
+        <modules>
+			<add xdt:Transform="Remove" xdt:Locator="Match(name)" name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient" />
+            <add xdt:Transform="Insert" xdt:Locator="Match(name)" name="DotNetCasClient" type="DotNetCasClient.CasAuthenticationModule,DotNetCasClient" />
+        </modules>
+	</system.webServer>
+
+	<system.webServer>
+        <modules>
+			<remove xdt:Transform="Remove" xdt:Locator="Match(name)" name="DotNetCasClient" />
+            <remove xdt:Transform="InsertBefore(/configuration/system.webServer/modules/add)" xdt:Locator="Match(name)" name="DotNetCasClient" />
+        </modules>
+	</system.webServer>
+
+	<system.webServer>
+		<validation xdt:Transform="SetAttributes" validateIntegratedModeConfiguration="false" />
+	</system.webServer>
+
+	<!-- Insert casClientConfig section if missing -->
+	<casClientConfig 
+		xdt:Transform="InsertIfMissing"  
+        casServerLoginUrl="https://cas.example.com/cas/login" 
+        casServerUrlPrefix="https://cas.example.com/cas/" 
+        serverName="cas.example.com" 
+        notAuthorizedUrl="~/NotAuthorized.aspx" 
+        cookiesRequiredUrl="~/CookiesRequired.aspx" 
+        redirectAfterValidation="true" 
+        gateway="false" 
+        renew="false" 
+        singleSignOut="true" 
+        ticketTimeTolerance="5000" 
+        ticketValidatorName="Cas20" 
+        proxyTicketManager="CacheProxyTicketManager" 
+        serviceTicketManager="CacheServiceTicketManager" 
+        gatewayStatusCookieName="CasGatewayStatus" />
+
+</configuration>
