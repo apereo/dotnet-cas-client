@@ -36,7 +36,7 @@ namespace DotNetCasClient.Validation.TicketValidator
     /// <author>Scott Battaglia</author>
     /// <author>William G. Thompson, Jr. (.Net)</author>
     /// <author>Scott Holodak (.Net)</author>
-    interface ITicketValidator
+    public interface ITicketValidator
     {
         #region Properties
         /// <summary>
