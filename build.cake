@@ -172,6 +172,7 @@ Task("Pack")
             Copyright = copyright,
             Description = projectDescription,
             ReleaseNotes = new []{releaseNotes.ToString()},
+            Symbols = true,
             OutputDirectory = artifactDir
         };
 
