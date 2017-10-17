@@ -28,8 +28,9 @@ The Apereo .NET CAS client provides CAS integration for the Microsoft Windows pl
 
 ## Downloads ##
 
-* The latest (stable) release is [available on NuGet](https://www.nuget.org/packages/DotNetCasClient/) or can be [downloaded from GitHub](https://github.com/apereo/dotnet-cas-client/releases).
-* Unstable pre-release versions are [available on MyGet](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
+* The latest stable releases are [available on NuGet](https://www.nuget.org/packages/DotNetCasClient/) or can be [downloaded from GitHub](https://github.com/apereo/dotnet-cas-client/releases).
+* Pre-release versions (unstable) are [available on MyGet here](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
+* CI versions (unstable) are [available on MyGet here](https://www.myget.org/feed/dotnetcasclient-ci/package/nuget/DotNetCasClient)
 
 ## Release Notes ##
 
