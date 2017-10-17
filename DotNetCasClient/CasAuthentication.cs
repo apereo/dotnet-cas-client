@@ -1074,7 +1074,7 @@ namespace DotNetCasClient
 
         /// <summary>
         /// Encrypts a FormsAuthenticationTicket in an HttpCookie (using 
-        /// GetAuthCookie) and includes it in the response.
+        /// GetAuthCookie) and includes it in both the request and the response.
         /// </summary>
         /// <param name="clientTicket">The FormsAuthenticationTicket to encode</param>
         public static void SetAuthCookie(FormsAuthenticationTicket clientTicket)
@@ -1087,7 +1087,13 @@ namespace DotNetCasClient
                 throw new HttpException("Connection not secure while creating secure cookie");
             }
 
-            current.Response.Cookies.Add(GetAuthCookie(clientTicket));
+            // Obtain the forms authentication cookie from the ticket
+            HttpCookie authCookie = GetAuthCookie(clientTicket);
+            // Clear the previous cookie from the current HTTP request
+            current.Request.Cookies.Remove(FormsAuthentication.FormsCookieName);
+            // Store the new cookie in both the request and response objects
+            current.Request.Cookies.Add(authCookie);
+            current.Response.Cookies.Add(authCookie);
         }
 
         /// <summary>
