@@ -2,8 +2,8 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/py9b6esq9smjr6u5/branch/master?svg=true)](https://ci.appveyor.com/project/mmoayyed/dotnet-cas-client/branch/master)
 [![Stable nuget](https://img.shields.io/nuget/v/DotNetCasClient.svg?label=stable%20nuget)](https://www.nuget.org/packages/DotNetCasClient/)
-[![Pre-release nuget](https://img.shields.io/myget/dotnetcasclient-prerelease/v/dotnetcasclient.svg?label=pre-release%20nuget)](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
-[![Unstable nuget](https://img.shields.io/myget/dotnetcasclient-ci/v/dotnetcasclient.svg?label=unstable%20nuget)](https://www.myget.org/feed/dotnetcasclient-ci/package/nuget/DotNetCasClient)
+[![Pre-release nuget](https://img.shields.io/myget/dotnetcasclient-prerelease/vpre/dotnetcasclient.svg?label=pre-release%20nuget)](https://www.myget.org/feed/dotnetcasclient-prerelease/package/nuget/DotNetCasClient)
+[![Unstable nuget](https://img.shields.io/myget/dotnetcasclient-ci/vpre/dotnetcasclient.svg?label=unstable%20nuget)](https://www.myget.org/feed/dotnetcasclient-ci/package/nuget/DotNetCasClient)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [![Gitter](https://img.shields.io/gitter/room/apereo/cas.svg)](https://gitter.im/apereo/dotnet-cas-client)
