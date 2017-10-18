@@ -32,6 +32,5 @@
         <file src="web.config.transform" target="content" />
         <file src="web.config.uninstall.xdt" target="content" />
         <file src="bin\Release\**" target="lib" />
-        <file src="**\*.cs" exclude="obj\**\*.*" target="src" />
     </files>
 </package>
