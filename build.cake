@@ -1,6 +1,6 @@
-#tool nuget:?package=NUnit.ConsoleRunner&version=3.4.0
-#tool nuget:?package=GitVersion.CommandLine
-#addin nuget:?package=Cake.Incubator
+#tool "nuget:?package=NUnit.ConsoleRunner&version=3.4.0"
+#tool "nuget:?package=GitVersion.CommandLine"
+#addin "nuget:?package=Cake.Incubator"
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
