@@ -18,12 +18,9 @@
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" />
             <frameworkAssembly assemblyName="System.Configuration" />
-            <frameworkAssembly assemblyName="System.Data" />
-            <frameworkAssembly assemblyName="System.Drawing" />
             <frameworkAssembly assemblyName="System.Runtime.Caching" targetFramework="net40, net45" />
             <frameworkAssembly assemblyName="System.Web" />
             <frameworkAssembly assemblyName="System.Web.ApplicationServices" targetFramework="net40, net45" />
-            <frameworkAssembly assemblyName="System.Windows.Forms" />
             <frameworkAssembly assemblyName="System.Xml" />
         </frameworkAssemblies>
     </metadata>
