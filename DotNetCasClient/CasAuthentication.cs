@@ -737,13 +737,22 @@ namespace DotNetCasClient
 
             protoLogger.Debug("Examining request for single sign-out signature");
 
+#if NET45
+            if (request.HttpMethod == "POST" && request.Unvalidated.Form["logoutRequest"] != null)
+#else
             if (request.HttpMethod == "POST" && request.Form["logoutRequest"] != null)
+#endif
+
             {
                 protoLogger.Debug("Attempting to get CAS service ticket from request");
                 // TODO: Should we be checking to make sure that this special POST is coming from a trusted source?
                 //       It would be tricky to do this by IP address because there might be a white list or something.
-                
+#if NET45
+                string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Unvalidated.Form["logoutRequest"]);
+#else
                 string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Params["logoutRequest"]);
+#endif
+
                 if (!String.IsNullOrEmpty(casTicket))
                 {
                     protoLogger.Info("Processing single sign-out request for " + casTicket);
