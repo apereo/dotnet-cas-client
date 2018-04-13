@@ -271,7 +271,12 @@ namespace DotNetCasClient.Utils
             HttpRequest request = context.Request;
 
             bool requestIsFormPost = (request.RequestType == "POST");
+#if NET45
+            bool haveLogoutRequest = !string.IsNullOrEmpty(request.Unvalidated.Form["logoutRequest"]);
+#else
             bool haveLogoutRequest = !string.IsNullOrEmpty(request.Params["logoutRequest"]);
+#endif
+
 
             bool result =
             (
