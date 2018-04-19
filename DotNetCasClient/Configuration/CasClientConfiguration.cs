@@ -50,11 +50,14 @@ namespace DotNetCasClient.Configuration
         public const string REQUIRE_CAS_FOR_CONTENT_TYPES_PARAMETER_NAME = "requireCasForContentTypes";
         public const string BYPASS_CAS_FOR_HANDLERS_PARAMETER_NAME = "bypassCasForHandlers";
 		public const string AUTHENTICATION_TYPE = "authenticationType";
+        public const string REDIS_CONNECTION_STRING = "redisConnectionString";
+        public const string REDIS_KEY = "redisKey";
+        
 
         // NETC-20 - Not sure whether these attributes are relevant.
         // public const string ARTIFACT_PARAMETER_NAME_VALIDATION = "artifactParameterNameValidation";
         // public const string SERVICE_PARAMETER_NAME_VALIDATION = "serviceParameterNameValidation";
-        
+
         public const string REDIRECT_AFTER_VALIDATION = "redirectAfterValidation";
         public const string ENCODE_SERVICE_URL = "encodeServiceUrl";
         public const string SECURE_URI_REGEX_STRING = "secureUriRegex";
@@ -455,6 +458,30 @@ namespace DotNetCasClient.Configuration
 				return this[AUTHENTICATION_TYPE] as string ?? "Apereo CAS";
 			}
 	    }
+        /// <summary>
+        /// Redis connection string. It must be defined if ServiceTiketManager is RedisServiceTicketManager
+        /// </summary>
+        [ConfigurationProperty(REDIS_CONNECTION_STRING, IsRequired = false)]
+        public string RedisConnectionString
+        {
+            get
+            {
+                return this[REDIS_CONNECTION_STRING] as string;
+            }
+        }
+
+        /// <summary>
+        /// RedisKey to store sessions data into redis. It must be defined if ServiceTiketManager is RedisServiceTicketManager
+        /// </summary>
+        [ConfigurationProperty(REDIS_KEY, IsRequired = false, DefaultValue = "CAS_REDIS_KEY")]
+        public string RedisKey
+        {
+            get
+            {
+                return this[REDIS_KEY] as string ?? "CAS_REDIS_KEY";
+            }
+        }
+
         #endregion
     }
 }
