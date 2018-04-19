@@ -72,6 +72,9 @@
         ticketValidatorName="Cas20" 
         proxyTicketManager="CacheProxyTicketManager" 
         serviceTicketManager="CacheServiceTicketManager" 
-        gatewayStatusCookieName="CasGatewayStatus" />
+        gatewayStatusCookieName="CasGatewayStatus"
+        redisConnectionString=""
+        redisKey="CasTicketStore"
+    />
 
 </configuration>
