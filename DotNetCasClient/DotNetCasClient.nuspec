@@ -40,4 +40,11 @@
         <file src="bin\Release\net45/DotNetCasClient.dll" target="lib\net45" />
         <file src="bin\Release\net45/DotNetCasClient.xml" target="lib\net45" />
     </files>
+
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="CachingFramework.Redis" version="7.0.0" />
+        
+      </group>      
+    </dependencies>
 </package>
