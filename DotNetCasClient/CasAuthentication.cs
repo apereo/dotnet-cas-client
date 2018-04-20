@@ -740,7 +740,7 @@ namespace DotNetCasClient
 #if NET45
             if (request.HttpMethod == "POST" && request.Unvalidated.Form["logoutRequest"] != null)
 #else
-            if (request.HttpMethod == "POST" && request.Form["logoutRequest"] != null)
+            if (request.HttpMethod == "POST" && RequestEvaluator.GetLogoutRequestBody(request) != null)
 #endif
 
             {
@@ -750,7 +750,7 @@ namespace DotNetCasClient
 #if NET45
                 string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Unvalidated.Form["logoutRequest"]);
 #else
-                string casTicket = ExtractSingleSignOutTicketFromSamlResponse(request.Params["logoutRequest"]);
+                string casTicket = ExtractSingleSignOutTicketFromSamlResponse(RequestEvaluator.GetLogoutRequestBody(request));
 #endif
 
                 if (!String.IsNullOrEmpty(casTicket))

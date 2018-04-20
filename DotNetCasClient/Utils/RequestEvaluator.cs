@@ -19,6 +19,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Web;
 
 namespace DotNetCasClient.Utils
@@ -29,6 +30,8 @@ namespace DotNetCasClient.Utils
     /// <author>Scott Holodak</author>
     internal static class RequestEvaluator
     {
+        private const string LOGOUT_REQUEST_KEY = "logoutRequest";
+
         /// <summary>
         /// Determines whether the request has a CAS ticket in the URL
         /// </summary>
@@ -274,7 +277,7 @@ namespace DotNetCasClient.Utils
 #if NET45
             bool haveLogoutRequest = !string.IsNullOrEmpty(request.Unvalidated.Form["logoutRequest"]);
 #else
-            bool haveLogoutRequest = !string.IsNullOrEmpty(request.Params["logoutRequest"]);
+            bool haveLogoutRequest = !string.IsNullOrEmpty(GetLogoutRequestBody(request));
 #endif
 
 
@@ -285,6 +288,33 @@ namespace DotNetCasClient.Utils
             );
 
             return result;
+        }
+        /// <summary>
+        /// Read body from request input stream
+        /// Does not cause System.Web.HttpRequestValidationException 
+        /// </summary>
+        /// <returns></returns>
+        internal static string GetLogoutRequestBody(HttpRequest request)
+        {
+            StreamReader reader = new StreamReader(request.InputStream);
+            var body = reader.ReadToEnd();
+
+            //Seek it back to the beginning
+            request.InputStream.Seek(0, SeekOrigin.Begin);
+
+            if (!body.StartsWith(LOGOUT_REQUEST_KEY))
+            {
+                return null;
+            }
+
+            var logoutBody = body.Substring(LOGOUT_REQUEST_KEY.Length + 1);
+
+            if (string.IsNullOrEmpty(logoutBody))
+            {
+                return null;
+            }
+
+            return HttpUtility.UrlDecode(logoutBody);
         }
 
         /// <summary>
