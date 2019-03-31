@@ -72,7 +72,7 @@ if (isAppveyorBuild)
 else
 {
     // Local developer machine build.
-    nugetPackageVersion = versionInfo.MajorMinorPatch + "-local-" + versionInfo.CommitsSinceVersionSource.PadLeft(5, '0');
+    nugetPackageVersion = versionInfo.MajorMinorPatch + "-local-" + versionInfo.CommitsSinceVersionSource.Value.ToString().PadLeft(5, '0');
 }
 
 //////////////////////////////////////////////////////////////////////
