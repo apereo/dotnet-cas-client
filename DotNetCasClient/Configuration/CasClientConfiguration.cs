@@ -17,6 +17,8 @@
  * under the License.
  */
 
+#pragma warning disable 1591
+
 using System;
 using System.Configuration;
 
@@ -458,3 +460,5 @@ namespace DotNetCasClient.Configuration
         #endregion
     }
 }
+
+#pragma warning restore 1591

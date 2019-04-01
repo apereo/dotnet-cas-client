@@ -17,6 +17,8 @@
  * under the License.
  */
 
+#pragma warning disable 1591
+
 using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -170,3 +172,5 @@ namespace DotNetCasClient.Validation.TicketValidator
         #endregion
     }
 }
+
+#pragma warning restore 1591
