@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+#pragma warning disable 1591
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -41,3 +44,5 @@ namespace DotNetCasClient.Validation.TicketValidator
         }
     }
 }
+
+#pragma warning restore 1591

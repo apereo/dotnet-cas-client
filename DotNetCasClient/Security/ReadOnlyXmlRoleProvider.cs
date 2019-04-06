@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+#pragma warning disable 1591
+
 using System;
 using System.Web.Security;
 using System.Collections.Generic;
@@ -292,3 +295,5 @@ namespace DotNetCasClient.Security
         }
     }
 }
+
+#pragma warning restore 1591
