@@ -1,3 +1,7 @@
+### New in 1.3.0 (Released N/A)
+
+* GitHub Issue #65
+
 ### New in 1.2.0 (Released 2019/04/06)
 
 * GitHub Issue #13
