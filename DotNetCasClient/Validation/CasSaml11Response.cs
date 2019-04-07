@@ -98,7 +98,7 @@ namespace DotNetCasClient.Validation
         {
             protoLogger.Debug("Unmarshalling SAML response");
             XmlDocument document = new XmlDocument();
-            document.LoadXml(_CasResponse);
+            document.Load(new StringReader(_CasResponse));
             
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
             nsmgr.AddNamespace("assertion", SAML11_ASSERTION_NAMESPACE);
