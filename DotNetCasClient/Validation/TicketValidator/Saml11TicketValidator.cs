@@ -217,18 +217,22 @@ namespace DotNetCasClient.Validation.TicketValidator
                 requestStream.Write(payload, 0, payload.Length);
             }
 
-            HttpWebResponse response = (HttpWebResponse)req.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            if (responseStream != null)
+            using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
             {
-                using (StreamReader responseReader = new StreamReader(responseStream))
+                using (Stream responseStream = response.GetResponseStream())
                 {
-                    return responseReader.ReadToEnd();
+                    if (responseStream != null)
+                    {
+                        using (StreamReader responseReader = new StreamReader(responseStream))
+                        {
+                            return responseReader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException("Unable to retrieve response stream.");
+                    }
                 }
-            }
-            else
-            {
-                throw new ApplicationException("Unable to retrieve response stream.");
             }
         }
         #endregion

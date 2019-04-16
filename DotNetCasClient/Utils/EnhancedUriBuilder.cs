@@ -270,14 +270,19 @@ namespace DotNetCasClient.Utils
 
             if (base.Query.Length > 0)
             {
-                string query = HttpUtility.UrlDecode(base.Query.Substring(1));
+                // The Query component of the URI always begins with the ? separator, so get the entire string
+                // after that, then split the string on the & separator, which is how each query item is delimited
+                string query = base.Query.Substring(1);
                 string[] items = query.Split('&');
 
                 foreach (string item in items)
                 {
                     if (item.Length > 0)
                     {
-                        string[] namevalue = item.Split('=');
+                        // Split the query item into a name/value pair, delimited by the first occurrence of =. Any
+                        // subsequent occurrences will be ignored despite being illegal as a non-URL encoded character
+                        string[] namevalue = item.Split(new char[] {'='}, 2);
+                        // Add the name/value pair to the query item collection
                         _QueryItems.Add(namevalue[0], namevalue.Length > 1 ? namevalue[1] : String.Empty);
                     }
                 }
@@ -291,8 +296,8 @@ namespace DotNetCasClient.Utils
         {
             if (_QueryItems != null)
             {
-                // First check if queryItems has been cleared (using 
-                // QueryItems.Clear()), because this doesn't 
+                // First check if queryItems has been cleared (using
+                // QueryItems.Clear()), because this doesn't
                 // update dirty flag!!!
                 if (_QueryItems.Count == 0)
                 {
