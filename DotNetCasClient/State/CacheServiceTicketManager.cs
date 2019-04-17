@@ -113,7 +113,6 @@ namespace DotNetCasClient.State
         {
             CommonUtils.AssertNotNull(casAuthenticationTicket, "casAuthenticationTicket parameter cannot be null.");
 
-            RevokeTicket(casAuthenticationTicket.ServiceTicket);
             InsertTicket(casAuthenticationTicket, newExpiration);
         }
 
