@@ -1,3 +1,17 @@
+### New in 1.3.0 (Released 2019/04/15)
+
+* GitHub Issue #65
+* Added utility class to serialize and deserialize objects.
+
+### New in 1.2.0 (Released 2019/04/06)
+
+* GitHub Issue #13
+* GitHub Issue #62
+* GitHub Issue #64
+* GitHub Issue #66
+* GitHub Issue #74
+* GitHub Issue #77
+
 ### New in 1.1.0 (Released 2017/08/10)
 
 * Updated README file.

@@ -6,9 +6,9 @@
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a
  * copy of the License at:
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,6 +23,8 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using DotNetCasClient.Security;
 using DotNetCasClient.Utils;
 
@@ -108,7 +110,7 @@ namespace DotNetCasClient.Validation.TicketValidator
 
             // parse Assertion element out of SAML response from CAS
             CasSaml11Response casSaml11Response = new CasSaml11Response(response, CasAuthentication.TicketTimeTolerance);
-            
+
             if (casSaml11Response.HasCasSamlAssertion)
             {
                 protoLogger.Debug("Valid Assertion found: " + casSaml11Response.CasPrincipal.Assertion);
@@ -132,77 +134,80 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// </returns>
         protected override string RetrieveResponseFromServer(string validationUrl, string ticket)
         {
-            /*
-            TODO: Test this 
-             
-            Schema.Saml11.Protocol.Request.RequestType samlRequest = new Schema.Saml11.Protocol.Request.RequestType();
-            samlRequest.MajorVersion = "1";
-            samlRequest.MinorVersion = "1";
-            samlRequest.RequestId = new Guid().ToString();
-            samlRequest.IssueInstant = DateTime.UtcNow;
-            samlRequest.ItemsElementName = new[]
+            // Create the SAML Request and populate its values.
+            Schema.Saml11.Protocol.Request.RequestType samlRequest = new Schema.Saml11.Protocol.Request.RequestType
             {
-                RequestType.ItemsElementNames.AssertionArtifact
-            };
-            samlRequest.Items = new object[]
-            {
-                ticket
+                MajorVersion = "1",
+                MinorVersion = "1",
+                RequestId = Guid.NewGuid().ToString(),
+                IssueInstant = DateTime.UtcNow,
+                ItemsElementName = new[]
+                {
+                    Schema.Saml11.Protocol.Request.RequestType.ItemsElementNames.AssertionArtifact
+                },
+                Items = new object[] {ticket}
             };
 
-            StringBuilder reqXml = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(reqXml))
+            // Create the XML representation of the SAML Request.
+            StringBuilder samlRequestXml = new StringBuilder();
+            using (XmlWriter xmlWriter = XmlWriter.Create(samlRequestXml))
             {
-                XmlSerializer xs = new XmlSerializer(typeof (Schema.Saml11.Protocol.Request.RequestType));
-                if (writer != null)
+                // Need to add some overrides because of conflicting element names during serialization.
+                var xmlOverrides = new XmlAttributeOverrides();
+                xmlOverrides.Add(typeof(Schema.XmlDsig.PgpDataType.ItemsElementNames), new XmlAttributes
                 {
-                    xs.Serialize(writer, samlRequest);
-                }
+                    XmlType = new XmlTypeAttribute("ItemsElementNamesOfPgpDataType")
+                });
+                xmlOverrides.Add(typeof(Schema.XmlDsig.KeyInfoType.ItemsElementNames), new XmlAttributes
+                {
+                    XmlType = new XmlTypeAttribute("ItemsElementNamesOfKeyInfoType")
+                });
+
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Schema.Saml11.Protocol.Request.RequestType), xmlOverrides);
+                XmlSerializerNamespaces samlRequestNamespaces = new XmlSerializerNamespaces();
+                samlRequestNamespaces.Add("samlp", "urn:oasis:names:tc:SAML:1.0:protocol");
+                xmlSerializer.Serialize(xmlWriter, samlRequest, samlRequestNamespaces);
             }
 
-            Schema.SoapEnvelope.Envelope env = new Envelope();
-            env.Header = new Schema.SoapEnvelope.Header();
-            env.Body = new Schema.SoapEnvelope.Body();
+            // Create the SOAP Envelope XML that will wrap around the SAML Request XML.
+            Schema.SoapEnvelope.Envelope soapEnvelope = new Schema.SoapEnvelope.Envelope();
+            soapEnvelope.Header = new Schema.SoapEnvelope.Header();
+            soapEnvelope.Body = new Schema.SoapEnvelope.Body();
 
-            using (XmlReader xr = XmlReader.Create(reqXml.ToString()))
+            using (XmlReader xmlReader = XmlReader.Create(new StringReader(samlRequestXml.ToString())))
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load(xr);
-                
+                doc.Load(xmlReader);
+
                 XmlElement el = doc.DocumentElement;
-                env.Body.Any = new[] { el };
+                soapEnvelope.Body.Any = new[] { el };
             }
 
-            StringBuilder samlRequestBuilder = new StringBuilder();
-            using (XmlWriter writer = XmlWriter.Create(samlRequestBuilder))
+            StringBuilder samlRequestStringBuilder = new StringBuilder();
+            XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
+            xmlWriterSettings.OmitXmlDeclaration = true;
+            xmlWriterSettings.Indent = true;
+            using (XmlWriter xmlWriter = XmlWriter.Create(samlRequestStringBuilder, xmlWriterSettings))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(Schema.SoapEnvelope.Envelope));
-                if (writer != null)
-                {
-                    serializer.Serialize(writer, env);
-                }
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Schema.SoapEnvelope.Envelope));
+                XmlSerializerNamespaces soapEnvelopeNamespaces = new XmlSerializerNamespaces();
+                soapEnvelopeNamespaces.Add("SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/");
+                xmlSerializer.Serialize(xmlWriter, soapEnvelope, soapEnvelopeNamespaces);
             }
-            */
 
-            StringBuilder messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine(@"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"">");
-            messageBuilder.AppendLine(@"<SOAP-ENV:Header/><SOAP-ENV:Body>");
-            messageBuilder.AppendLine(@"<samlp:Request xmlns:samlp=""urn:oasis:names:tc:SAML:1.0:protocol"" ");
-            messageBuilder.AppendLine(@"MajorVersion=""1"" MinorVersion=""1"" RequestID=""_192.168.16.51.1024506224022"" ");
-            messageBuilder.AppendLine(@"IssueInstant=""2002-06-19T17:03:44.022Z"">");
-            messageBuilder.AppendLine(@"<samlp:AssertionArtifact>" + ticket);
-            messageBuilder.AppendLine(@"</samlp:AssertionArtifact></samlp:Request></SOAP-ENV:Body></SOAP-ENV:Envelope>");
-            string message = messageBuilder.ToString();
+            // Get the string representation of the SAML Request XML.
+            string message = samlRequestStringBuilder.ToString();
 
             protoLogger.Debug("Constructed SAML request:{0}{1}", Environment.NewLine, message);
-            
+
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(validationUrl);
             req.Method = "POST";
             req.ContentType = "text/xml";
             req.ContentLength = Encoding.UTF8.GetByteCount(message);
-            req.CookieContainer = new CookieContainer();                
-            req.Headers.Add("SOAPAction", "http://www.oasis-open.org/committees/security");                
+            req.CookieContainer = new CookieContainer();
+            req.Headers.Add("SOAPAction", "http://www.oasis-open.org/committees/security");
             req.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-           
+
             protoLogger.Debug("Request URI: " + req.RequestUri);
             protoLogger.Debug("Request headers: " + req.Headers);
 
@@ -212,18 +217,22 @@ namespace DotNetCasClient.Validation.TicketValidator
                 requestStream.Write(payload, 0, payload.Length);
             }
 
-            HttpWebResponse response = (HttpWebResponse)req.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            if (responseStream != null)
+            using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
             {
-                using (StreamReader responseReader = new StreamReader(responseStream))
+                using (Stream responseStream = response.GetResponseStream())
                 {
-                    return responseReader.ReadToEnd();
+                    if (responseStream != null)
+                    {
+                        using (StreamReader responseReader = new StreamReader(responseStream))
+                        {
+                            return responseReader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        throw new ApplicationException("Unable to retrieve response stream.");
+                    }
                 }
-            }
-            else
-            {
-                throw new ApplicationException("Unable to retrieve response stream.");
             }
         }
         #endregion

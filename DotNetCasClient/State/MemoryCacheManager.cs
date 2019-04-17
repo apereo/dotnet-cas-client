@@ -17,6 +17,8 @@
  * under the License.
  */
 
+#pragma warning disable 1591
+
 #if NET40 || NET45
 using System;
 using System.Collections.Generic;
@@ -169,3 +171,5 @@ namespace DotNetCasClient.State
     }
 }
 #endif
+
+#pragma warning restore 1591

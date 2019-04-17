@@ -9,8 +9,8 @@ using System.Reflection;
 [assembly: AssemblyDescription(".NET client for the Apereo Central Authentication Service (CAS)")]
 [assembly: AssemblyCompany("Apereo Foundation")]
 [assembly: AssemblyProduct("Apereo .NET CAS Client")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
-[assembly: AssemblyInformationalVersion("1.1.0-beta.3+Branch.release/1.1.0.Sha.2d933acd717368290d2a33effbe13208550d9494")]
-[assembly: AssemblyCopyright("Copyright (c) 2007-2017 Apereo.  All rights reserved.")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyInformationalVersion("1.2.0-issue-64.1+20.Branch.feature/issue-64.Sha.cd3f0052bdb5d5083453c52aaf880d4b5f93b4b6")]
+[assembly: AssemblyCopyright("Copyright (c) 2007-2019 Apereo.  All rights reserved.")]
 

@@ -75,10 +75,12 @@ namespace DotNetCasClient.Validation.TicketValidator
 
             try
             {
-                StringReader reader = new StringReader(response);
-                reader.ReadLine();
-                string name = reader.ReadLine();
-                return new CasPrincipal(new Assertion(name));
+                using (StringReader reader = new StringReader(response))
+                {
+                    reader.ReadLine();
+                    string name = reader.ReadLine();
+                    return new CasPrincipal(new Assertion(name));
+                }
             }
             catch (IOException e)
             {
