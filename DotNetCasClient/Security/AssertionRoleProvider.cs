@@ -142,22 +142,44 @@ namespace DotNetCasClient.Security
             throw new NotImplementedException();
         }
 
-        private IList<string> GetCurrentUserRoles()
-        {
-            ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
-            if (principal == null)
-            {
-                return EMPTY_LIST;
-            }
-            IList<string> roles = principal.Assertion.Attributes[roleAttribute];
-            if (roles == null)
-            {
-                roles = EMPTY_LIST;
-            }
-            return roles;
-        }
+		/// <summary>
+		/// Gets all the roles of which the current user is a member.
+		/// </summary>
+		/// <returns>A list of role names</returns>
+		private IList<string> GetCurrentUserRoles()
+		{
+			// Attempt to get the identity of the current user
+			ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
+			if (principal == null)
+			{
+				// No identity is set in the current CAS context, so there cannot be any role
+				// membership
+				return EMPTY_LIST;
+			}
 
-    }
+			// Assert the configured role attribute name exists in the list of CAS assertion
+			// attributes
+			if (principal.Assertion.Attributes.ContainsKey(roleAttribute))
+			{
+				// Obtain the attribute in the CAS assertion that contains the list of role for the
+				// current user
+				IList<string> roles = principal.Assertion.Attributes[roleAttribute];
+				if (roles == null)
+				{
+					// The current user is not a member of any roles
+					return EMPTY_LIST;
+				}
+
+				return roles;
+			}
+			else
+			{
+				// The CAS assertion does not contain the attribute configured for role membership,
+				// so assume the user is not a member of any roles
+				return EMPTY_LIST;
+			}
+		}
+	}
 }
 
 #pragma warning restore 1591
