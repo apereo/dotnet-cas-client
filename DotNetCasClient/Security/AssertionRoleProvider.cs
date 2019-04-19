@@ -139,13 +139,36 @@ namespace DotNetCasClient.Security
             throw new NotImplementedException();
         }
 
+		/// <summary>
+		///	Determines whether or not the specified user is a member of the specified role.
+		/// </summary>
+		/// <param name="username">The identity of the current user</param>
+		/// <param name="roleName">The role to check for membership</param>
+		/// <returns>A Boolean indicating whether or not the user is a member of the role</returns>
         public override bool IsUserInRole(string username, string roleName)
         {
             if (CasAuthentication.CurrentPrincipal.Identity.Name != username)
             {
+				// Role membership is provided by the CAS server, not this client, so it is
+				// impossible to determine the role membership for other identities
                 throw new ProviderException("Cannot fetch roles for user other than that of current context.");
             }
-            return GetCurrentUserRoles().Count > 0;
+
+			// Get the list of roles the current user has
+			IList<string> roles = GetCurrentUserRoles();
+			
+			// Determine if any of the current user roles match the specified role name
+			foreach (string role in roles)
+			{
+				if (string.Compare(role, roleName, true) == 0)
+				{
+					// Role names match, so the current user is in the specified role
+					return true;
+				}
+			}
+
+			// Current user is not in any roles that match the specified role
+			return false;
         }
 
         public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
