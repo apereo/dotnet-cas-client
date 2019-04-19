@@ -165,12 +165,12 @@ namespace DotNetCasClient.Security
             throw new NotImplementedException();
         }
 
-		private IList<string> GetCurrentUserRoles()
+	private IList<string> GetCurrentUserRoles()
         {
-			ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
+	    ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
             if (principal == null)
             {
-				return EMPTY_LIST;
+		return EMPTY_LIST;
             }
             IList<string> roles = principal.Assertion.Attributes[roleAttribute];
             if (roles == null)
