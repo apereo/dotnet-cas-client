@@ -89,36 +89,52 @@ namespace DotNetCasClient.Security
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Get all the roles we know about from the current user's CAS assertion.
-        /// This operation is synonymous with <see cref="GetRolesForUser"/>.
-        /// </summary>
-        /// <returns>List of all roles belonging to current user.</returns>
-        public override string[] GetAllRoles()
-        {
-            IList<string> roles = GetCurrentUserRoles();
-            if (roles is Array)
-            {
-                return (string[])roles;
-            }
-            string[] roleArray = new string[roles.Count];
-            for (int i = 0; i < roles.Count; i++)
-            {
-                roleArray[i] = roles[i];
-            }
-            return roleArray;
-        }
+		/// <summary>
+		/// Gets a list of all the roles for the configured applicationName.
+		/// </summary>
+		/// <returns>A string array containing the names of all the roles stored in the data
+		/// source for the configured applicationName.</returns>
+		/// <remarks>This method will always throw a <see cref="NotImplementedException"/> as the
+		/// CAS client is not able to retrieve a list of all roles from the CAS server.</remarks>
+		public override string[] GetAllRoles()
+		{
+			throw new NotImplementedException();
+		}
 
-        public override string[] GetRolesForUser(string username)
-        {
-            if (CasAuthentication.CurrentPrincipal.Identity.Name != username)
-            {
-                throw new ProviderException("Cannot fetch roles for user other than that of current context.");
-            }
-            return GetAllRoles();
-        }
+		/// <summary>
+		/// Gets a list of role names of which the specified user is a member.
+		/// </summary>
+		/// <param name="username">The user to get roles for</param>
+		/// <returns>A string array containing the names of all the roles</returns>
+		public override string[] GetRolesForUser(string username)
+		{
+			if (CasAuthentication.CurrentPrincipal.Identity.Name != username)
+			{
+				// Role membership is provided by the CAS server, not this client, so it is
+				// impossible to determine the role membership for other identities
+				throw new ProviderException("Cannot fetch roles for user other than that of current context.");
+			}
 
-        public override string[] GetUsersInRole(string roleName)
+			// Call the private method to get all roles for the specified (current) user
+			IList<string> roles = GetCurrentUserRoles();
+
+			if (roles is Array)
+			{
+				// The roles list can be directly cast to a string array and returned to the caller
+				return (string[])roles;
+			}
+
+			// The elements of the roles list must be manually copied into a new string array
+			// that can be returned to the caller
+			string[] roleArray = new string[roles.Count];
+			for (int i = 0; i < roles.Count; i++)
+			{
+				roleArray[i] = roles[i];
+			}
+			return roleArray;
+		}
+
+		public override string[] GetUsersInRole(string roleName)
         {
             throw new NotImplementedException();
         }
@@ -165,22 +181,44 @@ namespace DotNetCasClient.Security
             throw new NotImplementedException();
         }
 
-	private IList<string> GetCurrentUserRoles()
-        {
-	    ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
-            if (principal == null)
-            {
-		return EMPTY_LIST;
-            }
-            IList<string> roles = principal.Assertion.Attributes[roleAttribute];
-            if (roles == null)
-            {
-                roles = EMPTY_LIST;
-            }
-            return roles;
-        }
+		/// <summary>
+		/// Gets all the roles of which the current user is a member.
+		/// </summary>
+		/// <returns>A list of role names</returns>
+		private IList<string> GetCurrentUserRoles()
+		{
+			// Attempt to get the identity of the current user
+			ICasPrincipal principal = CasAuthentication.CurrentPrincipal;
+			if (principal == null)
+			{
+				// No identity is set in the current CAS context, so there cannot be any role
+				// membership
+				return EMPTY_LIST;
+			}
 
-    }
+			// Assert the configured role attribute name exists in the list of CAS assertion
+			// attributes
+			if (principal.Assertion.Attributes.ContainsKey(roleAttribute))
+			{
+				// Obtain the attribute in the CAS assertion that contains the list of role for the
+				// current user
+				IList<string> roles = principal.Assertion.Attributes[roleAttribute];
+				if (roles == null)
+				{
+					// The current user is not a member of any roles
+					return EMPTY_LIST;
+				}
+
+				return roles;
+			}
+			else
+			{
+				// The CAS assertion does not contain the attribute configured for role membership,
+				// so assume the user is not a member of any roles
+				return EMPTY_LIST;
+			}
+		}
+	}
 }
 
 #pragma warning restore 1591

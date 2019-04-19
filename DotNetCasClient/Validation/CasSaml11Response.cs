@@ -6,9 +6,9 @@
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a
  * copy of the License at:
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,7 +36,7 @@ namespace DotNetCasClient.Validation
         // The SAML 1.1 Assertion namespace
         const string SAML11_ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:1.0:assertion";
 
-        private static readonly Logger protoLogger = new Logger(Category.Protocol); 
+        private static readonly Logger protoLogger = new Logger(Category.Protocol);
 
         // Tolerance ticks for checking the current time against the SAML
         // Assertion valid times.
@@ -99,7 +99,7 @@ namespace DotNetCasClient.Validation
             protoLogger.Debug("Unmarshalling SAML response");
             XmlDocument document = new XmlDocument();
             document.Load(new StringReader(_CasResponse));
-            
+
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(document.NameTable);
             nsmgr.AddNamespace("assertion", SAML11_ASSERTION_NAMESPACE);
 
@@ -111,12 +111,6 @@ namespace DotNetCasClient.Validation
                     protoLogger.Debug("No assertions found in SAML response.");
                     throw new TicketValidationException("No assertions found.");
                 }
-
-                XmlReaderSettings xmlReaderSettings = new XmlReaderSettings();
-                xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
-                xmlReaderSettings.IgnoreWhitespace = true;
-                xmlReaderSettings.IgnoreComments = true;
-                xmlReaderSettings.CloseInput = true;
 
                 foreach (XmlNode assertionNode in assertions)
                 {
@@ -148,23 +142,16 @@ namespace DotNetCasClient.Validation
                         protoLogger.Debug("No AuthenticationStatement found in SAML response.");
                         throw new TicketValidationException("No AuthenticationStatement found in the CAS response.");
                     }
-                    
-                    string authMethod = SamlUtils.GetAttributeValue(authenticationStmtNode.Attributes, "AuthenticationMethod");
-                    
+
                     XmlNode nameIdentifierNode = assertionNode.SelectSingleNode("child::assertion:AuthenticationStatement/child::assertion:Subject/child::assertion:NameIdentifier", nsmgr);
                     if (nameIdentifierNode == null)
                     {
                         protoLogger.Debug("No NameIdentifier found in SAML response.");
                         throw new TicketValidationException("No NameIdentifier found in AuthenticationStatement of the CAS response.");
                     }
-                    
+
                     string subject = nameIdentifierNode.FirstChild.Value;
 
-                    IList<string> authValues = new List<string>();
-                    IDictionary<string, IList<string>> authenticationAttributes = new Dictionary<string, IList<string>>();
-                    authValues.Add(authMethod);
-                    authenticationAttributes.Add("samlAuthenticationStatement::authMethod", authValues);
-                    
                     IAssertion casAssertion;
 
                     XmlNode attributeStmtNode = assertionNode.SelectSingleNode("descendant::assertion:AttributeStatement", nsmgr);
@@ -177,9 +164,9 @@ namespace DotNetCasClient.Validation
                     {
                         casAssertion = new Assertion(subject, notBefore, notOnOrAfter);
                     }
-                    
+
                     CasPrincipal = new CasPrincipal(casAssertion, null, null);
-                    
+
                     return;
                 }
             }
