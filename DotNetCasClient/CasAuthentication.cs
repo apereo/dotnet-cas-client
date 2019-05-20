@@ -131,7 +131,7 @@ namespace DotNetCasClient
         /// </summary>
         public static ICasPrincipal CurrentPrincipal
         {
-            get { return currentPrincipal; }
+            get { return Thread.CurrentPrincipal as ICasPrincipal; }
         }   
 
         /// <summary>
