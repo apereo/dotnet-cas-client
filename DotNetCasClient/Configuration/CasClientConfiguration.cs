@@ -75,6 +75,7 @@ namespace DotNetCasClient.Configuration
         // Names for the supported ticket validators
         public const string CAS10_TICKET_VALIDATOR_NAME = "Cas10";
         public const string CAS20_TICKET_VALIDATOR_NAME = "Cas20";
+        public const string CAS30_TICKET_VALIDATOR_NAME = "Cas30";
         public const string SAML11_TICKET_VALIDATOR_NAME = "Saml11";
 
         // Names for the supported Service Ticket state provider
@@ -127,7 +128,7 @@ namespace DotNetCasClient.Configuration
         /// <summary>
         /// The ticket validator to use to validate tickets returned by the CAS server.
         /// <remarks>
-        /// Currently supported values: Cas10 / Cas20 / Saml11 or any fully qualified type which extends AbstractCasProtocolTicketValidator
+        /// Currently supported values: Cas10 / Cas20 / Cas30 / Saml11 or any fully qualified type which extends AbstractCasProtocolTicketValidator
         /// </remarks>
         /// </summary>
         [ConfigurationProperty(TICKET_VALIDATOR_NAME, IsRequired = true)]
