@@ -95,6 +95,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             ServiceResponse serviceResponse;
             try
             {
+                // Attempt to deserialize the response XML into an instance of one of the response types
                 serviceResponse = ServiceResponse.ParseResponse(response);
             }
             catch (InvalidOperationException)
@@ -104,6 +105,8 @@ namespace DotNetCasClient.Validation.TicketValidator
             
             if (serviceResponse.IsAuthenticationSuccess)
             {
+                // The response indicates that validation of the service ticket was successful, so
+                // pull out properties from the response in order to build a CAS principal
                 AuthenticationSuccess authSuccessResponse = (AuthenticationSuccess)serviceResponse.Item;
 
                 if (String.IsNullOrEmpty(authSuccessResponse.User))
@@ -115,6 +118,8 @@ namespace DotNetCasClient.Validation.TicketValidator
 
                 if (CasAuthentication.ProxyTicketManager != null && !string.IsNullOrEmpty(proxyGrantingTicketIou))
                 {
+                    // Since a proxy ticket manager and an IOU for a proxy-granting ticket both
+                    // exist, add the mapping to the ticket in the proxy ticket manager
                     string proxyGrantingTicket = CasAuthentication.ProxyTicketManager.GetProxyGrantingTicket(proxyGrantingTicketIou);
                     if ( proxyGrantingTicket != null )
                         CasAuthentication.ProxyTicketManager.InsertProxyGrantingTicketMapping( proxyGrantingTicketIou, proxyGrantingTicket );
@@ -122,25 +127,34 @@ namespace DotNetCasClient.Validation.TicketValidator
 
                 if (authSuccessResponse.Proxies != null && authSuccessResponse.Proxies.Length > 0)
                 {
+                    // Return a new CAS principal that contains the proxy information
                     return new CasPrincipal(new Assertion(authSuccessResponse.User), proxyGrantingTicketIou, authSuccessResponse.Proxies);
                 } 
                 else
                 {
+                    // Return a new CAS principal that contains the user identity and any extra CAS attributes
                     return new CasPrincipal(new Assertion(authSuccessResponse.User, authSuccessResponse.Attributes), proxyGrantingTicketIou);
                 }
             }
             
             if (serviceResponse.IsAuthenticationFailure)
             {
+                // The response indicates that validation of the service ticket was not successful,
+                // so throw an exception containing details about the failure
+                AuthenticationFailure authFailureResponse;
                 try
                 {
-                    AuthenticationFailure authFailureResponse = (AuthenticationFailure) serviceResponse.Item;
-                    throw new TicketValidationException(authFailureResponse.Message, authFailureResponse.Code);
+                    authFailureResponse = (AuthenticationFailure) serviceResponse.Item;
                 }
                 catch
                 {
+                    // The item stored in the service response could not be cast as an
+                    // AuthenticationFailure object, so just throw a generic exception
                     throw new TicketValidationException("CAS ticket could not be validated.");
                 }
+
+                // Throw a ticket validation exception with specific details about the validation failure
+                throw new TicketValidationException(authFailureResponse.Message, authFailureResponse.Code);
             }
             
             if (serviceResponse.IsProxySuccess)

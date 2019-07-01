@@ -23,10 +23,17 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace DotNetCasClient.Validation.Schema.Cas30
 {
+    /// <summary>
+    /// Represents a response from the CAS server's ticket validation endpoint, which could be any
+    /// of the following types: authentication failure, authentication success, proxy failure, or
+    /// proxy success.
+    /// </summary>
+    /// <authors>Blair Allen</authors>
     [Serializable]
     [DebuggerStepThrough]
     [DesignerCategory("code")]
@@ -34,17 +41,35 @@ namespace DotNetCasClient.Validation.Schema.Cas30
     [XmlRoot("serviceResponse", Namespace = "http://www.yale.edu/tp/cas", IsNullable = false)]
     public class ServiceResponse
     {
+        /// <summary>
+        /// Internal constructor.
+        /// </summary>
         internal ServiceResponse() { }
 
+        /// <summary>
+        /// Parses the specified XML response from the CAS server and deserializes it into one of:
+        /// <see cref="AuthenticationFailure"/>, <see cref="AuthenticationSuccess"/>,
+        /// <see cref="ProxyFailure"/>, or <see cref="ProxySuccess"/>.
+        /// </summary>
+        /// <param name="responseXml">The XML response from the CAS server</param>
+        /// <returns>
+        /// An instance of <see cref="ServiceResponse"/> that contains deserialized XML response
+        /// </returns>
         public static ServiceResponse ParseResponse(string responseXml)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(ServiceResponse));
-            using (StringReader sr = new StringReader(responseXml))
+            var xs = new XmlSerializer(typeof(ServiceResponse));
+            using (var sr = new StringReader(responseXml))
             {
+                // Deserialize the XML response
                 return (ServiceResponse) xs.Deserialize(sr);
             }
         }
 
+        /// <summary>
+        /// The deserialized XML response from the CAS server, which could be an instance of:
+        /// <see cref="AuthenticationFailure"/>, <see cref="AuthenticationSuccess"/>,
+        /// <see cref="ProxyFailure"/>, or <see cref="ProxySuccess"/>.
+        /// </summary>
         [XmlElement("authenticationFailure", typeof(AuthenticationFailure))]
         [XmlElement("authenticationSuccess", typeof(AuthenticationSuccess))]
         [XmlElement("proxyFailure", typeof(ProxyFailure))]
@@ -55,6 +80,10 @@ namespace DotNetCasClient.Validation.Schema.Cas30
             set;
         }
 
+        /// <summary>
+        /// Indicates whether or not the <see cref="Item"/> property is an instance of <see
+        /// cref="AuthenticationFailure"/>.
+        /// </summary>
         [XmlIgnore]
         public bool IsAuthenticationFailure
         {
@@ -64,6 +93,10 @@ namespace DotNetCasClient.Validation.Schema.Cas30
             }
         }
 
+        /// <summary>
+        /// Indicates whether or not the <see cref="Item"/> property is an instance of <see
+        /// cref="AuthenticationSuccess"/>.
+        /// </summary>
         [XmlIgnore]
         public bool IsAuthenticationSuccess
         {
@@ -73,6 +106,10 @@ namespace DotNetCasClient.Validation.Schema.Cas30
             }
         }
 
+        /// <summary>
+        /// Indicates whether or not the <see cref="Item"/> property is an instance of <see
+        /// cref="ProxyFailure"/>.
+        /// </summary>
         [XmlIgnore]
         public bool IsProxyFailure
         {
@@ -82,6 +119,10 @@ namespace DotNetCasClient.Validation.Schema.Cas30
             }
         }
 
+        /// <summary>
+        /// Indicates whether or not the <see cref="Item"/> property is an instance of <see
+        /// cref="ProxySuccess"/>.
+        /// </summary>
         [XmlIgnore]
         public bool IsProxySuccess
         {
