@@ -15,7 +15,7 @@ The Apereo .NET CAS client provides CAS integration for the Microsoft Windows pl
 
 ## Features ##
 
-- Supports CAS Protocol 1.0 and 2.0 and SAML 1.1
+- Supports CAS Protocol 1.0, 2.0, and 3.0 and SAML 1.1
 - Supports CAS single sign-out
 - Rich support for Microsoft ASP.NET platform integration through Forms Authentication framework
 

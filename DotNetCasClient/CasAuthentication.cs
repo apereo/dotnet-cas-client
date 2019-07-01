@@ -30,9 +30,7 @@ using DotNetCasClient.Security;
 using DotNetCasClient.State;
 using DotNetCasClient.Utils;
 using DotNetCasClient.Validation;
-using DotNetCasClient.Validation.Schema.Cas20;
 using DotNetCasClient.Validation.TicketValidator;
-using System.Collections.Generic;
 
 namespace DotNetCasClient
 {
@@ -249,20 +247,22 @@ namespace DotNetCasClient
                         
                         if (!String.IsNullOrEmpty(ticketValidatorName))
                         {
-                            if (String.Compare(CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME,ticketValidatorName) == 0)                            
+                            if (String.Compare(CasClientConfiguration.CAS10_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                                 ticketValidator = new Cas10TicketValidator();
                             else if (String.Compare(CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                                 ticketValidator = new Cas20ServiceTicketValidator();
+                            else if (String.Compare(CasClientConfiguration.CAS30_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
+                                ticketValidator = new Cas30ServiceTicketValidator();
                             else if (String.Compare(CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
-                                ticketValidator = new Saml11TicketValidator();                            
+                                ticketValidator = new Saml11TicketValidator();
                             else
                             {
                                 // the ticket validator name is not recognized, let's try to get it using Reflection then                                
                                 Type ticketValidatorType = Type.GetType(ticketValidatorName, false, true);
                                 if (ticketValidatorType != null)
                                 {
-									if (typeof(ITicketValidator).IsAssignableFrom(ticketValidatorType))
-										ticketValidator = (ITicketValidator)Activator.CreateInstance(ticketValidatorType);                                    
+                                    if (typeof(ITicketValidator).IsAssignableFrom(ticketValidatorType))
+                                        ticketValidator = (ITicketValidator)Activator.CreateInstance(ticketValidatorType);
                                     else
                                         LogAndThrowConfigurationException("Ticket validator type is not correct " + ticketValidatorName);
                                 }
@@ -525,36 +525,75 @@ namespace DotNetCasClient
             string proxyTicket = null;
             try
             {
-                ServiceResponse serviceResponse = ServiceResponse.ParseResponse(proxyTicketResponse);
-                if (serviceResponse.IsProxySuccess)
+                if (String.Compare(CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                 {
-                    ProxySuccess success = (ProxySuccess)serviceResponse.Item;
-                    if (!String.IsNullOrEmpty(success.ProxyTicket))
+                    var serviceResponse = Validation.Schema.Cas20.ServiceResponse.ParseResponse(proxyTicketResponse);
+                    if (serviceResponse.IsProxySuccess)
                     {
-                        protoLogger.Info(String.Format("Proxy success: {0}", success.ProxyTicket));
+                        var success = (Validation.Schema.Cas20.ProxySuccess)serviceResponse.Item;
+                        if (!String.IsNullOrEmpty(success.ProxyTicket))
+                        {
+                            protoLogger.Info(String.Format("Proxy success: {0}", success.ProxyTicket));
+                        }
+                        proxyTicket = success.ProxyTicket;
                     }
-                    proxyTicket = success.ProxyTicket;
+                    else
+                    {
+                        var failure = (Validation.Schema.Cas20.ProxyFailure)serviceResponse.Item;
+                        if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
+                        }
+                        else if (!String.IsNullOrEmpty(failure.Message))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: {0}", failure.Message));
+                        }
+                        else if (!String.IsNullOrEmpty(failure.Code))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: Code {0}", failure.Code));
+                        }
+                    }
                 }
-                else
+                else if (String.Compare(CasClientConfiguration.CAS30_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                 {
-                    ProxyFailure failure = (ProxyFailure)serviceResponse.Item;
-                    if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
+                    var serviceResponse = Validation.Schema.Cas30.ServiceResponse.ParseResponse(proxyTicketResponse);
+                    if (serviceResponse.IsProxySuccess)
                     {
-                       protoLogger.Info(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
+                        var success = (Validation.Schema.Cas30.ProxySuccess)serviceResponse.Item;
+                        if (!String.IsNullOrEmpty(success.ProxyTicket))
+                        {
+                            protoLogger.Info(String.Format("Proxy success: {0}", success.ProxyTicket));
+                        }
+                        proxyTicket = success.ProxyTicket;
                     }
-                    else if (!String.IsNullOrEmpty(failure.Message))
+                    else
                     {
-                        protoLogger.Info(String.Format("Proxy failure: {0}", failure.Message));
-                    }
-                    else if (!String.IsNullOrEmpty(failure.Code))
-                    {
-                        protoLogger.Info(String.Format("Proxy failure: Code {0}", failure.Code));
+                        var failure = (Validation.Schema.Cas30.ProxyFailure)serviceResponse.Item;
+                        if (!String.IsNullOrEmpty(failure.Message) && !String.IsNullOrEmpty(failure.Code))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: {0} ({1})", failure.Message, failure.Code));
+                        }
+                        else if (!String.IsNullOrEmpty(failure.Message))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: {0}", failure.Message));
+                        }
+                        else if (!String.IsNullOrEmpty(failure.Code))
+                        {
+                            protoLogger.Info(String.Format("Proxy failure: Code {0}", failure.Code));
+                        }
                     }
                 }
             }
             catch (InvalidOperationException)
             {
-                LogAndThrowOperationException("CAS Server response does not conform to CAS 2.0 schema");
+                if (String.Compare(CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
+                {
+                    LogAndThrowOperationException("CAS Server response does not conform to CAS 2.0 schema");
+                }
+                else if (String.Compare(CasClientConfiguration.CAS30_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
+                {
+                    LogAndThrowOperationException("CAS Server response does not conform to CAS 3.0 schema");
+                }
             }
             return proxyTicket;
         }
@@ -798,7 +837,7 @@ namespace DotNetCasClient
 
             ProxyTicketManager.InsertProxyGrantingTicketMapping(proxyGrantingTicketIou, proxyGrantingTicket);
 
-            // TODO: Consider creating a DotNetCasClient.Validation.Schema.Cas20.ProxySuccess object and serializing it.
+            // TODO: Consider creating a DotNetCasClient.Validation.Schema.CasXX.ProxySuccess object and serializing it.
 
             response.Write("<?xml version=\"1.0\"?>");
             response.Write("<casClient:proxySuccess xmlns:casClient=\"http://www.yale.edu/tp/casClient\" />");
@@ -809,14 +848,15 @@ namespace DotNetCasClient
         
         /// <summary>
         /// Validates a ticket contained in the URL, presumably generated by
-        /// the CAS server after a successful authentication.  The actual ticket
+        /// the CAS server after a successful authentication. The actual ticket
         /// validation is performed by the configured TicketValidator 
-        /// (i.e., CAS 1.0, CAS 2.0, SAML 1.0).  If the validation succeeds, the
-        /// request is authenticated and a FormsAuthenticationCookie and 
-        /// corresponding CasAuthenticationTicket are created for the purpose of 
-        /// authenticating subsequent requests (see ProcessTicketValidation 
-        /// method).  If the validation fails, the authentication status remains 
-        /// unchanged (generally the user is and remains anonymous).
+        /// (i.e., CAS 1.0, CAS 2.0, CAS 3.0, SAML 1.0). If the validation
+        /// succeeds, the request is authenticated and a
+        /// FormsAuthenticationCookie and corresponding CasAuthenticationTicket
+        /// are created for the purpose of authenticating subsequent requests
+        /// (see ProcessTicketValidation method). If the validation fails, the
+        /// authentication status remains unchanged (generally the user is and
+        /// remains anonymous).
         /// </summary>
         internal static void ProcessTicketValidation()
         {
@@ -1279,7 +1319,7 @@ namespace DotNetCasClient
 #region Properties
         /// <summary>
         /// Name of ticket validator that validates CAS tickets using a 
-        /// particular protocol.  Valid values are Cas10, Cas20, and Saml11.
+        /// particular protocol.
         /// </summary>
         public static string TicketValidatorName
         {
@@ -1292,9 +1332,7 @@ namespace DotNetCasClient
 
         /// <summary>
         /// An instance of the TicketValidator specified in the 
-        /// TicketValidatorName property.  This will either be an instance of 
-        /// a Cas10TicketValidator, Cas20TicketValidator, or 
-        /// Saml11TicketValidator.
+        /// TicketValidatorName property.
         /// </summary>
 		internal static ITicketValidator TicketValidator
         {

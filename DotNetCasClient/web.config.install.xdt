@@ -69,7 +69,7 @@
         renew="false" 
         singleSignOut="true" 
         ticketTimeTolerance="5000" 
-        ticketValidatorName="Cas20" 
+        ticketValidatorName="Cas30" 
         proxyTicketManager="CacheProxyTicketManager" 
         serviceTicketManager="CacheServiceTicketManager" 
         gatewayStatusCookieName="CasGatewayStatus" />

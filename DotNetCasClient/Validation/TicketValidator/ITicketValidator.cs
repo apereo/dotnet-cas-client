@@ -65,6 +65,7 @@ namespace DotNetCasClient.Validation.TicketValidator
         /// <list>
         ///   <item>CAS 1.0:  validate</item>
         ///   <item>CAS 2.0:  serviceValidate or proxyValidate</item>
+        ///   <item>CAS 3.0:  p3/serviceValidate or p3/proxyValidate</item>
         ///   <item>SAML 1.1: samlValidate</item>
         /// </list>
         /// </summary>
