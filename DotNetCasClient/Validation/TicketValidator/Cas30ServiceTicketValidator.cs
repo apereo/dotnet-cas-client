@@ -100,7 +100,7 @@ namespace DotNetCasClient.Validation.TicketValidator
             }
             catch (InvalidOperationException)
             {
-                throw new TicketValidationException("CAS Server response does not conform to CAS 2.0/3.0 schema");
+                throw new TicketValidationException("CAS Server response does not conform to CAS 3.0 schema");
             }
             
             if (serviceResponse.IsAuthenticationSuccess)

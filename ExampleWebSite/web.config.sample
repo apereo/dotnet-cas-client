@@ -56,7 +56,7 @@
         - casServerUrlPrefix
                 URL to root of CAS server application.
         - ticketValidatorName
-                Supported values: Cas10, Cas20, and Saml11.
+                Supported values: Cas10, Cas20, Cas30, and Saml11.
                 Name of ticket validator that validates CAS tickets using a particular protocol.
 
         Optional Attributes:
@@ -116,7 +116,7 @@
         renew="false" 
         singleSignOut="true" 
         ticketTimeTolerance="5000" 
-        ticketValidatorName="Cas20" 
+        ticketValidatorName="Cas30" 
         proxyTicketManager="CacheProxyTicketManager" 
         serviceTicketManager="CacheServiceTicketManager" 
         gatewayStatusCookieName="CasGatewayStatus" />
