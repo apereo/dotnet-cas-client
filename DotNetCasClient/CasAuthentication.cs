@@ -61,7 +61,7 @@ namespace DotNetCasClient
 
         // Thread-safe initialization
         private static readonly object LockObject;
-        private static bool initialized;
+        private static volatile bool initialized;
 
         // System.Web/Authentication and System.Web/Authentication/Forms static classes
         internal static AuthenticationSection AuthenticationConfig;
