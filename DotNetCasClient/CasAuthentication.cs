@@ -718,6 +718,23 @@ namespace DotNetCasClient
                 response.Redirect(singleSignOutRedirectUrl, true);
             }
         }
+        
+        /// <summary>
+        /// Clear authentication cookie and revoke service ticket in cache.
+        /// </summary>
+        /// <param name="ticket">Optionally specifies FormsAuthenticationTicket to explicitly sign out</param>
+        public static void SignOut(FormsAuthenticationTicket ticket = null)
+        {
+            // Defaults to current ticket
+            if (ticket == null)
+                ticket = GetFormsAuthenticationTicket();
+
+            // ClearAuthCookie();
+            FormsAuthentication.SignOut();
+
+            if (ServiceTicketManager != null && ticket != null)
+                ServiceTicketManager.RevokeTicket(ticket.UserData);
+        }
 
         /// <summary>
         /// Process SingleSignOut requests originating from another web application by removing the ticket 
@@ -909,8 +926,7 @@ namespace DotNetCasClient
                             securityLogger.Warn("CasAuthenticationTicket failed verification: " + casTicket);
 
                             // Deletes the invalid FormsAuthentication cookie from the client.
-                            ClearAuthCookie();
-                            ServiceTicketManager.RevokeTicket(serviceTicket);
+                            SignOut(formsAuthenticationTicket);
 
                             // Don't give this request a User/Principal.  Remove it if it was created
                             // by the underlying FormsAuthenticationModule or another module.
