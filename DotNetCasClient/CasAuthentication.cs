@@ -1088,12 +1088,20 @@ namespace DotNetCasClient
             }
 
             // Obtain the forms authentication cookie from the ticket
+            HttpCookie oldCookie = current.Response.Cookies[FormsAuthentication.FormsCookieName];
             HttpCookie authCookie = GetAuthCookie(clientTicket);
-            // Clear the previous cookie from the current HTTP request
-            current.Request.Cookies.Remove(FormsAuthentication.FormsCookieName);
-            // Store the new cookie in both the request and response objects
-            current.Request.Cookies.Add(authCookie);
-            current.Response.Cookies.Add(authCookie);
+            if (oldCookie != null)
+            {
+                //In IE 11, the cookie value is null and we are resetting it here.
+                current.Response.Cookies[FormsAuthentication.FormsCookieName].Value = authCookie.Value;
+                current.Request.Cookies[FormsAuthentication.FormsCookieName].Value = authCookie.Value;
+
+            }
+            else
+            {
+                current.Request.Cookies.Add(authCookie);
+                current.Response.Cookies.Add(authCookie);
+            }
         }
 
         /// <summary>
