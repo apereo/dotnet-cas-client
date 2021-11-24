@@ -57,18 +57,27 @@ namespace DotNetCasClient.Validation
                 ProtoLogger.Debug("Assertion has no bounding dates.  Will not process.");
                 return false;
             }
-            ProtoLogger.Debug("Assertion validity window: {0} - {1} +/- {2}ms", notBefore, notOnOrAfter, toleranceTicks / 10000);
-            
+
+            ProtoLogger.Debug("Assertion validity window:   {0} - {1} +/- {2}ms", notBefore, notOnOrAfter, toleranceTicks / 10000);
+
             long utcNowTicks = DateTime.UtcNow.Ticks;
-            if (utcNowTicks + toleranceTicks < notBefore.Ticks)
+            ProtoLogger.Debug("Current time:                {0}", new DateTime(utcNowTicks));
+
+            if (notOnOrAfter < notBefore)
             {
-                ProtoLogger.Debug("Assertion is not yet valid.");
+                ProtoLogger.Debug("Assertion has non-sequential bounding dates.");
                 return false;
             }
-            
-            if (notOnOrAfter.Ticks <= utcNowTicks - toleranceTicks)
+
+            if ((utcNowTicks + toleranceTicks) < notBefore.Ticks)
             {
-                ProtoLogger.Debug("Assertion is expired.");
+                ProtoLogger.Debug("Assertion is not yet valid:  ( {0} + {1} ) < {2}", utcNowTicks, toleranceTicks, notBefore.Ticks);
+                return false;
+            }
+
+            if (notOnOrAfter.Ticks <= (utcNowTicks - toleranceTicks))
+            {
+                ProtoLogger.Debug("Assertion is expired: {2} <= ( {0} + {1} )", utcNowTicks, toleranceTicks, notOnOrAfter.Ticks);
                 return false;
             }
 
