@@ -75,6 +75,7 @@ namespace DotNetCasClient.Configuration
         // Names for the supported ticket validators
         public const string CAS10_TICKET_VALIDATOR_NAME = "Cas10";
         public const string CAS20_TICKET_VALIDATOR_NAME = "Cas20";
+        public const string CAS30_TICKET_VALIDATOR_NAME = "Cas30";
         public const string SAML11_TICKET_VALIDATOR_NAME = "Saml11";
 
         // Names for the supported Service Ticket state provider

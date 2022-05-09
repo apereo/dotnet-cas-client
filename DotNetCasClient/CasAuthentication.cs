@@ -253,6 +253,8 @@ namespace DotNetCasClient
                                 ticketValidator = new Cas10TicketValidator();
                             else if (String.Compare(CasClientConfiguration.CAS20_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                                 ticketValidator = new Cas20ServiceTicketValidator();
+                            else if (String.Compare(CasClientConfiguration.CAS30_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
+                                ticketValidator = new Cas30ServiceTicketValidator();
                             else if (String.Compare(CasClientConfiguration.SAML11_TICKET_VALIDATOR_NAME, ticketValidatorName) == 0)
                                 ticketValidator = new Saml11TicketValidator();                            
                             else
